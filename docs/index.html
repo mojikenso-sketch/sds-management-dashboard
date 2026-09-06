@@ -799,7 +799,7 @@
       id: 1, chemical: "Acetone", cas: "67-64-1",
       supplier: "Sigma-Aldrich", revision: "Version 6.7",
       revisionDate: "2026-08-12", reviewDate: "2027-05-04", status: "Current",
-      signalWord: "Danger", hazards: ["Flammable", "Irritant"],
+      signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/534064",
       pdfName: "Sigma-Aldrich Acetone SDS"
@@ -808,7 +808,7 @@
       id: 2, chemical: "Methanol", cas: "67-56-1",
       supplier: "Sigma-Aldrich", revision: "Version 6.10",
       revisionDate: "2023-06-18", reviewDate: "2026-06-18", status: "Review Due",
-      signalWord: "Danger", hazards: ["Flammable", "Toxic"],
+      signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sial/33607",
       pdfName: "Sigma-Aldrich Methanol SDS"
@@ -817,7 +817,7 @@
       id: 3, chemical: "Toluene", cas: "108-88-3",
       supplier: "Sigma-Aldrich", revision: "Version 8.28",
       revisionDate: "2023-01-03", reviewDate: "2026-09-26", status: "Update Required",
-      signalWord: "Danger", hazards: ["Flammable", "Irritant"],
+      signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/mm/tx0735",
       pdfName: "Sigma-Aldrich Toluene SDS"
@@ -826,7 +826,7 @@
       id: 4, chemical: "Hydrochloric Acid", cas: "7647-01-0",
       supplier: "Sigma-Aldrich", revision: "Version 6.9",
       revisionDate: "2025-04-28", reviewDate: "2028-04-28", status: "Current",
-      signalWord: "Danger", hazards: ["Corrosive", "Irritant"],
+      signalWord: "Danger", hazards: ["Corrosive"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/30721",
       pdfName: "Sigma-Aldrich Hydrochloric Acid SDS"
@@ -835,7 +835,7 @@
       id: 5, chemical: "Acetochlor 50% W/V EC", cas: "34256-82-1",
       supplier: "Thep Watana Co., Ltd.", revision: "Full registration",
       revisionDate: "", reviewDate: "2026-12-10", status: "Current",
-      signalWord: "Warning", hazards: ["Flammable", "Toxic", "Irritant"],
+      signalWord: "Warning", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
       pdfName: "SDS - Acetochlor 50 EC.pdf"
@@ -859,6 +859,16 @@
     return ["Current", "Review Due", "Update Required"].includes(status) ? status : "Current";
   }
 
+  function normalizeHazards(hazards, fallback) {
+    const allowed = ["Flammable", "Toxic", "Corrosive", "Irritant"];
+    const values = Array.isArray(hazards) ? hazards : String(hazards || "").split(/[|,]/);
+    const fallbackValues = Array.isArray(fallback) ? fallback : String(fallback || "").split(/[|,]/);
+    const selected = [...values, ...fallbackValues]
+      .map(value => String(value || "").trim())
+      .find(value => allowed.includes(value));
+    return selected ? [selected] : [];
+  }
+
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
     const legacyDate = legacyReviewDates[String(item.id)];
@@ -872,14 +882,17 @@
           reviewDate: shouldUseUpdatedSeedDate ? seed.reviewDate : (item.reviewDate || seed.reviewDate),
           pdfUrl: item.pdfUrl || seed.pdfUrl, pdfName: item.pdfName || seed.pdfName,
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId || seed.pdfUrl),
-          thaiSds: typeof item.thaiSds === "boolean" ? item.thaiSds : seed.thaiSds }
-      : { ...item, status: normalizeStatus(item.status), reviewDate: item.reviewDate || "", thaiSds: Boolean(item.thaiSds), hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId) };
+          thaiSds: typeof item.thaiSds === "boolean" ? item.thaiSds : seed.thaiSds,
+          hazards: normalizeHazards(item.hazards, seed.hazards) }
+      : { ...item, status: normalizeStatus(item.status), reviewDate: item.reviewDate || "", thaiSds: Boolean(item.thaiSds),
+          hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId), hazards: normalizeHazards(item.hazards) };
   }) : defaultData.slice();
   if (storedSdsData) {
     defaultData.forEach(seed => {
       if (!sdsData.some(item => String(item.id) === String(seed.id))) sdsData.push(seed);
     });
   }
+  if (storedSdsData) localStorage.setItem("sdsData", JSON.stringify(sdsData));
   if (shouldMigrateReviewSeed) localStorage.setItem(REVIEW_SEED_MIGRATION_KEY, "v2");
 
 
@@ -1646,7 +1659,9 @@
     }
 
     function applyData(data) {
-      sdsData = Array.isArray(data) ? data : [];
+      sdsData = Array.isArray(data)
+        ? data.map(item => ({ ...item, hazards: normalizeHazards(item.hazards) }))
+        : [];
       refreshDashboard();
       applyPublicMode();
     }

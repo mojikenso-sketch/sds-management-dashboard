@@ -214,6 +214,7 @@
     .review-bar-fill.mid { background: #eab308; }
     .review-bar-fill.long { background: #2563eb; }
     .review-bar-fill.far { background: #16a34a; }
+    .review-bar-fill.all { background: var(--primary); }
     .review-bar-count { font-size: 14px; text-align: right; }
     .chart-empty { color: var(--muted); font-size: 13px; padding: 14px 0 2px; }
     .days-badge, .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
@@ -967,6 +968,10 @@
     { key: "long", label: "181–360 วัน", className: "long" },
     { key: "far", label: "> 360 วัน", className: "far" }
   ];
+  const REVIEW_CHART_ITEMS = [
+    { key: "all", label: "ทั้งหมด", className: "all" },
+    ...REVIEW_BUCKETS
+  ];
 
   function parseDateOnly(value) {
     if (!value) return null;
@@ -1020,10 +1025,11 @@
   function renderReviewChart() {
     const chart = document.getElementById("reviewChart");
     if (!chart) return;
-    const counts = REVIEW_BUCKETS.reduce((result, bucket) => {
+    const counts = REVIEW_CHART_ITEMS.reduce((result, bucket) => {
       result[bucket.key] = 0;
       return result;
     }, {});
+    counts.all = sdsData.length;
     let datedCount = 0;
     sdsData.forEach(item => {
       const bucket = getReviewBucket(getDaysLeft(item));
@@ -1032,10 +1038,10 @@
         datedCount += 1;
       }
     });
-    const max = Math.max(1, ...REVIEW_BUCKETS.map(bucket => counts[bucket.key]));
+    const max = Math.max(1, ...REVIEW_CHART_ITEMS.map(bucket => counts[bucket.key]));
     const activeKey = window.reviewBucketFilter || "";
 
-    chart.innerHTML = REVIEW_BUCKETS.map(bucket => {
+    chart.innerHTML = REVIEW_CHART_ITEMS.map(bucket => {
       const count = counts[bucket.key];
       const width = count ? Math.max(4, Math.round((count / max) * 100)) : 0;
       const active = activeKey === bucket.key;
@@ -1090,7 +1096,7 @@
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
-      const reviewMatch = !reviewBucket || (getReviewBucket(getDaysLeft(item)) || {}).key === reviewBucket;
+      const reviewMatch = !reviewBucket || reviewBucket === "all" || (getReviewBucket(getDaysLeft(item)) || {}).key === reviewBucket;
 
       return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && reviewMatch;
     });

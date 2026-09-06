@@ -26,7 +26,33 @@
     .logo {
       width: 42px; height: 42px; background: var(--primary); color: #fff;
       border-radius: 10px; display: grid; place-items: center; font-weight: bold;
-      animation: logoPulse 4.5s ease-in-out infinite;
+      position: relative; isolation: isolate; flex-shrink: 0;
+      background: linear-gradient(135deg, #2563eb, #1e40af 55%, #4338ca);
+      animation: logoPulse 3.6s ease-in-out infinite;
+      will-change: transform;
+    }
+    .logo::before {
+      content: ""; position: absolute; inset: -4px; z-index: -1;
+      border: 2px solid #60a5fa; border-radius: 14px; pointer-events: none;
+      animation: logoRipple 3.6s ease-out infinite;
+    }
+    .logo::after {
+      content: ""; position: absolute; inset: 0; border-radius: inherit;
+      background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.55) 48%, transparent 66%);
+      background-size: 300% 100%; pointer-events: none;
+      animation: logoShine 3.6s ease-in-out infinite;
+    }
+    .brand:hover .logo { animation-duration: 1.8s; }
+    .brand:hover .logo::after { animation-duration: 1.8s; }
+    @keyframes logoRipple {
+      0%, 45% { transform: scale(.95); opacity: 0; }
+      55% { transform: scale(1); opacity: .45; }
+      90%, 100% { transform: scale(1.28); opacity: 0; }
+    }
+    @keyframes logoShine {
+      0%, 30% { background-position: 100% 0; opacity: 0; }
+      40% { opacity: .8; }
+      65%, 100% { background-position: 0% 0; opacity: 0; }
     }
     .brand h1 { font-size: 18px; }
     .brand p { color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -355,8 +381,10 @@
     }
 
     @keyframes logoPulse {
-      0%, 100% { transform: rotate(0deg) scale(1); box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.22); }
-      50% { transform: rotate(-3deg) scale(1.04); box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+      0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); box-shadow: 0 3px 8px rgba(30,64,175,.22); }
+      25% { transform: translateY(-4px) rotate(6deg) scale(1.06); box-shadow: 0 8px 14px rgba(37,99,235,.3); }
+      50% { transform: translateY(1px) rotate(-5deg) scale(.98, 1.03); box-shadow: 0 3px 10px rgba(67,56,202,.28); }
+      72% { transform: translateY(-3px) rotate(3deg) scale(1.04); box-shadow: 0 7px 16px rgba(37,99,235,.32); }
     }
     @keyframes cardRise {
       from { opacity: 0; transform: translateY(14px); }

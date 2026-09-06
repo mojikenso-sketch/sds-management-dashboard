@@ -152,7 +152,7 @@
     .input:focus, .select:focus { border-color: var(--primary); }
     .search { width: 260px; }
     .table-wrapper { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1180px; }
     thead { background: #f8fafc; }
     th, td {
       padding: 15px 18px; text-align: left;
@@ -189,6 +189,42 @@
     }
     .action-label { display: flex; align-items: center; gap: 9px; }
     .action-label > span { font-size: 16px; }
+    .review-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -4px 0 14px; color: var(--muted); font-size: 12px; }
+    .clear-filter-btn {
+      border: 1px solid #bfdbfe; background: #eff6ff; color: var(--primary);
+      border-radius: 7px; padding: 6px 10px; font-size: 12px; font-weight: 700;
+      cursor: pointer;
+    }
+    .clear-filter-btn:hover { background: #dbeafe; }
+    .review-chart { display: grid; gap: 11px; }
+    .review-bar-row {
+      display: grid; grid-template-columns: 105px minmax(0, 1fr) 38px; align-items: center;
+      gap: 10px; width: 100%; border: 0; background: transparent; padding: 3px 0;
+      color: var(--text); text-align: left; cursor: pointer; border-radius: 8px;
+    }
+    .review-bar-row:hover, .review-bar-row.active { background: #f8fafc; }
+    .review-bar-row.active { outline: 2px solid rgba(30, 64, 175, 0.16); outline-offset: 3px; }
+    .review-bar-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .review-bar-row.active .review-bar-label { color: var(--primary); }
+    .review-bar-track { height: 15px; background: #e8eef7; border-radius: 99px; overflow: hidden; }
+    .review-bar-fill { display: block; height: 100%; min-width: 0; border-radius: inherit; transition: width 0.45s cubic-bezier(.22,.8,.36,1), filter 0.2s ease; }
+    .review-bar-row:hover .review-bar-fill, .review-bar-row.active .review-bar-fill { filter: brightness(0.94) saturate(1.18); }
+    .review-bar-fill.overdue { background: #dc2626; }
+    .review-bar-fill.near { background: #f97316; }
+    .review-bar-fill.mid { background: #eab308; }
+    .review-bar-fill.long { background: #2563eb; }
+    .review-bar-fill.far { background: #16a34a; }
+    .review-bar-count { font-size: 14px; text-align: right; }
+    .chart-empty { color: var(--muted); font-size: 13px; padding: 14px 0 2px; }
+    .days-badge, .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
+    .days-overdue { color: #b91c1c; background: #fee2e2; }
+    .days-near { color: #c2410c; background: #ffedd5; }
+    .days-mid { color: #a16207; background: #fef9c3; }
+    .days-long { color: #1d4ed8; background: #dbeafe; }
+    .days-far { color: #15803d; background: #dcfce7; }
+    .days-missing { color: var(--muted); background: #f1f5f9; }
+    .language-english { color: #1d4ed8; background: #dbeafe; }
+    .language-thai { color: #7c3aed; background: #ede9fe; }
     .table-heading-row { min-height: 56px; }
     .table-heading { font-size: 13px; letter-spacing: 0.08em; font-weight: 800; color: #0f172a; }
     .table-heading-row strong { color: var(--muted); font-size: 13px; }
@@ -424,28 +460,12 @@
   <section class="overview">
     <div class="card">
       <h3 class="section-title">ต้องดำเนินการ</h3>
-      <div class="action-list">
-        <div class="action-item clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('status', 'Update Required')" onkeydown="handleSummaryKey(event, 'status', 'Update Required')">
-          <span class="action-label"><span>🔴</span> Update Required</span>
-          <strong id="updateActionCount">0</strong>
-        </div>
-        <div class="action-item clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('status', 'Review Due')" onkeydown="handleSummaryKey(event, 'status', 'Review Due')">
-          <span class="action-label"><span>🟡</span> Review Due</span>
-          <strong id="reviewActionCount">0</strong>
-        </div>
-        <div class="action-item clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('missing', 'pdf')" onkeydown="handleSummaryKey(event, 'missing', 'pdf')">
-          <span class="action-label"><span>⚪</span> Missing PDF</span>
-          <strong id="missingPdfCount">0</strong>
-        </div>
-        <div class="action-item clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('missing', 'thai')" onkeydown="handleSummaryKey(event, 'missing', 'thai')">
-          <span class="action-label"><span>📄</span> Missing Thai SDS</span>
-          <strong id="missingThaiCount">0</strong>
-        </div>
+      <div class="review-chart-head">
+        <span>จำนวน SDS แยกตามระยะเวลาก่อนถึง Next Review Date</span>
+        <button class="clear-filter-btn" id="clearReviewFilter" type="button" onclick="clearReviewFilter()" hidden>ล้างตัวกรอง</button>
       </div>
+      <div class="review-chart" id="reviewChart" role="group" aria-label="SDS ตามระยะเวลาก่อนถึง Next Review Date"></div>
+      <div class="chart-empty" id="reviewChartEmpty" hidden>ยังไม่มีรายการที่ระบุ Next Review Date</div>
     </div>
 
     <div class="card">
@@ -500,6 +520,11 @@
           <option value="Corrosive">Corrosive</option>
           <option value="Irritant">Irritant</option>
         </select>
+        <select class="select" id="languageFilter" onchange="renderTable()">
+          <option value="">Language</option>
+          <option value="English">English</option>
+          <option value="Thai">Thai</option>
+        </select>
         <select class="select" id="supplierFilter" onchange="renderTable()">
           <option value="">Supplier</option>
         </select>
@@ -516,9 +541,10 @@
             <th>CAS No.</th>
             <th>Supplier</th>
             <th>Revision</th>
-            <th>Rev. Date</th>
-            <th>Review</th>
-            <th>Status</th>
+            <th>Next Review Date</th>
+            <th>Days Left</th>
+            <th>Language</th>
+            <th>Hazard</th>
             <th>SDS</th>
             <th>Action</th>
           </tr>
@@ -571,7 +597,7 @@
             <input class="form-control" id="revisionDate" type="date">
           </div>
           <div class="form-group">
-            <label>Review Date</label>
+            <label>Next Review Date</label>
             <input class="form-control" id="reviewDate" type="date">
           </div>
           <div class="form-group">
@@ -961,12 +987,122 @@
     refreshDashboard();
   }
 
+  const REVIEW_BUCKETS = [
+    { key: "overdue", label: "เกินกำหนด", className: "overdue" },
+    { key: "near", label: "0–30 วัน", className: "near" },
+    { key: "mid", label: "31–180 วัน", className: "mid" },
+    { key: "long", label: "181–360 วัน", className: "long" },
+    { key: "far", label: "> 360 วัน", className: "far" }
+  ];
+
+  function parseDateOnly(value) {
+    if (!value) return null;
+    const parts = String(value).slice(0, 10).split("-").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function getDaysLeft(item) {
+    const reviewDate = parseDateOnly(item.reviewDate);
+    if (!reviewDate) return null;
+    const today = new Date();
+    const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return Math.ceil((reviewDate - startToday) / 86400000);
+  }
+
+  function getReviewBucket(days) {
+    if (days === null || days === undefined) return null;
+    if (days < 0) return REVIEW_BUCKETS[0];
+    if (days <= 30) return REVIEW_BUCKETS[1];
+    if (days <= 180) return REVIEW_BUCKETS[2];
+    if (days <= 360) return REVIEW_BUCKETS[3];
+    return REVIEW_BUCKETS[4];
+  }
+
+  function formatDaysLeft(days) {
+    if (days === null || days === undefined) return { label: "-", className: "days-missing" };
+    if (days < 0) return { label: `เกิน ${Math.abs(days)} วัน`, className: "days-overdue" };
+    if (days <= 30) return { label: `เหลือ ${days} วัน`, className: "days-near" };
+    if (days <= 180) return { label: `เหลือ ${days} วัน`, className: "days-mid" };
+    if (days <= 360) return { label: `เหลือ ${days} วัน`, className: "days-long" };
+    return { label: `เหลือ ${days} วัน`, className: "days-far" };
+  }
+
+  function getLanguageLabel(item) {
+    return item.language || (item.thaiSds ? "Thai" : "English");
+  }
+
+  function daysLeftBadge(item) {
+    const info = formatDaysLeft(getDaysLeft(item));
+    return `<span class="days-badge ${info.className}">${escapeHTML(info.label)}</span>`;
+  }
+
+  function languageBadge(item) {
+    const language = getLanguageLabel(item);
+    const className = language === "Thai" ? "language-thai" : "language-english";
+    return `<span class="language-badge ${className}">${escapeHTML(language)}</span>`;
+  }
+
+  function renderReviewChart() {
+    const chart = document.getElementById("reviewChart");
+    if (!chart) return;
+    const counts = REVIEW_BUCKETS.reduce((result, bucket) => {
+      result[bucket.key] = 0;
+      return result;
+    }, {});
+    let datedCount = 0;
+    sdsData.forEach(item => {
+      const bucket = getReviewBucket(getDaysLeft(item));
+      if (bucket) {
+        counts[bucket.key] += 1;
+        datedCount += 1;
+      }
+    });
+    const max = Math.max(1, ...REVIEW_BUCKETS.map(bucket => counts[bucket.key]));
+    const activeKey = window.reviewBucketFilter || "";
+
+    chart.innerHTML = REVIEW_BUCKETS.map(bucket => {
+      const count = counts[bucket.key];
+      const width = count ? Math.max(4, Math.round((count / max) * 100)) : 0;
+      const active = activeKey === bucket.key;
+      return `<button type="button" class="review-bar-row${active ? " active" : ""}"
+        aria-pressed="${active}" onclick="toggleReviewBucket('${bucket.key}')">
+        <span class="review-bar-label">${bucket.label}</span>
+        <span class="review-bar-track"><span class="review-bar-fill ${bucket.className}" style="width:${width}%"></span></span>
+        <strong class="review-bar-count">${count}</strong>
+      </button>`;
+    }).join("");
+
+    const clearButton = document.getElementById("clearReviewFilter");
+    if (clearButton) clearButton.hidden = !activeKey;
+    const empty = document.getElementById("reviewChartEmpty");
+    if (empty) empty.hidden = datedCount > 0;
+  }
+
+  function toggleReviewBucket(key) {
+    window.reviewBucketFilter = window.reviewBucketFilter === key ? "" : key;
+    window.sdsSpecialFilter = "";
+    renderReviewChart();
+    renderTable();
+    const tableSection = document.getElementById("sdsTableSection");
+    if (tableSection) tableSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function clearReviewFilter() {
+    window.reviewBucketFilter = "";
+    renderReviewChart();
+    renderTable();
+  }
+
   function renderTable() {
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("statusFilter").value;
     const hazard = document.getElementById("hazardFilter").value;
     const supplier = document.getElementById("supplierFilter").value;
+    const language = document.getElementById("languageFilter").value;
     const special = window.sdsSpecialFilter || "";
+    const reviewBucket = window.reviewBucketFilter || "";
 
     const filtered = sdsData.filter(item => {
       const searchMatch =
@@ -977,11 +1113,13 @@
       const statusMatch = !status || normalizeStatus(item.status) === status;
       const hazardMatch = !hazard || item.hazards.includes(hazard);
       const supplierMatch = !supplier || item.supplier === supplier;
+      const languageMatch = !language || getLanguageLabel(item) === language;
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
+      const reviewMatch = !reviewBucket || (getReviewBucket(getDaysLeft(item)) || {}).key === reviewBucket;
 
-      return searchMatch && statusMatch && hazardMatch && supplierMatch && missingMatch;
+      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && reviewMatch;
     });
 
     document.getElementById("tableCount").innerText = filtered.length + " รายการ";
@@ -991,7 +1129,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
+          <td colspan="10"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
         </tr>`;
       return;
     }
@@ -1008,9 +1146,10 @@
           <td>${escapeHTML(item.cas)}</td>
           <td>${escapeHTML(item.supplier || "-")}</td>
           <td>${escapeHTML(item.revision || "-")}</td>
-          <td>${formatDate(item.revisionDate)}</td>
           <td>${formatDate(item.reviewDate)}</td>
-          <td>${statusBadge(item.status)}</td>
+          <td>${daysLeftBadge(item)}</td>
+          <td>${languageBadge(item)}</td>
+          <td>${escapeHTML(hazardText)}</td>
           <td>
             <button class="pdf-btn" onclick="viewSDS(${item.id})">📄 ดู SDS</button>
           </td>
@@ -1027,18 +1166,13 @@
     const current = sdsData.filter(x => normalizeStatus(x.status) === "Current").length;
     const reviewDue = sdsData.filter(x => normalizeStatus(x.status) === "Review Due").length;
     const updateRequired = sdsData.filter(x => normalizeStatus(x.status) === "Update Required").length;
-    const missingPdf = sdsData.filter(x => !x.hasPdf && !x.pdfUrl && !x.pdfFileId).length;
-    const missingThai = sdsData.filter(x => !x.thaiSds).length;
 
     document.getElementById("totalCount").innerText = total;
     document.getElementById("currentCount").innerText = current;
     document.getElementById("reviewDueCount").innerText = reviewDue;
     document.getElementById("updateRequiredCount").innerText = updateRequired;
     document.getElementById("currentPercentNote").innerText = total ? Math.round((current / total) * 1000) / 10 + "%" : "0%";
-    document.getElementById("updateActionCount").innerText = updateRequired;
-    document.getElementById("reviewActionCount").innerText = reviewDue;
-    document.getElementById("missingPdfCount").innerText = missingPdf;
-    document.getElementById("missingThaiCount").innerText = missingThai;
+    renderReviewChart();
     updateHazardSummary();
   }
 
@@ -1052,10 +1186,11 @@
 
   function exportCSV() {
     const rows = [
-      ["Chemical", "CAS Number", "Supplier", "Revision", "Revision Date", "Review Date", "Status", "Hazards", "Thai SDS"],
+      ["Chemical", "CAS Number", "Supplier", "Revision", "Next Review Date", "Days Left", "Language", "Hazards", "Status", "Thai SDS"],
       ...sdsData.map(item => [
         item.chemical, item.cas, item.supplier, item.revision,
-        item.revisionDate, item.reviewDate, normalizeStatus(item.status), item.hazards.join(" / "), item.thaiSds ? "Yes" : "No"
+        item.reviewDate, formatDaysLeft(getDaysLeft(item)).label, getLanguageLabel(item),
+        item.hazards.join(" / "), normalizeStatus(item.status), item.thaiSds ? "Yes" : "No"
       ])
     ];
 
@@ -1329,11 +1464,15 @@
       var statusFilter = document.getElementById("statusFilter");
       var hazardFilter = document.getElementById("hazardFilter");
       var supplierFilter = document.getElementById("supplierFilter");
+      var languageFilter = document.getElementById("languageFilter");
       if (searchInput) searchInput.value = "";
       if (statusFilter) statusFilter.value = type === "status" ? value : "";
       if (hazardFilter) hazardFilter.value = type === "hazard" ? value : "";
       if (supplierFilter) supplierFilter.value = "";
+      if (languageFilter) languageFilter.value = "";
       window.sdsSpecialFilter = type === "missing" ? value : "";
+      window.reviewBucketFilter = "";
+      renderReviewChart();
       renderTable();
 
       var tableSection = document.getElementById("sdsTableSection");

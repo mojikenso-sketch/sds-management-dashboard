@@ -415,48 +415,6 @@
     <button class="btn-primary" onclick="openAddDrawer()">＋ เพิ่มข้อมูล SDS</button>
   </section>
 
-  <section class="cards">
-    <div class="card clickable-summary" role="button" tabindex="0"
-      onclick="jumpToSdsTable('all', '')" onkeydown="handleSummaryKey(event, 'all', '')">
-      <div class="card-top">
-        <span class="card-title">SDS ทั้งหมด</span>
-        <span class="card-icon">📄</span>
-      </div>
-      <div class="number" id="totalCount">0</div>
-      <div class="card-note">รายการทั้งหมดในระบบ</div>
-    </div>
-
-    <div class="card clickable-summary" role="button" tabindex="0"
-      onclick="jumpToSdsTable('status', 'Current')" onkeydown="handleSummaryKey(event, 'status', 'Current')">
-      <div class="card-top">
-        <span class="card-title">Current</span>
-        <span class="card-icon">✅</span>
-      </div>
-      <div class="number" id="currentCount">0</div>
-      <div class="card-note" id="currentPercentNote">0%</div>
-    </div>
-
-    <div class="card clickable-summary" role="button" tabindex="0"
-      onclick="jumpToSdsTable('status', 'Review Due')" onkeydown="handleSummaryKey(event, 'status', 'Review Due')">
-      <div class="card-top">
-        <span class="card-title">Review Due</span>
-        <span class="card-icon">⏳</span>
-      </div>
-      <div class="number" id="reviewDueCount">0</div>
-      <div class="card-note">ถึงรอบทบทวน</div>
-    </div>
-
-    <div class="card clickable-summary" role="button" tabindex="0"
-      onclick="jumpToSdsTable('status', 'Update Required')" onkeydown="handleSummaryKey(event, 'status', 'Update Required')">
-      <div class="card-top">
-        <span class="card-title">Update Required</span>
-        <span class="card-icon">⚠️</span>
-      </div>
-      <div class="number" id="updateRequiredCount">0</div>
-      <div class="card-note">ต้องดำเนินการ</div>
-    </div>
-  </section>
-
   <section class="overview">
     <div class="card">
       <h3 class="section-title">ต้องดำเนินการ</h3>
@@ -1177,16 +1135,6 @@
   }
 
   function updateSummary() {
-    const total = sdsData.length;
-    const current = sdsData.filter(x => normalizeStatus(x.status) === "Current").length;
-    const reviewDue = sdsData.filter(x => normalizeStatus(x.status) === "Review Due").length;
-    const updateRequired = sdsData.filter(x => normalizeStatus(x.status) === "Update Required").length;
-
-    document.getElementById("totalCount").innerText = total;
-    document.getElementById("currentCount").innerText = current;
-    document.getElementById("reviewDueCount").innerText = reviewDue;
-    document.getElementById("updateRequiredCount").innerText = updateRequired;
-    document.getElementById("currentPercentNote").innerText = total ? Math.round((current / total) * 1000) / 10 + "%" : "0%";
     renderReviewChart();
     updateHazardSummary();
   }

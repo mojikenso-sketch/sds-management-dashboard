@@ -195,6 +195,7 @@
     }
     .input:focus, .select:focus { border-color: var(--primary); }
     .search { width: 260px; }
+    .language-filter { min-width: 150px; }
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 1180px; }
     thead { background: #f8fafc; }
@@ -581,8 +582,8 @@
           <option value="Corrosive">Corrosive</option>
           <option value="Irritant">Irritant</option>
         </select>
-        <select class="select" id="languageFilter" onchange="renderTable()">
-          <option value="">Language</option>
+        <select class="select language-filter" id="languageFilter" aria-label="กรองตามภาษา / Filter by language" onchange="renderTable()">
+          <option value="">ภาษา / Language</option>
           <option value="English">English</option>
           <option value="Thai">Thai</option>
         </select>

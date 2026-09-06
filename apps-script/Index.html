@@ -196,6 +196,8 @@
     .input:focus, .select:focus { border-color: var(--primary); }
     .search { width: 260px; }
     .language-filter { min-width: 150px; }
+    .filter-input { width: 155px; }
+    .supplier-filter { width: 185px; }
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; min-width: 1180px; }
     thead { background: #f8fafc; }
@@ -568,28 +570,33 @@
           placeholder="🔍 Chemical / CAS / Supplier"
           oninput="clearSpecialFilter(); renderTable()">
 
-        <select class="select" id="statusFilter" onchange="renderTable()">
-          <option value="">Status</option>
-          <option value="Current">Current</option>
-          <option value="Review Due">Review Due</option>
-          <option value="Update Required">Update Required</option>
-        </select>
+        <input class="input filter-input" id="statusFilter" list="statusOptions"
+          placeholder="Status" aria-label="ค้นหา Status" oninput="renderTable()">
+        <datalist id="statusOptions">
+          <option value="Current"></option>
+          <option value="Review Due"></option>
+          <option value="Update Required"></option>
+        </datalist>
 
-        <select class="select" id="hazardFilter" onchange="renderTable()">
-          <option value="">ทุก Hazard</option>
-          <option value="Flammable">Flammable</option>
-          <option value="Toxic">Toxic</option>
-          <option value="Corrosive">Corrosive</option>
-          <option value="Irritant">Irritant</option>
-        </select>
-        <select class="select language-filter" id="languageFilter" aria-label="กรองตามภาษา / Filter by language" onchange="renderTable()">
-          <option value="">ภาษา / Language</option>
-          <option value="English">English</option>
-          <option value="Thai">Thai</option>
-        </select>
-        <select class="select" id="supplierFilter" onchange="renderTable()">
-          <option value="">Supplier</option>
-        </select>
+        <input class="input filter-input" id="hazardFilter" list="hazardOptions"
+          placeholder="ทุก Hazard" aria-label="ค้นหา Hazard" oninput="renderTable()">
+        <datalist id="hazardOptions">
+          <option value="Flammable"></option>
+          <option value="Toxic"></option>
+          <option value="Corrosive"></option>
+          <option value="Irritant"></option>
+        </datalist>
+
+        <input class="input filter-input language-filter" id="languageFilter" list="languageOptions"
+          placeholder="ภาษา / Language" aria-label="กรองตามภาษา / Filter by language" oninput="renderTable()">
+        <datalist id="languageOptions">
+          <option value="English"></option>
+          <option value="Thai"></option>
+        </datalist>
+
+        <input class="input filter-input supplier-filter" id="supplierFilter" list="supplierOptions"
+          placeholder="Supplier" aria-label="ค้นหา Supplier" oninput="renderTable()">
+        <datalist id="supplierOptions"></datalist>
       </div>
 
       <button class="btn-secondary" onclick="exportCSV()">↓ Export CSV</button>
@@ -1188,10 +1195,10 @@
 
   function renderTable() {
     const search = document.getElementById("searchInput").value.toLowerCase();
-    const status = document.getElementById("statusFilter").value;
-    const hazard = document.getElementById("hazardFilter").value;
-    const supplier = document.getElementById("supplierFilter").value;
-    const language = document.getElementById("languageFilter").value;
+    const status = document.getElementById("statusFilter").value.trim().toLowerCase();
+    const hazard = document.getElementById("hazardFilter").value.trim().toLowerCase();
+    const supplier = document.getElementById("supplierFilter").value.trim().toLowerCase();
+    const language = document.getElementById("languageFilter").value.trim().toLowerCase();
     const special = window.sdsSpecialFilter || "";
     const reviewBucket = window.reviewBucketFilter || "";
 
@@ -1201,10 +1208,10 @@
         item.cas.toLowerCase().includes(search) ||
         (item.supplier || "").toLowerCase().includes(search);
 
-      const statusMatch = !status || normalizeStatus(item.status) === status;
-      const hazardMatch = !hazard || item.hazards.includes(hazard);
-      const supplierMatch = !supplier || item.supplier === supplier;
-      const languageMatch = !language || getLanguageLabel(item) === language;
+      const statusMatch = !status || normalizeStatus(item.status).toLowerCase().includes(status);
+      const hazardMatch = !hazard || item.hazards.some(name => name.toLowerCase().includes(hazard));
+      const supplierMatch = !supplier || (item.supplier || "").toLowerCase().includes(supplier);
+      const languageMatch = !language || getLanguageLabel(item).toLowerCase().includes(language);
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
@@ -1306,12 +1313,13 @@
   }
 
   function refreshSupplierFilter() {
-    const select = document.getElementById("supplierFilter");
-    const current = select.value;
+    const input = document.getElementById("supplierFilter");
+    const list = document.getElementById("supplierOptions");
+    const current = input.value;
     const suppliers = [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
-    select.innerHTML = `<option value="">Supplier</option>` + suppliers.map(item =>
-      `<option value="${escapeHTML(item)}">${escapeHTML(item)}</option>`).join("");
-    select.value = suppliers.includes(current) ? current : "";
+    list.innerHTML = suppliers.map(item =>
+      `<option value="${escapeHTML(item)}"></option>`).join("");
+    input.value = suppliers.includes(current) ? current : "";
   }
 
   function formatDate(date) {

@@ -545,31 +545,46 @@
   const defaultData = [
     {
       id: 1, chemical: "Acetone", cas: "67-64-1",
-      supplier: "ABC Chemical", revision: "Rev.06",
-      revisionDate: "2026-08-12", status: "Active",
-      signalWord: "Danger", hazards: ["Flammable", "Irritant"]
+      supplier: "Sigma-Aldrich", revision: "Version 6.7",
+      revisionDate: "", status: "Active",
+      signalWord: "Danger", hazards: ["Flammable", "Irritant"],
+      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/534064",
+      pdfName: "Sigma-Aldrich Acetone SDS"
     },
     {
       id: 2, chemical: "Methanol", cas: "67-56-1",
-      supplier: "XYZ Chemical", revision: "Rev.04",
-      revisionDate: "2026-06-18", status: "Expiring",
-      signalWord: "Danger", hazards: ["Flammable", "Toxic"]
+      supplier: "Sigma-Aldrich", revision: "Version 6.10",
+      revisionDate: "", status: "Expiring",
+      signalWord: "Danger", hazards: ["Flammable", "Toxic"],
+      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sial/33607",
+      pdfName: "Sigma-Aldrich Methanol SDS"
     },
     {
       id: 3, chemical: "Toluene", cas: "108-88-3",
-      supplier: "Safety Chem", revision: "Rev.03",
-      revisionDate: "2023-01-03", status: "Expired",
-      signalWord: "Danger", hazards: ["Flammable", "Irritant"]
+      supplier: "Sigma-Aldrich", revision: "Version 8.28",
+      revisionDate: "", status: "Expired",
+      signalWord: "Danger", hazards: ["Flammable", "Irritant"],
+      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/mm/tx0735",
+      pdfName: "Sigma-Aldrich Toluene SDS"
     },
     {
       id: 4, chemical: "Hydrochloric Acid", cas: "7647-01-0",
-      supplier: "Industrial Chemical", revision: "Rev.08",
-      revisionDate: "2026-05-20", status: "Active",
-      signalWord: "Danger", hazards: ["Corrosive", "Irritant"]
+      supplier: "Sigma-Aldrich", revision: "Version 6.9",
+      revisionDate: "2025-04-28", status: "Active",
+      signalWord: "Danger", hazards: ["Corrosive", "Irritant"],
+      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/30721",
+      pdfName: "Sigma-Aldrich Hydrochloric Acid SDS"
     }
   ];
 
-  let sdsData = JSON.parse(localStorage.getItem("sdsData")) || defaultData;
+  const storedSdsData = JSON.parse(localStorage.getItem("sdsData") || "null");
+  let sdsData = storedSdsData ? storedSdsData.map(item => {
+    const seed = defaultData.find(row => String(row.id) === String(item.id));
+    return seed && !item.pdfUrl
+      ? { ...item, supplier: seed.supplier, revision: seed.revision,
+          revisionDate: seed.revisionDate, pdfUrl: seed.pdfUrl, pdfName: seed.pdfName }
+      : item;
+  }) : defaultData;
 
 
   /* ------------------------------

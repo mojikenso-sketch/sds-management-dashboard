@@ -10,6 +10,8 @@
 - `docs/index.html` — หน้าเว็บสำหรับ GitHub Pages
 - `docs/config.js` — URL ของ Apps Script API
 
+หน้า GitHub Pages ในโหมดตัวอย่างมีข้อมูลสารเคมีจริง 4 รายการ พร้อมลิงก์ SDS ของ Sigma-Aldrich สำหรับทดลองเปิดเอกสาร แต่ต้องตรวจสอบให้ตรงกับผู้ผลิต ความเข้มข้น และผลิตภัณฑ์ที่ใช้งานจริงก่อนนำไปใช้ด้านความปลอดภัย
+
 ## 1) ตั้งค่า Google Apps Script
 
 1. เปิด [script.google.com](https://script.google.com) แล้วสร้างโปรเจกต์ใหม่

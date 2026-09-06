@@ -677,7 +677,7 @@
     {
       id: 1, chemical: "Acetone", cas: "67-64-1",
       supplier: "Sigma-Aldrich", revision: "Version 6.7",
-      revisionDate: "2026-08-12", reviewDate: "2029-08-12", status: "Current",
+      revisionDate: "2026-08-12", reviewDate: "2027-05-04", status: "Current",
       signalWord: "Danger", hazards: ["Flammable", "Irritant"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/534064",
@@ -695,7 +695,7 @@
     {
       id: 3, chemical: "Toluene", cas: "108-88-3",
       supplier: "Sigma-Aldrich", revision: "Version 8.28",
-      revisionDate: "2023-01-03", reviewDate: "", status: "Update Required",
+      revisionDate: "2023-01-03", reviewDate: "2026-09-26", status: "Update Required",
       signalWord: "Danger", hazards: ["Flammable", "Irritant"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/mm/tx0735",
@@ -713,7 +713,7 @@
     {
       id: 5, chemical: "Acetochlor 50% W/V EC", cas: "34256-82-1",
       supplier: "Thep Watana Co., Ltd.", revision: "Full registration",
-      revisionDate: "", reviewDate: "", status: "Current",
+      revisionDate: "", reviewDate: "2026-12-10", status: "Current",
       signalWord: "Warning", hazards: ["Flammable", "Toxic", "Irritant"],
       thaiSds: false,
       pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
@@ -722,6 +722,15 @@
   ];
 
   const storedSdsData = JSON.parse(localStorage.getItem("sdsData") || "null");
+  const REVIEW_SEED_MIGRATION_KEY = "sdsReviewSeedMigration";
+  const shouldMigrateReviewSeed = localStorage.getItem(REVIEW_SEED_MIGRATION_KEY) !== "v2";
+  const legacyReviewDates = {
+    "1": "2029-08-12",
+    "2": "2026-06-18",
+    "3": "",
+    "4": "2028-04-28",
+    "5": ""
+  };
   function normalizeStatus(status) {
     if (status === "Active") return "Current";
     if (status === "Expiring") return "Review Due";
@@ -731,10 +740,15 @@
 
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
+    const legacyDate = legacyReviewDates[String(item.id)];
+    const shouldUseUpdatedSeedDate = shouldMigrateReviewSeed && seed &&
+      Object.prototype.hasOwnProperty.call(legacyReviewDates, String(item.id)) &&
+      String(item.reviewDate || "") === legacyDate;
     return seed
       ? { ...item, status: normalizeStatus(item.status),
           supplier: item.supplier || seed.supplier, revision: item.revision || seed.revision,
-          revisionDate: item.revisionDate || seed.revisionDate, reviewDate: item.reviewDate || seed.reviewDate,
+          revisionDate: item.revisionDate || seed.revisionDate,
+          reviewDate: shouldUseUpdatedSeedDate ? seed.reviewDate : (item.reviewDate || seed.reviewDate),
           pdfUrl: item.pdfUrl || seed.pdfUrl, pdfName: item.pdfName || seed.pdfName,
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId || seed.pdfUrl),
           thaiSds: typeof item.thaiSds === "boolean" ? item.thaiSds : seed.thaiSds }
@@ -745,6 +759,7 @@
       if (!sdsData.some(item => String(item.id) === String(seed.id))) sdsData.push(seed);
     });
   }
+  if (shouldMigrateReviewSeed) localStorage.setItem(REVIEW_SEED_MIGRATION_KEY, "v2");
 
 
   /* ------------------------------

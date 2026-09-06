@@ -200,7 +200,9 @@ function normalizeRecord_(record) {
   hazards = hazards.filter(function(item) { return allowedHazards.indexOf(item) !== -1; });
 
   return {
-    id: String(record.id || Utilities.getUuid()),
+    // The original UI renders IDs inside inline onclick handlers, so keep
+    // generated IDs numeric for compatibility with that view.
+    id: String(record.id || Date.now()),
     chemical: clean_(record.chemical),
     cas: clean_(record.cas),
     supplier: clean_(record.supplier),

@@ -17,10 +17,12 @@
 3. เปิด Project Settings แล้วเปิด `Show "appsscript.json" manifest file in editor` จากนั้นแทนที่ manifest ด้วยไฟล์ `appsscript.json` ในชุดนี้
 4. เลือกฟังก์ชัน `setupSystem` แล้วกด Run หนึ่งครั้ง จากนั้นอนุญาตสิทธิ์ Google Sheets และ Google Drive
 5. ถ้าต้องการกำหนดผู้ดูแลหลายคน ให้ไปที่ Project Settings > Script properties แล้วตั้งค่า `ADMIN_EMAILS` เป็นอีเมลคั่นด้วย comma เช่น `name@example.com,admin@example.com`
-6. Deploy > New deployment > Web app แล้วตั้งค่าให้ทำงานในบัญชีเจ้าของสคริปต์ และเปิดให้ผู้ใช้ที่ต้องการเข้าถึงได้
-7. คัดลอก URL ที่ลงท้ายด้วย `/exec`
+6. สำหรับการใช้งานจริง ให้สร้าง deployment 2 ตัวจากโปรเจกต์เดียวกัน:
+   - `Public API`: Execute as เจ้าของสคริปต์, Who has access = Anyone เพื่อให้หน้า GitHub โหลดข้อมูลได้
+   - `Admin`: Execute as ผู้ใช้ที่เปิดเว็บ หรือจำกัดเฉพาะบัญชี/โดเมนของผู้ดูแล เพื่อใช้เพิ่ม/แก้ไข/ลบข้อมูล
+7. คัดลอก URL ที่ลงท้ายด้วย `/exec` ของ `Public API` ไปใส่ใน `apiUrl` และ URL ของ `Admin` ไปใส่ใน `adminUrl`
 
-หน้า Apps Script จะเป็นหน้าสำหรับผู้ดูแลระบบ ส่วนการอ่านข้อมูลสาธารณะใช้ endpoint เดียวกันโดยเติม `action=api` ซึ่งหน้า GitHub จะเรียกให้อัตโนมัติ
+หน้า Apps Script จะเป็นหน้าสำหรับผู้ดูแลระบบ ส่วนการอ่านข้อมูลสาธารณะใช้ Public API โดยเติม `action=api` ซึ่งหน้า GitHub จะเรียกให้อัตโนมัติ ฟังก์ชันเขียนข้อมูลตรวจสอบ `ADMIN_EMAILS` และไม่ควรเปิดให้ผู้ใช้นิรนามใช้งาน
 
 ## 2) เชื่อมต่อหน้า GitHub Pages
 

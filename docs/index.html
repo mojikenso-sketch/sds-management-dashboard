@@ -716,12 +716,12 @@
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">3. Hazard Classification</div>
+        <div class="form-section-title">3. Hazard Classification <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ)</span></div>
         <div class="hazard-checkboxes">
-          <label class="check-item"><input type="checkbox" value="Flammable" class="hazardCheck"> 🔥 Flammable</label>
-          <label class="check-item"><input type="checkbox" value="Toxic" class="hazardCheck"> ☠️ Toxic</label>
-          <label class="check-item"><input type="checkbox" value="Corrosive" class="hazardCheck"> 🧪 Corrosive</label>
-          <label class="check-item"><input type="checkbox" value="Irritant" class="hazardCheck"> ❗ Irritant</label>
+          <label class="check-item"><input type="radio" name="hazard" value="Flammable" class="hazardCheck"> 🔥 Flammable</label>
+          <label class="check-item"><input type="radio" name="hazard" value="Toxic" class="hazardCheck"> ☠️ Toxic</label>
+          <label class="check-item"><input type="radio" name="hazard" value="Corrosive" class="hazardCheck"> 🧪 Corrosive</label>
+          <label class="check-item"><input type="radio" name="hazard" value="Irritant" class="hazardCheck"> ❗ Irritant</label>
         </div>
       </div>
 
@@ -1076,8 +1076,9 @@
     document.getElementById("language").value = getLanguageLabel(item);
     document.getElementById("thaiSds").checked = Boolean(item.thaiSds);
 
+    const selectedHazard = (item.hazards || [])[0] || "";
     document.querySelectorAll(".hazardCheck").forEach(check => {
-      check.checked = item.hazards.includes(check.value);
+      check.checked = selectedHazard === check.value;
     });
 
     document.getElementById("drawerTitle").innerText = "แก้ไขข้อมูล SDS";

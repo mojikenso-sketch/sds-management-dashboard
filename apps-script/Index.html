@@ -574,6 +574,14 @@
       signalWord: "Danger", hazards: ["Corrosive", "Irritant"],
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/30721",
       pdfName: "Sigma-Aldrich Hydrochloric Acid SDS"
+    },
+    {
+      id: 5, chemical: "Acetochlor 50% W/V EC", cas: "34256-82-1",
+      supplier: "Thep Watana Co., Ltd.", revision: "Full registration",
+      revisionDate: "", status: "Active",
+      signalWord: "Warning", hazards: ["Flammable", "Toxic", "Irritant"],
+      pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
+      pdfName: "SDS - Acetochlor 50 EC.pdf"
     }
   ];
 
@@ -584,7 +592,12 @@
       ? { ...item, supplier: seed.supplier, revision: seed.revision,
           revisionDate: seed.revisionDate, pdfUrl: seed.pdfUrl, pdfName: seed.pdfName }
       : item;
-  }) : defaultData;
+  }) : defaultData.slice();
+  if (storedSdsData) {
+    defaultData.forEach(seed => {
+      if (!sdsData.some(item => String(item.id) === String(seed.id))) sdsData.push(seed);
+    });
+  }
 
 
   /* ------------------------------
@@ -997,6 +1010,27 @@
       return /^https:\/\/drive\.google\.com\/file\/d\//i.test(String(url || ""));
     }
 
+    function isDirectPdfUrl(url) {
+      return /\.pdf(?:[?#]|$)/i.test(String(url || "")) || /^blob:/i.test(String(url || ""));
+    }
+
+    function showDirectPdf(item) {
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+      resetPdfEmpty();
+      viewer.src = item.pdfUrl;
+      viewer.style.display = "block";
+      empty.style.display = "none";
+      openNew.href = item.pdfUrl;
+      openNew.textContent = "เปิดแท็บใหม่";
+      openNew.style.display = "inline-block";
+      download.href = item.pdfUrl;
+      download.download = item.pdfName || (item.chemical + "-SDS.pdf");
+      download.style.display = "inline-block";
+    }
+
     function showExternalSds(item) {
       var viewer = document.getElementById("pdfViewer");
       var empty = document.getElementById("pdfEmpty");
@@ -1345,6 +1379,8 @@
           showPdfLoading(item);
           var fileData = await loadDrivePdf(item);
           showPdfBlob(item, fileData);
+        } else if (isDirectPdfUrl(item.pdfUrl)) {
+          showDirectPdf(item);
         } else {
           showExternalSds(item);
         }

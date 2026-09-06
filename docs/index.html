@@ -62,6 +62,9 @@
       border-radius: 14px; padding: 20px;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
     }
+    .clickable-summary { cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; }
+    .clickable-summary:hover { transform: translateY(-2px); border-color: #93c5fd; box-shadow: 0 6px 18px rgba(30, 64, 175, 0.1); }
+    .clickable-summary:focus-visible { outline: 3px solid rgba(30, 64, 175, 0.28); outline-offset: 2px; }
     .card-top {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 15px;
@@ -286,7 +289,8 @@
   </section>
 
   <section class="cards">
-    <div class="card">
+    <div class="card clickable-summary" role="button" tabindex="0"
+      onclick="jumpToSdsTable('all', '')" onkeydown="handleSummaryKey(event, 'all', '')">
       <div class="card-top">
         <span class="card-title">SDS ทั้งหมด</span>
         <span class="card-icon">📄</span>
@@ -295,7 +299,8 @@
       <div class="card-note">รายการทั้งหมดในระบบ</div>
     </div>
 
-    <div class="card">
+    <div class="card clickable-summary" role="button" tabindex="0"
+      onclick="jumpToSdsTable('status', 'Active')" onkeydown="handleSummaryKey(event, 'status', 'Active')">
       <div class="card-top">
         <span class="card-title">Active</span>
         <span class="card-icon">✅</span>
@@ -304,7 +309,8 @@
       <div class="card-note">SDS ที่พร้อมใช้งาน</div>
     </div>
 
-    <div class="card">
+    <div class="card clickable-summary" role="button" tabindex="0"
+      onclick="jumpToSdsTable('status', 'Expiring')" onkeydown="handleSummaryKey(event, 'status', 'Expiring')">
       <div class="card-top">
         <span class="card-title">ใกล้หมดอายุ</span>
         <span class="card-icon">⏳</span>
@@ -313,7 +319,8 @@
       <div class="card-note">รายการที่ต้องติดตาม</div>
     </div>
 
-    <div class="card">
+    <div class="card clickable-summary" role="button" tabindex="0"
+      onclick="jumpToSdsTable('status', 'Expired')" onkeydown="handleSummaryKey(event, 'status', 'Expired')">
       <div class="card-top">
         <span class="card-title">หมดอายุ</span>
         <span class="card-icon">⚠️</span>
@@ -327,17 +334,20 @@
     <div class="card">
       <h3 class="section-title">SDS Status</h3>
       <div class="status-list">
-        <div class="status-row">
+        <div class="status-row clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('status', 'Active')" onkeydown="handleSummaryKey(event, 'status', 'Active')">
           <span>Active</span>
           <div class="progress"><div id="activeProgress"></div></div>
           <strong id="activePercent">0%</strong>
         </div>
-        <div class="status-row">
+        <div class="status-row clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('status', 'Expiring')" onkeydown="handleSummaryKey(event, 'status', 'Expiring')">
           <span>Expiring</span>
           <div class="progress"><div id="expiringProgress"></div></div>
           <strong id="expiringPercent">0%</strong>
         </div>
-        <div class="status-row">
+        <div class="status-row clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('status', 'Expired')" onkeydown="handleSummaryKey(event, 'status', 'Expired')">
           <span>Expired</span>
           <div class="progress"><div id="expiredProgress"></div></div>
           <strong id="expiredPercent">0%</strong>
@@ -348,19 +358,23 @@
     <div class="card">
       <h3 class="section-title">Hazard Summary</h3>
       <div class="hazards">
-        <div class="hazard">
+        <div class="hazard clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('hazard', 'Flammable')" onkeydown="handleSummaryKey(event, 'hazard', 'Flammable')">
           <div class="hazard-left"><span class="hazard-icon">🔥</span><span>Flammable</span></div>
           <strong id="flammableCount">0</strong>
         </div>
-        <div class="hazard">
+        <div class="hazard clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('hazard', 'Toxic')" onkeydown="handleSummaryKey(event, 'hazard', 'Toxic')">
           <div class="hazard-left"><span class="hazard-icon">☠️</span><span>Toxic</span></div>
           <strong id="toxicCount">0</strong>
         </div>
-        <div class="hazard">
+        <div class="hazard clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('hazard', 'Corrosive')" onkeydown="handleSummaryKey(event, 'hazard', 'Corrosive')">
           <div class="hazard-left"><span class="hazard-icon">🧪</span><span>Corrosive</span></div>
           <strong id="corrosiveCount">0</strong>
         </div>
-        <div class="hazard">
+        <div class="hazard clickable-summary" role="button" tabindex="0"
+          onclick="jumpToSdsTable('hazard', 'Irritant')" onkeydown="handleSummaryKey(event, 'hazard', 'Irritant')">
           <div class="hazard-left"><span class="hazard-icon">❗</span><span>Irritant</span></div>
           <strong id="irritantCount">0</strong>
         </div>
@@ -368,7 +382,7 @@
     </div>
   </section>
 
-  <section class="table-card">
+  <section class="table-card" id="sdsTableSection" tabindex="-1">
     <div class="table-toolbar">
       <div class="toolbar-left">
         <input class="input search" id="searchInput"
@@ -958,6 +972,31 @@
     var baseDelete = window.deleteSDS;
     var baseEdit = window.editSDS;
     var baseView = window.viewSDS;
+
+    window.jumpToSdsTable = function (type, value) {
+      var searchInput = document.getElementById("searchInput");
+      var statusFilter = document.getElementById("statusFilter");
+      var hazardFilter = document.getElementById("hazardFilter");
+      if (searchInput) searchInput.value = "";
+      if (statusFilter) statusFilter.value = type === "status" ? value : "";
+      if (hazardFilter) hazardFilter.value = type === "hazard" ? value : "";
+      renderTable();
+
+      var tableSection = document.getElementById("sdsTableSection");
+      if (tableSection) {
+        tableSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.setTimeout(function () {
+          tableSection.focus({ preventScroll: true });
+        }, 350);
+      }
+    };
+
+    window.handleSummaryKey = function (event, type, value) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        window.jumpToSdsTable(type, value);
+      }
+    };
 
     function setConnectionStatus(text) {
       var subtitle = document.querySelector(".brand p");

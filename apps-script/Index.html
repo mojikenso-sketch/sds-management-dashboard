@@ -678,6 +678,13 @@
               <option value="Warning">Warning</option>
             </select>
           </div>
+          <div class="form-group">
+            <label>Language</label>
+            <select class="form-control" id="language">
+              <option value="English">English</option>
+              <option value="Thai">Thai</option>
+            </select>
+          </div>
           <label class="check-item full"><input type="checkbox" id="thaiSds"> มี SDS ภาษาไทย</label>
         </div>
       </div>
@@ -993,8 +1000,9 @@
       reviewDate: document.getElementById("reviewDate").value,
       status: document.getElementById("status").value,
       signalWord: document.getElementById("signalWord").value,
+      language: document.getElementById("language").value,
       hazards,
-      thaiSds: document.getElementById("thaiSds").checked,
+      thaiSds: document.getElementById("thaiSds").checked || document.getElementById("language").value === "Thai",
       hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
     };
 
@@ -1039,6 +1047,7 @@
     document.getElementById("reviewDate").value = item.reviewDate || "";
     document.getElementById("status").value = normalizeStatus(item.status);
     document.getElementById("signalWord").value = item.signalWord || "";
+    document.getElementById("language").value = getLanguageLabel(item);
     document.getElementById("thaiSds").checked = Boolean(item.thaiSds);
 
     document.querySelectorAll(".hazardCheck").forEach(check => {
@@ -1665,8 +1674,9 @@
         reviewDate: document.getElementById("reviewDate").value,
         status: document.getElementById("status").value,
         signalWord: document.getElementById("signalWord").value,
+        language: document.getElementById("language").value,
         hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; }),
-        thaiSds: document.getElementById("thaiSds").checked
+        thaiSds: document.getElementById("thaiSds").checked || document.getElementById("language").value === "Thai"
       };
     }
 

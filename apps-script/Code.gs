@@ -9,14 +9,14 @@
 var SDS_HEADERS = [
   "id", "chemical", "cas", "supplier", "revision", "revisionDate",
   "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt",
-  "reviewDate", "thaiSds"
+  "reviewDate", "thaiSds", "language"
 ];
 
 var SAMPLE_ROWS = [
-  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "2026-08-12", "Current", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "2029-08-12", false],
-  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "2023-06-18", "Review Due", "Danger", "Flammable|Toxic", "", "", new Date().toISOString(), "2026-06-18", false],
-  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "2023-01-03", "Update Required", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "", false],
-  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "2025-04-28", "Current", "Danger", "Corrosive|Irritant", "", "", new Date().toISOString(), "2028-04-28", false]
+  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "2026-08-12", "Current", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "2029-08-12", false, "English"],
+  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "2023-06-18", "Review Due", "Danger", "Flammable|Toxic", "", "", new Date().toISOString(), "2026-06-18", false, "English"],
+  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "2023-01-03", "Update Required", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "", false, "English"],
+  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "2025-04-28", "Current", "Danger", "Corrosive|Irritant", "", "", new Date().toISOString(), "2028-04-28", false, "English"]
 ];
 
 function doGet(e) {
@@ -172,7 +172,8 @@ function saveSds(record, fileData) {
       pdfName,
       new Date().toISOString(),
       normalized.reviewDate,
-      normalized.thaiSds
+      normalized.thaiSds,
+      normalized.language
     ];
 
     if (existing) {
@@ -236,6 +237,9 @@ function normalizeRecord_(record) {
   var hazards = Array.isArray(record.hazards) ? record.hazards : [];
   var allowedHazards = ["Flammable", "Toxic", "Corrosive", "Irritant"];
   hazards = hazards.filter(function(item) { return allowedHazards.indexOf(item) !== -1; });
+  var thaiSds = record.thaiSds === true || String(record.thaiSds || "").toLowerCase() === "true";
+  var language = clean_(record.language);
+  if (["English", "Thai"].indexOf(language) === -1) language = thaiSds ? "Thai" : "English";
 
   return {
     // The original UI renders IDs inside inline onclick handlers, so keep
@@ -250,7 +254,8 @@ function normalizeRecord_(record) {
     status: normalizeStatus_(record.status),
     signalWord: ["Danger", "Warning", ""].indexOf(record.signalWord || "") !== -1 ? (record.signalWord || "") : "",
     hazards: hazards,
-    thaiSds: record.thaiSds === true || String(record.thaiSds || "").toLowerCase() === "true"
+    thaiSds: thaiSds,
+    language: language
   };
 }
 
@@ -283,7 +288,10 @@ function rowToObject_(row) {
     pdfUrl: fileId ? "https://drive.google.com/file/d/" + encodeURIComponent(fileId) + "/preview" : "",
     updatedAt: String(row[11] || ""),
     reviewDate: formatDateValue_(row[12]),
-    thaiSds: String(row[13] || "").toLowerCase() === "true"
+    thaiSds: String(row[13] || "").toLowerCase() === "true",
+    language: ["English", "Thai"].indexOf(String(row[14] || "")) !== -1
+      ? String(row[14])
+      : (String(row[13] || "").toLowerCase() === "true" ? "Thai" : "English")
   };
 }
 

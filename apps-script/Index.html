@@ -130,11 +130,23 @@
     .hazard:hover { transform: translateY(-3px); border-color: #93c5fd; box-shadow: 0 8px 18px rgba(30, 64, 175, 0.1); }
     .hazard:hover .hazard-icon:not(.flame-icon) { animation-play-state: paused; transform: translateY(-2px) scale(1.14) rotate(-8deg); }
     .hazard-left { display: flex; gap: 10px; align-items: center; }
-    .hazard-icon { font-size: 25px; animation: hazardFloat 3s ease-in-out infinite; transform-origin: center bottom; }
+    .hazard-icon { display: inline-block; font-size: 25px; animation: hazardFloat 3s ease-in-out infinite; transform-origin: center bottom; }
     .flame-icon {
       display: inline-block; font-size: 28px; transform-origin: center bottom;
       filter: drop-shadow(0 0 3px rgba(249, 115, 22, 0.55));
       animation: flameFlicker 1.05s ease-in-out infinite;
+    }
+    .toxic-icon {
+      filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.42));
+      animation: toxicPulse 2.1s ease-in-out infinite;
+    }
+    .corrosive-icon {
+      filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.42));
+      animation: corrosiveShimmer 2.4s ease-in-out infinite;
+    }
+    .irritant-icon {
+      filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.42));
+      animation: irritantAlert 1.55s ease-in-out infinite;
     }
     .hazard:hover .flame-icon { filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.78)); }
     .hazards .hazard:nth-child(2) .hazard-icon { animation-delay: 0.45s; }
@@ -364,6 +376,21 @@
       50% { transform: translateY(1px) rotate(-5deg) scale(0.96, 1.08); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.62)); }
       75% { transform: translateY(-1px) rotate(3deg) scale(1.04, 0.98); filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.8)); }
     }
+    @keyframes toxicPulse {
+      0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.38)); }
+      50% { transform: translateY(-3px) rotate(3deg) scale(1.1); filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.72)); }
+    }
+    @keyframes corrosiveShimmer {
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.38)); }
+      35% { transform: translateY(-2px) rotate(4deg) scale(1.06, 0.96); filter: drop-shadow(0 0 7px rgba(74, 222, 128, 0.7)); }
+      70% { transform: translateY(1px) rotate(-1deg) scale(0.98, 1.06); filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.52)); }
+    }
+    @keyframes irritantAlert {
+      0%, 68%, 100% { transform: translateY(0) rotate(0deg) scale(1); filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.38)); }
+      74% { transform: translateY(-2px) rotate(-8deg) scale(1.1); filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.76)); }
+      82% { transform: translateY(0) rotate(8deg) scale(0.98, 1.08); }
+      90% { transform: translateY(-1px) rotate(-4deg) scale(1.04); }
+    }
     @keyframes progressGrow {
       from { opacity: 0.45; transform: scaleX(0); }
       to { opacity: 1; transform: scaleX(1); }
@@ -449,17 +476,17 @@
         </div>
         <div class="hazard clickable-summary" role="button" tabindex="0"
           onclick="jumpToSdsTable('hazard', 'Toxic')" onkeydown="handleSummaryKey(event, 'hazard', 'Toxic')">
-          <div class="hazard-left"><span class="hazard-icon">☠️</span><span>Acute Toxicity</span></div>
+          <div class="hazard-left"><span class="hazard-icon toxic-icon" aria-hidden="true">☠️</span><span>Acute Toxicity</span></div>
           <strong id="acuteToxicityCount">0</strong>
         </div>
         <div class="hazard clickable-summary" role="button" tabindex="0"
           onclick="jumpToSdsTable('hazard', 'Corrosive')" onkeydown="handleSummaryKey(event, 'hazard', 'Corrosive')">
-          <div class="hazard-left"><span class="hazard-icon">🧪</span><span>Corrosive</span></div>
+          <div class="hazard-left"><span class="hazard-icon corrosive-icon" aria-hidden="true">🧪</span><span>Corrosive</span></div>
           <strong id="corrosiveCount">0</strong>
         </div>
         <div class="hazard clickable-summary" role="button" tabindex="0"
           onclick="jumpToSdsTable('hazard', 'Irritant')" onkeydown="handleSummaryKey(event, 'hazard', 'Irritant')">
-          <div class="hazard-left"><span class="hazard-icon">❗</span><span>Irritant</span></div>
+          <div class="hazard-left"><span class="hazard-icon irritant-icon" aria-hidden="true">❗</span><span>Irritant</span></div>
           <strong id="irritantCount">0</strong>
         </div>
       </div>

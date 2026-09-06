@@ -986,6 +986,47 @@
     var baseDelete = window.deleteSDS;
     var baseEdit = window.editSDS;
     var baseView = window.viewSDS;
+    var defaultPdfEmptyMarkup = document.getElementById("pdfEmpty").innerHTML;
+
+    function resetPdfEmpty() {
+      var empty = document.getElementById("pdfEmpty");
+      if (empty) empty.innerHTML = defaultPdfEmptyMarkup;
+    }
+
+    function isDrivePreviewUrl(url) {
+      return /^https:\/\/drive\.google\.com\/file\/d\//i.test(String(url || ""));
+    }
+
+    function showExternalSds(item) {
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+      var sourceUrl = String(item.pdfUrl || "");
+
+      resetPdfEmpty();
+      viewer.removeAttribute("src");
+      viewer.style.display = "none";
+      openNew.href = sourceUrl;
+      openNew.textContent = "เปิด SDS ต้นฉบับ";
+      openNew.style.display = "inline-block";
+      download.style.display = "none";
+      empty.innerHTML = `
+        <div>
+          <div style="font-size:42px; margin-bottom:10px;">📄</div>
+          <strong>ข้อมูล SDS พร้อมให้เปิด</strong>
+          <div style="margin-top:10px; text-align:left; line-height:1.7;">
+            <div><b>สารเคมี:</b> ${escapeHTML(item.chemical)}</div>
+            <div><b>CAS:</b> ${escapeHTML(item.cas || "-")}</div>
+            <div><b>ผู้ผลิต:</b> ${escapeHTML(item.supplier || "-")}</div>
+            <div><b>Version:</b> ${escapeHTML(item.revision || "-")}</div>
+            <div><b>Hazard:</b> ${escapeHTML((item.hazards || []).join(", ") || "-")}</div>
+          </div>
+          <a class="btn-primary" style="display:inline-block; margin-top:18px; text-decoration:none;" href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener">เปิดเอกสาร SDS ต้นฉบับ</a>
+          <div style="margin-top:10px; font-size:12px;">เอกสารผู้ผลิตอาจไม่อนุญาตให้แสดงในกรอบนี้ จึงมีปุ่มเปิดแท็บใหม่ให้ใช้งาน</div>
+        </div>`;
+      empty.style.display = "grid";
+    }
 
     window.jumpToSdsTable = function (type, value) {
       var searchInput = document.getElementById("searchInput");
@@ -1192,14 +1233,20 @@
       var empty = document.getElementById("pdfEmpty");
       var openNew = document.getElementById("pdfOpenNew");
       var download = document.getElementById("pdfDownload");
-      viewer.src = item.pdfUrl;
-      viewer.style.display = "block";
-      empty.style.display = "none";
-      openNew.href = item.pdfUrl;
-      openNew.style.display = "inline-block";
-      download.href = item.pdfUrl;
-      download.download = item.pdfName || (item.chemical + "-SDS.pdf");
-      download.style.display = "inline-block";
+      if (isDrivePreviewUrl(item.pdfUrl)) {
+        resetPdfEmpty();
+        viewer.src = item.pdfUrl;
+        viewer.style.display = "block";
+        empty.style.display = "none";
+        openNew.href = item.pdfUrl;
+        openNew.textContent = "เปิดแท็บใหม่";
+        openNew.style.display = "inline-block";
+        download.href = item.pdfUrl;
+        download.download = item.pdfName || (item.chemical + "-SDS.pdf");
+        download.style.display = "inline-block";
+      } else {
+        showExternalSds(item);
+      }
       document.getElementById("pdfModal").classList.add("show");
       document.body.style.overflow = "hidden";
     };

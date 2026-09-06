@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDS Management Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary: #1e40af; --primary-light: #eff6ff; --bg: #f5f7fb;
+      --card: #ffffff; --text: #1e293b; --muted: #64748b;
+      --border: #e2e8f0; --success: #16a34a; --success-bg: #dcfce7;
+      --warning: #d97706; --warning-bg: #fef3c7;
+      --danger: #dc2626; --danger-bg: #fee2e2;
+    }
+    body { font-family: Arial, "Noto Sans Thai", sans-serif; background: var(--bg); color: var(--text); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      height: 70px; background: #fff; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; position: sticky; top: 0; z-index: 20;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo {
+      width: 42px; height: 42px; background: var(--primary); color: #fff;
+      border-radius: 10px; display: grid; place-items: center; font-weight: bold;
+    }
+    .brand h1 { font-size: 18px; }
+    .brand p { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .user {
+      width: 38px; height: 38px; border-radius: 50%; background: #e2e8f0;
+      display: grid; place-items: center;
+    }
+
+    .container { max-width: 1500px; margin: auto; padding: 30px; }
+    .page-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; gap: 20px;
+    }
+    .page-header h2 { font-size: 27px; margin-bottom: 5px; }
+    .page-header p { color: var(--muted); font-size: 14px; }
+
+    .btn-primary {
+      border: none; background: var(--primary); color: #fff; padding: 12px 18px;
+      border-radius: 9px; font-weight: 600; transition: 0.2s;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary {
+      background: #fff; border: 1px solid var(--border); padding: 11px 16px;
+      border-radius: 8px; color: var(--text);
+    }
+
+    .cards {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 18px; margin-bottom: 22px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+    }
+    .card-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .card-title { color: var(--muted); font-size: 14px; }
+    .card-icon {
+      width: 40px; height: 40px; border-radius: 10px; display: grid;
+      place-items: center; font-size: 18px; background: var(--primary-light);
+    }
+    .number { font-size: 30px; font-weight: 700; }
+    .card-note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+
+    .overview {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 18px; margin-bottom: 22px;
+    }
+    .section-title { font-size: 16px; margin-bottom: 18px; }
+    .status-list { display: grid; gap: 13px; }
+    .status-row {
+      display: grid; grid-template-columns: 100px 1fr 50px;
+      align-items: center; gap: 12px; font-size: 13px;
+    }
+    .progress {
+      background: #e2e8f0; height: 8px; border-radius: 20px; overflow: hidden;
+    }
+    .progress div {
+      height: 100%; background: var(--primary); border-radius: 20px;
+    }
+    .hazards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .hazard {
+      border: 1px solid var(--border); border-radius: 10px; padding: 13px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .hazard-left { display: flex; gap: 10px; align-items: center; }
+    .hazard-icon { font-size: 25px; }
+
+    .table-card {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+    }
+    .table-toolbar {
+      padding: 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 15px; flex-wrap: wrap;
+    }
+    .toolbar-left { display: flex; gap: 10px; flex-wrap: wrap; }
+    .input, .select {
+      height: 40px; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0 12px; outline: none; background: #fff;
+    }
+    .input:focus, .select:focus { border-color: var(--primary); }
+    .search { width: 260px; }
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+    thead { background: #f8fafc; }
+    th, td {
+      padding: 15px 18px; text-align: left;
+      border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    th { color: var(--muted); font-weight: 600; }
+    tbody tr:hover { background: #f8fafc; }
+    .chemical-name { font-weight: 600; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 9px; border-radius: 30px; font-size: 12px; font-weight: 600;
+    }
+    .active { background: var(--success-bg); color: var(--success); }
+    .expiring { background: var(--warning-bg); color: var(--warning); }
+    .expired { background: var(--danger-bg); color: var(--danger); }
+
+    .action-btn {
+      border: none; background: transparent; padding: 5px 6px;
+      border-radius: 5px; font-size: 16px;
+    }
+    .action-btn:hover { background: #e2e8f0; }
+    .empty-state { text-align: center; padding: 45px; color: var(--muted); }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+      opacity: 0; visibility: hidden; transition: 0.25s; z-index: 50;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    .drawer {
+      position: fixed; right: -560px; top: 0; width: 520px; max-width: 95%;
+      height: 100vh; background: #fff; z-index: 60; transition: 0.3s;
+      display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.12);
+    }
+    .drawer.show { right: 0; }
+    .drawer-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .drawer-header h3 { font-size: 19px; }
+    .close-btn {
+      width: 35px; height: 35px; border: none; border-radius: 8px;
+      font-size: 21px; background: #f1f5f9;
+    }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .form-section {
+      border-bottom: 1px solid var(--border); padding-bottom: 22px; margin-bottom: 22px;
+    }
+    .form-section:last-child { border-bottom: 0; }
+    .form-section-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 600; color: #475569; }
+    label span { color: var(--danger); }
+    .form-control {
+      height: 42px; padding: 0 12px; border: 1px solid var(--border);
+      border-radius: 8px; outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08);
+    }
+    .hazard-checkboxes {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .check-item {
+      display: flex; align-items: center; gap: 8px; background: #f8fafc;
+      padding: 10px; border-radius: 8px; font-size: 13px;
+    }
+    .upload-box {
+      border: 2px dashed var(--border); padding: 22px; text-align: center;
+      border-radius: 10px; color: var(--muted); background: #f8fafc;
+    }
+    .upload-box input { margin-top: 10px; max-width: 100%; }
+    .drawer-footer {
+      padding: 16px 24px; border-top: 1px solid var(--border);
+      display: flex; justify-content: flex-end; gap: 10px; background: #fff;
+    }
+
+
+    .sds-link {
+      border: 0; background: transparent; color: var(--primary);
+      font-weight: 600; padding: 0; text-align: left;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    .pdf-btn {
+      border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8;
+      padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    }
+    .pdf-btn:hover { background: #dbeafe; }
+    .pdf-missing { color: var(--muted); font-size: 12px; }
+
+    .pdf-modal {
+      position: fixed; inset: 0; z-index: 100;
+      display: none; align-items: center; justify-content: center;
+      padding: 24px; background: rgba(15, 23, 42, 0.72);
+    }
+    .pdf-modal.show { display: flex; }
+    .pdf-dialog {
+      width: min(1180px, 96vw); height: min(860px, 92vh);
+      background: #fff; border-radius: 14px; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+    }
+    .pdf-dialog-header {
+      min-height: 62px; padding: 12px 16px 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; border-bottom: 1px solid var(--border);
+    }
+    .pdf-dialog-title { min-width: 0; }
+    .pdf-dialog-title h3 {
+      font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pdf-dialog-title p {
+      margin-top: 3px; color: var(--muted); font-size: 12px;
+    }
+    .pdf-dialog-actions { display: flex; gap: 8px; align-items: center; }
+    .pdf-viewer {
+      width: 100%; flex: 1; border: 0; background: #e5e7eb;
+    }
+    .pdf-empty {
+      flex: 1; display: none; place-items: center; text-align: center;
+      padding: 30px; color: var(--muted); background: #f8fafc;
+    }
+
+    @media (max-width: 1000px) {
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .overview { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 18px; }
+      .topbar { padding: 0 18px; }
+      .cards { grid-template-columns: 1fr; }
+      .page-header { align-items: flex-start; flex-direction: column; }
+      .page-header .btn-primary { width: 100%; }
+      .search, .toolbar-left, .input, .select { width: 100%; }
+      .hazards { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: auto; }
+    }
+  </style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">SDS</div>
+    <div>
+      <h1>SDS Management</h1>
+      <p>Safety Data Sheet System</p>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span>🔔</span>
+    <div class="user">👤</div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="page-header">
+    <div>
+      <h2>SDS Dashboard</h2>
+      <p>ภาพรวมและจัดการข้อมูล Safety Data Sheet</p>
+    </div>
+    <button class="btn-primary" onclick="openAddDrawer()">＋ เพิ่มข้อมูล SDS</button>
+  </section>
+
+  <section class="cards">
+    <div class="card">
+      <div class="card-top">
+        <span class="card-title">SDS ทั้งหมด</span>
+        <span class="card-icon">📄</span>
+      </div>
+      <div class="number" id="totalCount">0</div>
+      <div class="card-note">รายการทั้งหมดในระบบ</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-title">Active</span>
+        <span class="card-icon">✅</span>
+      </div>
+      <div class="number" id="activeCount">0</div>
+      <div class="card-note">SDS ที่พร้อมใช้งาน</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-title">ใกล้หมดอายุ</span>
+        <span class="card-icon">⏳</span>
+      </div>
+      <div class="number" id="expiringCount">0</div>
+      <div class="card-note">รายการที่ต้องติดตาม</div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <span class="card-title">หมดอายุ</span>
+        <span class="card-icon">⚠️</span>
+      </div>
+      <div class="number" id="expiredCount">0</div>
+      <div class="card-note">ควรดำเนินการแก้ไข</div>
+    </div>
+  </section>
+
+  <section class="overview">
+    <div class="card">
+      <h3 class="section-title">SDS Status</h3>
+      <div class="status-list">
+        <div class="status-row">
+          <span>Active</span>
+          <div class="progress"><div id="activeProgress"></div></div>
+          <strong id="activePercent">0%</strong>
+        </div>
+        <div class="status-row">
+          <span>Expiring</span>
+          <div class="progress"><div id="expiringProgress"></div></div>
+          <strong id="expiringPercent">0%</strong>
+        </div>
+        <div class="status-row">
+          <span>Expired</span>
+          <div class="progress"><div id="expiredProgress"></div></div>
+          <strong id="expiredPercent">0%</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="section-title">Hazard Summary</h3>
+      <div class="hazards">
+        <div class="hazard">
+          <div class="hazard-left"><span class="hazard-icon">🔥</span><span>Flammable</span></div>
+          <strong id="flammableCount">0</strong>
+        </div>
+        <div class="hazard">
+          <div class="hazard-left"><span class="hazard-icon">☠️</span><span>Toxic</span></div>
+          <strong id="toxicCount">0</strong>
+        </div>
+        <div class="hazard">
+          <div class="hazard-left"><span class="hazard-icon">🧪</span><span>Corrosive</span></div>
+          <strong id="corrosiveCount">0</strong>
+        </div>
+        <div class="hazard">
+          <div class="hazard-left"><span class="hazard-icon">❗</span><span>Irritant</span></div>
+          <strong id="irritantCount">0</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="table-card">
+    <div class="table-toolbar">
+      <div class="toolbar-left">
+        <input class="input search" id="searchInput"
+          placeholder="🔍 ค้นหา Chemical / CAS / Supplier..."
+          oninput="renderTable()">
+
+        <select class="select" id="statusFilter" onchange="renderTable()">
+          <option value="">ทุก Status</option>
+          <option value="Active">Active</option>
+          <option value="Expiring">Expiring</option>
+          <option value="Expired">Expired</option>
+        </select>
+
+        <select class="select" id="hazardFilter" onchange="renderTable()">
+          <option value="">ทุก Hazard</option>
+          <option value="Flammable">Flammable</option>
+          <option value="Toxic">Toxic</option>
+          <option value="Corrosive">Corrosive</option>
+          <option value="Irritant">Irritant</option>
+        </select>
+      </div>
+
+      <button class="btn-secondary" onclick="exportCSV()">↓ Export CSV</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Chemical</th>
+            <th>CAS No.</th>
+            <th>Supplier</th>
+            <th>Revision</th>
+            <th>Revision Date</th>
+            <th>Hazard</th>
+            <th>Status</th>
+            <th>SDS</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="sdsTable"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" onclick="closeDrawer()"></div>
+
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h3 id="drawerTitle">เพิ่มข้อมูล SDS</h3>
+    <button class="close-btn" type="button" onclick="closeDrawer()">×</button>
+  </div>
+
+  <div class="drawer-body">
+    <form id="sdsForm">
+      <input type="hidden" id="editId">
+
+      <div class="form-section">
+        <div class="form-section-title">1. ข้อมูลสารเคมี</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>ชื่อสารเคมี / Product Name <span>*</span></label>
+            <input class="form-control" id="chemical" required placeholder="เช่น Acetone">
+          </div>
+          <div class="form-group">
+            <label>CAS Number <span>*</span></label>
+            <input class="form-control" id="cas" required placeholder="67-64-1">
+          </div>
+          <div class="form-group">
+            <label>Supplier</label>
+            <input class="form-control" id="supplier" placeholder="ชื่อ Supplier">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">2. ข้อมูล SDS</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>SDS Revision</label>
+            <input class="form-control" id="revision" placeholder="Rev.06">
+          </div>
+          <div class="form-group">
+            <label>Revision Date</label>
+            <input class="form-control" id="revisionDate" type="date">
+          </div>
+          <div class="form-group">
+            <label>สถานะ</label>
+            <select class="form-control" id="status">
+              <option value="Active">Active</option>
+              <option value="Expiring">Expiring</option>
+              <option value="Expired">Expired</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Signal Word</label>
+            <select class="form-control" id="signalWord">
+              <option value="">-</option>
+              <option value="Danger">Danger</option>
+              <option value="Warning">Warning</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">3. Hazard Classification</div>
+        <div class="hazard-checkboxes">
+          <label class="check-item"><input type="checkbox" value="Flammable" class="hazardCheck"> 🔥 Flammable</label>
+          <label class="check-item"><input type="checkbox" value="Toxic" class="hazardCheck"> ☠️ Toxic</label>
+          <label class="check-item"><input type="checkbox" value="Corrosive" class="hazardCheck"> 🧪 Corrosive</label>
+          <label class="check-item"><input type="checkbox" value="Irritant" class="hazardCheck"> ❗ Irritant</label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">4. SDS Document</div>
+        <div class="upload-box">
+          📄 Upload Safety Data Sheet<br>
+          <input type="file" id="sdsFile" accept=".pdf">
+          <div style="font-size:11px; margin-top:8px;">รองรับไฟล์ PDF</div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn-secondary" onclick="closeDrawer()">ยกเลิก</button>
+    <button class="btn-primary" onclick="saveSDS()">💾 บันทึก SDS</button>
+  </div>
+</aside>
+
+
+<div class="pdf-modal" id="pdfModal" onclick="pdfModalBackdrop(event)">
+  <div class="pdf-dialog">
+    <div class="pdf-dialog-header">
+      <div class="pdf-dialog-title">
+        <h3 id="pdfTitle">SDS Document</h3>
+        <p id="pdfSubtitle">PDF Viewer</p>
+      </div>
+      <div class="pdf-dialog-actions">
+        <a class="btn-secondary" id="pdfOpenNew" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่</a>
+        <a class="btn-secondary" id="pdfDownload" href="#" download>ดาวน์โหลด</a>
+        <button class="close-btn" type="button" onclick="closePdfViewer()">×</button>
+      </div>
+    </div>
+    <iframe class="pdf-viewer" id="pdfViewer" title="SDS PDF Viewer"></iframe>
+    <div class="pdf-empty" id="pdfEmpty">
+      <div>
+        <div style="font-size:42px; margin-bottom:10px;">📄</div>
+        <strong>ยังไม่มีไฟล์ SDS PDF</strong>
+        <div style="margin-top:6px;">กดแก้ไขรายการนี้เพื่ออัปโหลดไฟล์ PDF</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const defaultData = [
+    {
+      id: 1, chemical: "Acetone", cas: "67-64-1",
+      supplier: "ABC Chemical", revision: "Rev.06",
+      revisionDate: "2026-08-12", status: "Active",
+      signalWord: "Danger", hazards: ["Flammable", "Irritant"]
+    },
+    {
+      id: 2, chemical: "Methanol", cas: "67-56-1",
+      supplier: "XYZ Chemical", revision: "Rev.04",
+      revisionDate: "2026-06-18", status: "Expiring",
+      signalWord: "Danger", hazards: ["Flammable", "Toxic"]
+    },
+    {
+      id: 3, chemical: "Toluene", cas: "108-88-3",
+      supplier: "Safety Chem", revision: "Rev.03",
+      revisionDate: "2023-01-03", status: "Expired",
+      signalWord: "Danger", hazards: ["Flammable", "Irritant"]
+    },
+    {
+      id: 4, chemical: "Hydrochloric Acid", cas: "7647-01-0",
+      supplier: "Industrial Chemical", revision: "Rev.08",
+      revisionDate: "2026-05-20", status: "Active",
+      signalWord: "Danger", hazards: ["Corrosive", "Irritant"]
+    }
+  ];
+
+  let sdsData = JSON.parse(localStorage.getItem("sdsData")) || defaultData;
+
+
+  /* ------------------------------
+     PDF Storage (IndexedDB)
+  ------------------------------ */
+
+  const PDF_DB_NAME = "SDSFileDatabase";
+  const PDF_DB_VERSION = 1;
+  const PDF_STORE_NAME = "pdfFiles";
+  let currentPdfUrl = null;
+
+  function openPdfDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(PDF_DB_NAME, PDF_DB_VERSION);
+
+      request.onupgradeneeded = event => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains(PDF_STORE_NAME)) {
+          db.createObjectStore(PDF_STORE_NAME, { keyPath: "id" });
+        }
+      };
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function savePdfFile(id, file) {
+    if (!file) return;
+
+    const db = await openPdfDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PDF_STORE_NAME, "readwrite");
+      tx.objectStore(PDF_STORE_NAME).put({
+        id,
+        name: file.name,
+        type: file.type || "application/pdf",
+        blob: file,
+        updatedAt: new Date().toISOString()
+      });
+      tx.oncomplete = () => { db.close(); resolve(); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+    });
+  }
+
+  async function getPdfFile(id) {
+    const db = await openPdfDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PDF_STORE_NAME, "readonly");
+      const request = tx.objectStore(PDF_STORE_NAME).get(id);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+      tx.oncomplete = () => db.close();
+    });
+  }
+
+  async function deletePdfFile(id) {
+    const db = await openPdfDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(PDF_STORE_NAME, "readwrite");
+      tx.objectStore(PDF_STORE_NAME).delete(id);
+      tx.oncomplete = () => { db.close(); resolve(); };
+      tx.onerror = () => { db.close(); reject(tx.error); };
+    });
+  }
+
+  async function viewSDS(id) {
+    const item = sdsData.find(row => row.id === id);
+    if (!item) return;
+
+    document.getElementById("pdfTitle").textContent = item.chemical;
+    document.getElementById("pdfSubtitle").textContent =
+      `${item.cas || "-"} • ${item.supplier || "ไม่ระบุ Supplier"}`;
+
+    const viewer = document.getElementById("pdfViewer");
+    const empty = document.getElementById("pdfEmpty");
+    const openNew = document.getElementById("pdfOpenNew");
+    const download = document.getElementById("pdfDownload");
+
+    if (currentPdfUrl) {
+      URL.revokeObjectURL(currentPdfUrl);
+      currentPdfUrl = null;
+    }
+
+    try {
+      const pdf = await getPdfFile(id);
+
+      if (pdf && pdf.blob) {
+        currentPdfUrl = URL.createObjectURL(pdf.blob);
+        viewer.src = currentPdfUrl;
+        viewer.style.display = "block";
+        empty.style.display = "none";
+        openNew.href = currentPdfUrl;
+        openNew.style.display = "inline-block";
+        download.href = currentPdfUrl;
+        download.download = pdf.name || `${item.chemical}-SDS.pdf`;
+        download.style.display = "inline-block";
+      } else {
+        viewer.removeAttribute("src");
+        viewer.style.display = "none";
+        empty.style.display = "grid";
+        openNew.style.display = "none";
+        download.style.display = "none";
+      }
+
+      document.getElementById("pdfModal").classList.add("show");
+      document.body.style.overflow = "hidden";
+    } catch (error) {
+      console.error(error);
+      alert("ไม่สามารถเปิดไฟล์ PDF ได้");
+    }
+  }
+
+  function closePdfViewer() {
+    document.getElementById("pdfModal").classList.remove("show");
+    document.getElementById("pdfViewer").removeAttribute("src");
+    document.body.style.overflow = "";
+
+    if (currentPdfUrl) {
+      URL.revokeObjectURL(currentPdfUrl);
+      currentPdfUrl = null;
+    }
+  }
+
+  function pdfModalBackdrop(event) {
+    if (event.target.id === "pdfModal") closePdfViewer();
+  }
+
+  function openDrawer() {
+    document.getElementById("drawer").classList.add("show");
+    document.getElementById("overlay").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDrawer() {
+    document.getElementById("drawer").classList.remove("show");
+    document.getElementById("overlay").classList.remove("show");
+    document.body.style.overflow = "";
+  }
+
+  function openAddDrawer() {
+    document.getElementById("sdsForm").reset();
+    document.getElementById("editId").value = "";
+    document.getElementById("drawerTitle").innerText = "เพิ่มข้อมูล SDS";
+    openDrawer();
+  }
+
+  async function saveSDS() {
+    const chemical = document.getElementById("chemical").value.trim();
+    const cas = document.getElementById("cas").value.trim();
+
+    if (!chemical || !cas) {
+      alert("กรุณากรอกชื่อสารเคมี และ CAS Number");
+      return;
+    }
+
+    const hazards = Array.from(document.querySelectorAll(".hazardCheck:checked")).map(item => item.value);
+    const editId = document.getElementById("editId").value;
+
+    const record = {
+      id: editId ? Number(editId) : Date.now(),
+      chemical,
+      cas,
+      supplier: document.getElementById("supplier").value.trim(),
+      revision: document.getElementById("revision").value.trim(),
+      revisionDate: document.getElementById("revisionDate").value,
+      status: document.getElementById("status").value,
+      signalWord: document.getElementById("signalWord").value,
+      hazards
+    };
+
+    if (editId) {
+      const index = sdsData.findIndex(item => item.id === Number(editId));
+      if (index !== -1) sdsData[index] = record;
+    } else {
+      sdsData.unshift(record);
+    }
+
+    saveLocal();
+
+    const selectedPdf = document.getElementById("sdsFile").files[0];
+    if (selectedPdf) {
+      if (selectedPdf.type && selectedPdf.type !== "application/pdf") {
+        alert("กรุณาเลือกไฟล์ PDF เท่านั้น");
+        return;
+      }
+
+      try {
+        await savePdfFile(record.id, selectedPdf);
+      } catch (error) {
+        console.error(error);
+        alert("บันทึกข้อมูลสำเร็จ แต่ไม่สามารถเก็บไฟล์ PDF ได้");
+      }
+    }
+
+    closeDrawer();
+    refreshDashboard();
+  }
+
+  function editSDS(id) {
+    const item = sdsData.find(row => row.id === id);
+    if (!item) return;
+
+    document.getElementById("editId").value = item.id;
+    document.getElementById("chemical").value = item.chemical;
+    document.getElementById("cas").value = item.cas;
+    document.getElementById("supplier").value = item.supplier;
+    document.getElementById("revision").value = item.revision;
+    document.getElementById("revisionDate").value = item.revisionDate;
+    document.getElementById("status").value = item.status;
+    document.getElementById("signalWord").value = item.signalWord || "";
+
+    document.querySelectorAll(".hazardCheck").forEach(check => {
+      check.checked = item.hazards.includes(check.value);
+    });
+
+    document.getElementById("drawerTitle").innerText = "แก้ไขข้อมูล SDS";
+    openDrawer();
+  }
+
+  async function deleteSDS(id) {
+    const item = sdsData.find(row => row.id === id);
+    if (!item || !confirm(`ต้องการลบ "${item.chemical}" หรือไม่?`)) return;
+    sdsData = sdsData.filter(row => row.id !== id);
+
+    try {
+      await deletePdfFile(id);
+    } catch (error) {
+      console.error("PDF delete error:", error);
+    }
+
+    saveLocal();
+    refreshDashboard();
+  }
+
+  function renderTable() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value;
+    const hazard = document.getElementById("hazardFilter").value;
+
+    const filtered = sdsData.filter(item => {
+      const searchMatch =
+        item.chemical.toLowerCase().includes(search) ||
+        item.cas.toLowerCase().includes(search) ||
+        (item.supplier || "").toLowerCase().includes(search);
+
+      const statusMatch = !status || item.status === status;
+      const hazardMatch = !hazard || item.hazards.includes(hazard);
+
+      return searchMatch && statusMatch && hazardMatch;
+    });
+
+    const tbody = document.getElementById("sdsTable");
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const hazardText = item.hazards.length ? item.hazards.join(", ") : "-";
+      return `
+        <tr>
+          <td>
+            <button class="sds-link" title="เปิด SDS PDF" onclick="viewSDS(${item.id})">
+              ${escapeHTML(item.chemical)}
+            </button>
+          </td>
+          <td>${escapeHTML(item.cas)}</td>
+          <td>${escapeHTML(item.supplier || "-")}</td>
+          <td>${escapeHTML(item.revision || "-")}</td>
+          <td>${formatDate(item.revisionDate)}</td>
+          <td>${escapeHTML(hazardText)}</td>
+          <td>${statusBadge(item.status)}</td>
+          <td>
+            <button class="pdf-btn" onclick="viewSDS(${item.id})">📄 ดู SDS</button>
+          </td>
+          <td>
+            <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
+            <button class="action-btn" title="ลบ" onclick="deleteSDS(${item.id})">🗑️</button>
+          </td>
+        </tr>`;
+    }).join("");
+  }
+
+  function updateSummary() {
+    const total = sdsData.length;
+    const active = sdsData.filter(x => x.status === "Active").length;
+    const expiring = sdsData.filter(x => x.status === "Expiring").length;
+    const expired = sdsData.filter(x => x.status === "Expired").length;
+
+    document.getElementById("totalCount").innerText = total;
+    document.getElementById("activeCount").innerText = active;
+    document.getElementById("expiringCount").innerText = expiring;
+    document.getElementById("expiredCount").innerText = expired;
+
+    updateProgress("active", active, total);
+    updateProgress("expiring", expiring, total);
+    updateProgress("expired", expired, total);
+    updateHazardSummary();
+  }
+
+  function updateProgress(type, value, total) {
+    const percent = total === 0 ? 0 : Math.round((value / total) * 100);
+    document.getElementById(type + "Percent").innerText = percent + "%";
+    document.getElementById(type + "Progress").style.width = percent + "%";
+  }
+
+  function updateHazardSummary() {
+    const count = name => sdsData.filter(item => item.hazards.includes(name)).length;
+    document.getElementById("flammableCount").innerText = count("Flammable");
+    document.getElementById("toxicCount").innerText = count("Toxic");
+    document.getElementById("corrosiveCount").innerText = count("Corrosive");
+    document.getElementById("irritantCount").innerText = count("Irritant");
+  }
+
+  function exportCSV() {
+    const rows = [
+      ["Chemical", "CAS Number", "Supplier", "Revision", "Revision Date", "Status", "Hazards"],
+      ...sdsData.map(item => [
+        item.chemical, item.cas, item.supplier, item.revision,
+        item.revisionDate, item.status, item.hazards.join(" / ")
+      ])
+    ];
+
+    const csv = rows.map(row =>
+      row.map(value => `"${String(value || "").replaceAll('"', '""')}"`).join(",")
+    ).join("\n");
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "SDS-Data.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function statusBadge(status) {
+    if (status === "Active") return `<span class="badge active">● Active</span>`;
+    if (status === "Expiring") return `<span class="badge expiring">● Expiring</span>`;
+    return `<span class="badge expired">● Expired</span>`;
+  }
+
+  function formatDate(date) {
+    if (!date) return "-";
+    return new Date(date + "T00:00:00").toLocaleDateString("th-TH", {
+      day: "2-digit", month: "2-digit", year: "numeric"
+    });
+  }
+
+  function escapeHTML(value = "") {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function saveLocal() {
+    localStorage.setItem("sdsData", JSON.stringify(sdsData));
+  }
+
+  function refreshDashboard() {
+    renderTable();
+    updateSummary();
+  }
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      if (document.getElementById("pdfModal").classList.contains("show")) {
+        closePdfViewer();
+      } else {
+        closeDrawer();
+      }
+    }
+  });
+
+  refreshDashboard();
+</script>
+<script>
+  /* ---------------------------------------------------------------
+     Google Apps Script / GitHub Pages bridge
+     - Apps Script page: google.script.run + Google Sheet/Drive
+     - GitHub Pages: read-only JSONP from Apps Script when apiUrl is set
+     - No apiUrl: original local demo mode is preserved
+  ---------------------------------------------------------------- */
+  (function () {
+    var config = window.SDS_CONFIG || {};
+    var isAppsScript = typeof google !== "undefined" && google.script && google.script.run;
+    var apiUrl = String(config.apiUrl || "").trim();
+    var isRemote = !isAppsScript && Boolean(apiUrl);
+    var publicReadOnly = isRemote && config.publicReadOnly !== false;
+    var baseSave = window.saveSDS;
+    var baseDelete = window.deleteSDS;
+    var baseEdit = window.editSDS;
+    var baseView = window.viewSDS;
+
+    function setConnectionStatus(text) {
+      var subtitle = document.querySelector(".brand p");
+      if (subtitle) subtitle.textContent = text;
+    }
+
+    function applyPublicMode() {
+      if (!publicReadOnly) return;
+      var addButton = document.querySelector(".page-header .btn-primary");
+      if (addButton) addButton.style.display = "none";
+      var drawer = document.getElementById("drawer");
+      if (drawer) drawer.style.display = "none";
+      var actionHeader = document.querySelector("thead th:last-child");
+      if (actionHeader) actionHeader.style.display = "none";
+      document.querySelectorAll("#sdsTable tr").forEach(function (row) {
+        if (row.lastElementChild) row.lastElementChild.style.display = "none";
+      });
+    }
+
+    function applyData(data) {
+      sdsData = Array.isArray(data) ? data : [];
+      refreshDashboard();
+      applyPublicMode();
+    }
+
+    function loadFromAppsScript() {
+      setConnectionStatus("เชื่อมต่อ Google Sheet / Drive");
+      google.script.run
+        .withSuccessHandler(applyData)
+        .withFailureHandler(function (error) {
+          console.error(error);
+          setConnectionStatus("เชื่อมต่อ Google Sheet ไม่สำเร็จ");
+          alert(error && error.message ? error.message : "ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้");
+        })
+        .listSds();
+    }
+
+    function loadFromRemoteApi() {
+      return new Promise(function (resolve, reject) {
+        var callback = "sdsJsonp_" + Date.now();
+        var script = document.createElement("script");
+        var url = new URL(apiUrl, window.location.href);
+        url.searchParams.set("action", "api");
+        url.searchParams.set("callback", callback);
+        url.searchParams.set("_", String(Date.now()));
+
+        window[callback] = function (response) {
+          try {
+            if (!response || response.ok === false) throw new Error(response && response.error || "API error");
+            applyData(response.data || []);
+            setConnectionStatus("โหมดดูข้อมูลสาธารณะ");
+            resolve(response.data || []);
+          } catch (error) {
+            reject(error);
+          } finally {
+            delete window[callback];
+            script.remove();
+          }
+        };
+        script.onerror = function () {
+          delete window[callback];
+          script.remove();
+          reject(new Error("ไม่สามารถเชื่อมต่อ Apps Script API ได้"));
+        };
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    function readFile(file) {
+      if (!file) return Promise.resolve(null);
+      if ((file.type && file.type !== "application/pdf") && !/\.pdf$/i.test(file.name || "")) {
+        return Promise.reject(new Error("กรุณาเลือกไฟล์ PDF เท่านั้น"));
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        return Promise.reject(new Error("ไฟล์ PDF ต้องมีขนาดไม่เกิน 10 MB"));
+      }
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          resolve({
+            name: file.name,
+            mimeType: file.type || "application/pdf",
+            base64: String(reader.result).split(",")[1] || ""
+          });
+        };
+        reader.onerror = function () { reject(reader.error || new Error("อ่านไฟล์ไม่สำเร็จ")); };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function collectRecord() {
+      var editId = document.getElementById("editId").value;
+      return {
+        id: editId || "",
+        chemical: document.getElementById("chemical").value.trim(),
+        cas: document.getElementById("cas").value.trim(),
+        supplier: document.getElementById("supplier").value.trim(),
+        revision: document.getElementById("revision").value.trim(),
+        revisionDate: document.getElementById("revisionDate").value,
+        status: document.getElementById("status").value,
+        signalWord: document.getElementById("signalWord").value,
+        hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; })
+      };
+    }
+
+    function postRemote(payload) {
+      return fetch(apiUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    window.saveSDS = async function () {
+      if (!isAppsScript && !isRemote) return baseSave();
+      if (publicReadOnly) return;
+
+      var record = collectRecord();
+      if (!record.chemical || !record.cas) {
+        alert("กรุณากรอกชื่อสารเคมี และ CAS Number");
+        return;
+      }
+
+      try {
+        var file = document.getElementById("sdsFile").files[0] || null;
+        var fileData = await readFile(file);
+
+        if (isAppsScript) {
+          google.script.run
+            .withSuccessHandler(function () {
+              closeDrawer();
+              loadFromAppsScript();
+            })
+            .withFailureHandler(function (error) {
+              alert(error && error.message ? error.message : "บันทึกข้อมูลไม่สำเร็จ");
+            })
+            .saveSds(record, fileData);
+        } else {
+          await postRemote({ action: "save", record: record, file: fileData });
+          closeDrawer();
+          setTimeout(function () { loadFromRemoteApi().catch(function (error) { alert(error.message); }); }, 900);
+        }
+      } catch (error) {
+        alert(error.message || "บันทึกข้อมูลไม่สำเร็จ");
+      }
+    };
+
+    window.deleteSDS = async function (id) {
+      if (!isAppsScript && !isRemote) return baseDelete(id);
+      if (publicReadOnly) return;
+      var item = sdsData.find(function (row) { return String(row.id) === String(id); });
+      if (!item || !confirm("ต้องการลบ \"" + item.chemical + "\" หรือไม่?")) return;
+
+      if (isAppsScript) {
+        google.script.run
+          .withSuccessHandler(loadFromAppsScript)
+          .withFailureHandler(function (error) { alert(error.message || "ลบข้อมูลไม่สำเร็จ"); })
+          .deleteSds(id);
+      } else {
+        await postRemote({ action: "delete", id: id });
+        setTimeout(function () { loadFromRemoteApi().catch(function (error) { alert(error.message); }); }, 900);
+      }
+    };
+
+    window.editSDS = function (id) {
+      if (publicReadOnly) return;
+      return baseEdit(id);
+    };
+
+    window.viewSDS = async function (id) {
+      var item = sdsData.find(function (row) { return String(row.id) === String(id); });
+      if (!item || !item.pdfUrl) return baseView(id);
+
+      document.getElementById("pdfTitle").textContent = item.chemical;
+      document.getElementById("pdfSubtitle").textContent = (item.cas || "-") + " • " + (item.supplier || "ไม่ระบุ Supplier");
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+      viewer.src = item.pdfUrl;
+      viewer.style.display = "block";
+      empty.style.display = "none";
+      openNew.href = item.pdfUrl;
+      openNew.style.display = "inline-block";
+      download.href = item.pdfUrl;
+      download.download = item.pdfName || (item.chemical + "-SDS.pdf");
+      download.style.display = "inline-block";
+      document.getElementById("pdfModal").classList.add("show");
+      document.body.style.overflow = "hidden";
+    };
+
+    if (isAppsScript) {
+      applyPublicMode();
+      loadFromAppsScript();
+    } else if (isRemote) {
+      applyPublicMode();
+      loadFromRemoteApi().catch(function (error) {
+        console.error(error);
+        setConnectionStatus("โหลดข้อมูลจาก Apps Script ไม่สำเร็จ");
+      });
+    } else {
+      setConnectionStatus("โหมดตัวอย่างในเครื่อง");
+    }
+  })();
+</script>
+<script src="config.js"></script>
+</body>
+</html>

@@ -26,6 +26,14 @@ function doGet(e) {
     return jsonResponse_(response, params.callback);
   }
 
+  if (params.action === "file") {
+    try {
+      return jsonResponse_(getSdsFile(params.fileId || params.id), params.callback);
+    } catch (error) {
+      return jsonResponse_({ ok: false, error: error.message }, params.callback);
+    }
+  }
+
   return HtmlService.createTemplateFromFile("Index")
     .evaluate()
     .setTitle("SDS Management Dashboard")
@@ -96,6 +104,25 @@ function listSds() {
   return values.filter(function(row) {
     return row[0] !== "" && row[0] !== null;
   }).map(rowToObject_);
+}
+
+/**
+ * Returns an uploaded PDF through the Apps Script web app instead of sending
+ * viewers to Google Drive. The web app must be deployed to execute as the
+ * owner and allow anonymous access for public viewers.
+ */
+function getSdsFile(fileId) {
+  var id = clean_(fileId);
+  if (!id) throw new Error("ไม่พบรหัสไฟล์ SDS");
+
+  var file = DriveApp.getFileById(id);
+  var blob = file.getBlob();
+  return {
+    ok: true,
+    name: file.getName(),
+    mimeType: blob.getContentType() || "application/pdf",
+    base64: Utilities.base64Encode(blob.getBytes())
+  };
 }
 
 function saveSds(record, fileData) {

@@ -1029,6 +1029,114 @@
       empty.style.display = "grid";
     }
 
+    function showPdfLoading(item) {
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+      resetPdfEmpty();
+      viewer.removeAttribute("src");
+      viewer.style.display = "none";
+      openNew.style.display = "none";
+      download.style.display = "none";
+      empty.innerHTML = `
+        <div>
+          <div style="font-size:42px; margin-bottom:10px;">📄</div>
+          <strong>กำลังโหลด SDS...</strong>
+          <div style="margin-top:6px;">กำลังเตรียมเอกสารสำหรับผู้ชมโดยไม่ต้องเข้าสู่ Google Drive</div>
+        </div>`;
+      empty.style.display = "grid";
+    }
+
+    function showPdfError(error) {
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+      var message = error && error.message ? error.message : "ไม่สามารถโหลดไฟล์ SDS ได้";
+      viewer.removeAttribute("src");
+      viewer.style.display = "none";
+      openNew.style.display = "none";
+      download.style.display = "none";
+      empty.innerHTML = `
+        <div>
+          <div style="font-size:42px; margin-bottom:10px;">⚠️</div>
+          <strong>เปิดเอกสาร SDS ไม่สำเร็จ</strong>
+          <div style="margin-top:8px;">${escapeHTML(message)}</div>
+          <div style="margin-top:8px; font-size:12px;">กรุณาตรวจสอบการเผยแพร่ Web app เป็น “Anyone” และเลือกให้ทำงานในฐานะเจ้าของระบบ</div>
+        </div>`;
+      empty.style.display = "grid";
+    }
+
+    function showPdfBlob(item, fileData) {
+      if (!fileData || fileData.ok === false || !fileData.base64) {
+        throw new Error(fileData && fileData.error || "ไม่พบข้อมูลไฟล์ SDS");
+      }
+
+      var binary = atob(fileData.base64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var blob = new Blob([bytes], { type: fileData.mimeType || "application/pdf" });
+      var viewer = document.getElementById("pdfViewer");
+      var empty = document.getElementById("pdfEmpty");
+      var openNew = document.getElementById("pdfOpenNew");
+      var download = document.getElementById("pdfDownload");
+
+      if (currentPdfUrl) URL.revokeObjectURL(currentPdfUrl);
+      currentPdfUrl = URL.createObjectURL(blob);
+      viewer.src = currentPdfUrl;
+      viewer.style.display = "block";
+      empty.style.display = "none";
+      openNew.href = currentPdfUrl;
+      openNew.textContent = "เปิดแท็บใหม่";
+      openNew.style.display = "inline-block";
+      download.href = currentPdfUrl;
+      download.download = fileData.name || item.pdfName || (item.chemical + "-SDS.pdf");
+      download.style.display = "inline-block";
+    }
+
+    function loadDrivePdf(item) {
+      if (isAppsScript) {
+        return new Promise(function (resolve, reject) {
+          google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(reject)
+            .getSdsFile(item.pdfFileId);
+        });
+      }
+
+      if (isRemote) {
+        return new Promise(function (resolve, reject) {
+          var callback = "sdsFileJsonp_" + Date.now();
+          var script = document.createElement("script");
+          var url = new URL(apiUrl, window.location.href);
+          url.searchParams.set("action", "file");
+          url.searchParams.set("fileId", item.pdfFileId || "");
+          url.searchParams.set("callback", callback);
+          url.searchParams.set("_", String(Date.now()));
+
+          window[callback] = function (response) {
+            delete window[callback];
+            script.remove();
+            if (!response || response.ok === false) {
+              reject(new Error(response && response.error || "ไม่สามารถโหลดไฟล์ SDS ได้"));
+              return;
+            }
+            resolve(response);
+          };
+          script.onerror = function () {
+            delete window[callback];
+            script.remove();
+            reject(new Error("ไม่สามารถเชื่อมต่อ Apps Script เพื่อโหลดไฟล์ SDS ได้"));
+          };
+          script.src = url.toString();
+          document.body.appendChild(script);
+        });
+      }
+
+      return Promise.reject(new Error("ไฟล์ SDS นี้ต้องเปิดผ่าน Apps Script ที่ตั้งค่าเป็นสาธารณะ"));
+    }
+
     window.jumpToSdsTable = function (type, value) {
       var searchInput = document.getElementById("searchInput");
       var statusFilter = document.getElementById("statusFilter");
@@ -1226,30 +1334,25 @@
 
     window.viewSDS = async function (id) {
       var item = sdsData.find(function (row) { return String(row.id) === String(id); });
-      if (!item || !item.pdfUrl) return baseView(id);
+      if (!item || (!item.pdfUrl && !item.pdfFileId)) return baseView(id);
 
       document.getElementById("pdfTitle").textContent = item.chemical;
       document.getElementById("pdfSubtitle").textContent = (item.cas || "-") + " • " + (item.supplier || "ไม่ระบุ Supplier");
-      var viewer = document.getElementById("pdfViewer");
-      var empty = document.getElementById("pdfEmpty");
-      var openNew = document.getElementById("pdfOpenNew");
-      var download = document.getElementById("pdfDownload");
-      if (isDrivePreviewUrl(item.pdfUrl)) {
-        resetPdfEmpty();
-        viewer.src = item.pdfUrl;
-        viewer.style.display = "block";
-        empty.style.display = "none";
-        openNew.href = item.pdfUrl;
-        openNew.textContent = "เปิดแท็บใหม่";
-        openNew.style.display = "inline-block";
-        download.href = item.pdfUrl;
-        download.download = item.pdfName || (item.chemical + "-SDS.pdf");
-        download.style.display = "inline-block";
-      } else {
-        showExternalSds(item);
-      }
       document.getElementById("pdfModal").classList.add("show");
       document.body.style.overflow = "hidden";
+
+      try {
+        if (item.pdfFileId || isDrivePreviewUrl(item.pdfUrl)) {
+          showPdfLoading(item);
+          var fileData = await loadDrivePdf(item);
+          showPdfBlob(item, fileData);
+        } else {
+          showExternalSds(item);
+        }
+      } catch (error) {
+        console.error(error);
+        showPdfError(error);
+      }
     };
 
     if (isAppsScript) {

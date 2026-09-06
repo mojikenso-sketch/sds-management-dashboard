@@ -128,9 +128,15 @@
       transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
     .hazard:hover { transform: translateY(-3px); border-color: #93c5fd; box-shadow: 0 8px 18px rgba(30, 64, 175, 0.1); }
-    .hazard:hover .hazard-icon { animation-play-state: paused; transform: translateY(-2px) scale(1.14) rotate(-8deg); }
+    .hazard:hover .hazard-icon:not(.flame-icon) { animation-play-state: paused; transform: translateY(-2px) scale(1.14) rotate(-8deg); }
     .hazard-left { display: flex; gap: 10px; align-items: center; }
     .hazard-icon { font-size: 25px; animation: hazardFloat 3s ease-in-out infinite; transform-origin: center bottom; }
+    .flame-icon {
+      display: inline-block; font-size: 28px; transform-origin: center bottom;
+      filter: drop-shadow(0 0 3px rgba(249, 115, 22, 0.55));
+      animation: flameFlicker 1.05s ease-in-out infinite;
+    }
+    .hazard:hover .flame-icon { filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.78)); }
     .hazards .hazard:nth-child(2) .hazard-icon { animation-delay: 0.45s; }
     .hazards .hazard:nth-child(3) .hazard-icon { animation-delay: 0.9s; }
     .hazards .hazard:nth-child(4) .hazard-icon { animation-delay: 1.35s; }
@@ -352,6 +358,12 @@
       0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
       50% { transform: translateY(-5px) rotate(-5deg) scale(1.08); }
     }
+    @keyframes flameFlicker {
+      0%, 100% { transform: translateY(0) rotate(-3deg) scale(1, 1); filter: drop-shadow(0 0 3px rgba(249, 115, 22, 0.5)); }
+      25% { transform: translateY(-2px) rotate(4deg) scale(1.08, 0.96); filter: drop-shadow(0 0 6px rgba(251, 146, 60, 0.74)); }
+      50% { transform: translateY(1px) rotate(-5deg) scale(0.96, 1.08); filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.62)); }
+      75% { transform: translateY(-1px) rotate(3deg) scale(1.04, 0.98); filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.8)); }
+    }
     @keyframes progressGrow {
       from { opacity: 0.45; transform: scaleX(0); }
       to { opacity: 1; transform: scaleX(1); }
@@ -432,7 +444,7 @@
       <div class="hazards">
         <div class="hazard clickable-summary" role="button" tabindex="0"
           onclick="jumpToSdsTable('hazard', 'Flammable')" onkeydown="handleSummaryKey(event, 'hazard', 'Flammable')">
-          <div class="hazard-left"><span class="hazard-icon">🔥</span><span>Flammable</span></div>
+          <div class="hazard-left"><span class="hazard-icon flame-icon" aria-hidden="true">🔥</span><span>Flammable</span></div>
           <strong id="flammableCount">0</strong>
         </div>
         <div class="hazard clickable-summary" role="button" tabindex="0"

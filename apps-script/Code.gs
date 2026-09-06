@@ -8,14 +8,15 @@
 
 var SDS_HEADERS = [
   "id", "chemical", "cas", "supplier", "revision", "revisionDate",
-  "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt"
+  "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt",
+  "reviewDate", "thaiSds"
 ];
 
 var SAMPLE_ROWS = [
-  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "2026-08-12", "Active", "Danger", "Flammable|Irritant", "", "", new Date().toISOString()],
-  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "2026-06-18", "Expiring", "Danger", "Flammable|Toxic", "", "", new Date().toISOString()],
-  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "2023-01-03", "Expired", "Danger", "Flammable|Irritant", "", "", new Date().toISOString()],
-  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "2026-05-20", "Active", "Danger", "Corrosive|Irritant", "", "", new Date().toISOString()]
+  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "2026-08-12", "Current", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "2029-08-12", false],
+  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "2023-06-18", "Review Due", "Danger", "Flammable|Toxic", "", "", new Date().toISOString(), "2026-06-18", false],
+  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "2023-01-03", "Update Required", "Danger", "Flammable|Irritant", "", "", new Date().toISOString(), "", false],
+  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "2025-04-28", "Current", "Danger", "Corrosive|Irritant", "", "", new Date().toISOString(), "2028-04-28", false]
 ];
 
 function doGet(e) {
@@ -169,7 +170,9 @@ function saveSds(record, fileData) {
       normalized.hazards.join("|"),
       pdfFileId,
       pdfName,
-      new Date().toISOString()
+      new Date().toISOString(),
+      normalized.reviewDate,
+      normalized.thaiSds
     ];
 
     if (existing) {
@@ -201,7 +204,15 @@ function deleteSds(id) {
 function getSheet_() {
   var id = PropertiesService.getScriptProperties().getProperty("SDS_SPREADSHEET_ID");
   if (!id) throw new Error("ยังไม่ได้ตั้งค่าระบบ กรุณารัน setupSystem() ก่อน");
-  return SpreadsheetApp.openById(id).getSheetByName("SDS");
+  var sheet = SpreadsheetApp.openById(id).getSheetByName("SDS");
+  if (sheet.getMaxColumns() < SDS_HEADERS.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), SDS_HEADERS.length - sheet.getMaxColumns());
+  }
+  var header = sheet.getRange(1, 1, 1, SDS_HEADERS.length).getValues()[0];
+  if (header.join("|") !== SDS_HEADERS.join("|")) {
+    sheet.getRange(1, 1, 1, SDS_HEADERS.length).setValues([SDS_HEADERS]);
+  }
+  return sheet;
 }
 
 function getFolder_() {
@@ -235,10 +246,20 @@ function normalizeRecord_(record) {
     supplier: clean_(record.supplier),
     revision: clean_(record.revision),
     revisionDate: clean_(record.revisionDate),
-    status: ["Active", "Expiring", "Expired"].indexOf(record.status) !== -1 ? record.status : "Active",
+    reviewDate: clean_(record.reviewDate),
+    status: normalizeStatus_(record.status),
     signalWord: ["Danger", "Warning", ""].indexOf(record.signalWord || "") !== -1 ? (record.signalWord || "") : "",
-    hazards: hazards
+    hazards: hazards,
+    thaiSds: record.thaiSds === true || String(record.thaiSds || "").toLowerCase() === "true"
   };
+}
+
+function normalizeStatus_(status) {
+  var value = clean_(status);
+  if (value === "Active") return "Current";
+  if (value === "Expiring") return "Review Due";
+  if (value === "Expired") return "Update Required";
+  return ["Current", "Review Due", "Update Required"].indexOf(value) !== -1 ? value : "Current";
 }
 
 function clean_(value) {
@@ -254,13 +275,15 @@ function rowToObject_(row) {
     supplier: String(row[3] || ""),
     revision: String(row[4] || ""),
     revisionDate: formatDateValue_(row[5]),
-    status: String(row[6] || "Active"),
+    status: normalizeStatus_(row[6]),
     signalWord: String(row[7] || ""),
     hazards: String(row[8] || "").split("|").filter(String),
     pdfFileId: fileId,
     pdfName: String(row[10] || ""),
     pdfUrl: fileId ? "https://drive.google.com/file/d/" + encodeURIComponent(fileId) + "/preview" : "",
-    updatedAt: String(row[11] || "")
+    updatedAt: String(row[11] || ""),
+    reviewDate: formatDateValue_(row[12]),
+    thaiSds: String(row[13] || "").toLowerCase() === "true"
   };
 }
 

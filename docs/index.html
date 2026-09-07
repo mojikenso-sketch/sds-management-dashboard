@@ -459,10 +459,11 @@
     .sds-link {
       border: 0; background: transparent; color: var(--primary);
       font-weight: 600; padding: 0; text-align: left;
-      text-decoration: underline; text-underline-offset: 3px;
+      text-decoration: none;
       display: inline-flex; align-items: center; gap: 9px; white-space: nowrap;
     }
     .chemical-hazard-icon { display: inline-block; font-size: 20px; text-decoration: none; }
+    .sds-link .chemical-name { text-decoration: underline; text-underline-offset: 3px; }
     .pdf-btn {
       border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8;
       padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
@@ -1788,7 +1789,7 @@
           <td>
             <button class="sds-link" title="เปิด SDS PDF" onclick="viewSDS(${item.id})">
               ${hazardVisual(item)}
-              <span>${escapeHTML(item.chemical)}</span>
+              <span class="chemical-name">${escapeHTML(item.chemical)}</span>
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>

@@ -154,6 +154,7 @@
       gap: 18px; margin-bottom: 22px;
     }
     .section-title { font-size: 16px; margin-bottom: 18px; }
+    .hazard-total { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
     .section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
     .section-title-row .section-title { margin-bottom: 0; }
     .section-title-row .settings-btn { min-height: 34px; padding: 7px 11px; font-size: 12px; }
@@ -760,7 +761,7 @@
 
     <div class="card">
       <div class="section-title-row">
-        <h3 class="section-title">Hazard Overview</h3>
+        <h3 class="section-title">Hazard Overview <span class="hazard-total" id="hazardOverviewTotal">(รวมทั้งหมด 0 เอกสาร)</span></h3>
         <button class="settings-btn" type="button" onclick="openHazardSettings()">⚙ ตั้งค่า</button>
       </div>
       <div class="hazards" id="hazardOverview"></div>
@@ -1536,6 +1537,8 @@
   function renderHazardOverview() {
     const container = document.getElementById("hazardOverview");
     if (!container) return;
+    const total = document.getElementById("hazardOverviewTotal");
+    if (total) total.textContent = `(รวมทั้งหมด ${sdsData.length} เอกสาร)`;
     container.innerHTML = "";
     hazardDefinitions.forEach((definition, index) => {
       const card = document.createElement("div");

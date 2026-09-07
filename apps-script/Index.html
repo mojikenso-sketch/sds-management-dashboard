@@ -648,10 +648,10 @@
     .settings-preview { min-width: 72px; height: 40px; display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 8px; background: #fff; color: #475569; font-size: 12px; }
     .settings-preview .hazard-icon { font-size: 22px; }
     .icon-picker { display: grid; grid-template-columns: repeat(8, minmax(38px, 1fr)); gap: 7px; margin-top: 12px; }
-    .icon-choice { min-height: 38px; border: 1px solid #dbe4ef; border-radius: 9px; background: #fff; font-size: 21px; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .icon-choice { min-height: 38px; padding: 0; display: grid; place-items: center; overflow: hidden; isolation: isolate; border: 1px solid #dbe4ef; border-radius: 9px; background: #fff; font-size: 21px; line-height: 1; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
     .icon-choice:hover { transform: translateY(-2px) scale(1.04); border-color: #93c5fd; background: #eff6ff; }
     .icon-choice.selected { border: 2px solid #2563eb; background: #dbeafe; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
-    .icon-choice .hazard-icon { font-size: 22px; }
+    .icon-choice .hazard-icon { width: 1.35em; height: 1.35em; display: grid; place-items: center; font-size: 22px; line-height: 1; transform-origin: center; }
     .settings-add { margin-top: 20px; padding: 17px; border: 1px dashed #93c5fd; border-radius: 13px; background: #eff6ff; }
     .settings-add h4 { color: #1e3a8a; font-size: 15px; }
     .settings-add .settings-name-input { margin-bottom: 3px; }

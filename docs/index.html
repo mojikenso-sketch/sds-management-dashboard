@@ -1946,6 +1946,9 @@
     const suppliers = [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
     input.value = suppliers.includes(current) ? current : "";
     renderFilterMenu("supplierFilter", "supplierMenu");
+    const menu = document.getElementById("supplierMenu");
+    if (menu) menu.hidden = true;
+    if (input) input.setAttribute("aria-expanded", "false");
   }
 
   document.addEventListener("click", event => {

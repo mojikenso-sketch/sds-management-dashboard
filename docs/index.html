@@ -64,6 +64,12 @@
     }
     .topbar-search input { width: 100%; border: 0; outline: 0; color: var(--text); background: transparent; }
     .admin { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
+    .settings-btn {
+      height: 38px; padding: 0 13px; border: 1px solid #bfdbfe; border-radius: 9px;
+      background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .settings-btn:hover { transform: translateY(-2px); background: #dbeafe; box-shadow: 0 6px 14px rgba(30, 64, 175, 0.14); }
     .user {
       width: 38px; height: 38px; border-radius: 50%; background: #e2e8f0;
       display: grid; place-items: center;
@@ -148,6 +154,9 @@
       gap: 18px; margin-bottom: 22px;
     }
     .section-title { font-size: 16px; margin-bottom: 18px; }
+    .section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    .section-title-row .section-title { margin-bottom: 0; }
+    .section-title-row .settings-btn { min-height: 34px; padding: 7px 11px; font-size: 12px; }
     .status-list { display: grid; gap: 13px; }
     .status-row {
       display: grid; grid-template-columns: 100px 1fr 50px;
@@ -187,6 +196,18 @@
       filter: drop-shadow(0 0 3px rgba(244, 63, 94, 0.42));
       animation: irritantAlert 1.55s ease-in-out infinite;
     }
+    .hazard-sparkle { animation: sparkleTwinkle 2.6s ease-in-out infinite; }
+    .hazard-bolt { animation: boltFlash 2.4s ease-in-out infinite; }
+    .hazard-bio { animation: bioPulse 2.8s ease-in-out infinite; }
+    .hazard-radiation { animation: radiationSpin 3.8s linear infinite; }
+    .hazard-drop { animation: dropBob 2.2s ease-in-out infinite; }
+    .hazard-leaf { animation: leafSway 2.5s ease-in-out infinite; }
+    .hazard-gear { animation: gearSpin 4.5s linear infinite; }
+    .hazard-alert { animation: alertFlash 2s ease-in-out infinite; }
+    .hazard-snow { animation: snowSpin 4s ease-in-out infinite; }
+    .hazard-orbit { animation: orbitPulse 2.7s ease-in-out infinite; }
+    .hazard-burst { animation: burstPop 2.2s ease-in-out infinite; }
+    .hazard-microscope { animation: microscopeBob 2.4s ease-in-out infinite; }
     .hazard:hover .flame-icon { filter: drop-shadow(0 0 7px rgba(249, 115, 22, 0.78)); }
     .hazards .hazard:nth-child(2) .hazard-icon { animation-delay: 0.45s; }
     .hazards .hazard:nth-child(3) .hazard-icon { animation-delay: 0.9s; }
@@ -418,6 +439,8 @@
     .hazard-checkboxes {
       display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
+    .hazard-list-search { margin-bottom: 10px; }
+    .hazard-list-empty { padding: 10px; color: var(--muted); font-size: 13px; text-align: center; background: #f8fafc; border-radius: 8px; }
     .check-item {
       display: flex; align-items: center; gap: 8px; background: #f8fafc;
       padding: 10px; border-radius: 8px; font-size: 13px;
@@ -521,6 +544,18 @@
       82% { transform: translateY(0) rotate(8deg) scale(0.98, 1.08); }
       90% { transform: translateY(-1px) rotate(-4deg) scale(1.04); }
     }
+    @keyframes sparkleTwinkle { 0%, 100% { transform: rotate(-8deg) scale(.9); filter: drop-shadow(0 0 2px rgba(234, 179, 8, .35)); } 50% { transform: rotate(10deg) scale(1.18); filter: drop-shadow(0 0 9px rgba(250, 204, 21, .82)); } }
+    @keyframes boltFlash { 0%, 72%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 2px rgba(234, 179, 8, .35)); } 76% { transform: translateY(-3px) scale(1.18); filter: drop-shadow(0 0 10px rgba(250, 204, 21, .95)); } 82% { transform: translateY(1px) scale(.92); } }
+    @keyframes bioPulse { 0%, 100% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 3px rgba(22, 163, 74, .4)); } 50% { transform: scale(1.14) rotate(4deg); filter: drop-shadow(0 0 8px rgba(74, 222, 128, .82)); } }
+    @keyframes radiationSpin { from { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.1); filter: drop-shadow(0 0 8px rgba(250, 204, 21, .75)); } to { transform: rotate(360deg) scale(1); } }
+    @keyframes dropBob { 0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 3px rgba(14, 165, 233, .38)); } 50% { transform: translateY(-5px) scale(1.12); filter: drop-shadow(0 0 8px rgba(56, 189, 248, .8)); } }
+    @keyframes leafSway { 0%, 100% { transform: rotate(-8deg) translateY(0); } 50% { transform: rotate(10deg) translateY(-4px) scale(1.08); filter: drop-shadow(0 0 7px rgba(34, 197, 94, .7)); } }
+    @keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes alertFlash { 0%, 72%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(244, 63, 94, .3)); } 78% { transform: scale(1.16); filter: drop-shadow(0 0 9px rgba(244, 63, 94, .85)); } 84% { transform: scale(.94); } }
+    @keyframes snowSpin { 0%, 100% { transform: rotate(0deg) translateY(0); } 50% { transform: rotate(22deg) translateY(-4px) scale(1.1); filter: drop-shadow(0 0 8px rgba(125, 211, 252, .9)); } }
+    @keyframes orbitPulse { 0%, 100% { transform: rotate(-10deg) scale(1); } 50% { transform: rotate(10deg) scale(1.12); filter: drop-shadow(0 0 8px rgba(96, 165, 250, .78)); } }
+    @keyframes burstPop { 0%, 100% { transform: scale(.94) rotate(-5deg); } 50% { transform: scale(1.18) rotate(7deg); filter: drop-shadow(0 0 9px rgba(251, 146, 60, .8)); } }
+    @keyframes microscopeBob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(5deg) scale(1.08); filter: drop-shadow(0 0 7px rgba(59, 130, 246, .72)); } }
     @keyframes progressGrow {
       from { opacity: 0.45; transform: scaleX(0); }
       to { opacity: 1; transform: scaleX(1); }
@@ -588,6 +623,38 @@
     .login-shake { animation: loginShake 0.35s ease both; }
     @keyframes loginPop { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
     @keyframes loginShake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
+    .settings-modal {
+      position: fixed; inset: 0; z-index: 140; display: grid; place-items: center;
+      padding: 22px; background: rgba(15, 23, 42, 0.56);
+    }
+    .settings-modal[hidden] { display: none; }
+    .settings-dialog {
+      width: min(900px, 100%); max-height: 92vh; display: flex; flex-direction: column;
+      overflow: hidden; border: 1px solid #bfdbfe; border-radius: 18px; background: #fff;
+      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.3); animation: loginPop 0.35s ease both;
+    }
+    .settings-header, .settings-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .settings-header h3 { color: #1e3a8a; font-size: 19px; }
+    .settings-header p { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .settings-close { width: 34px; height: 34px; border: 0; border-radius: 8px; background: #f1f5f9; color: #475569; font-size: 20px; }
+    .settings-body { overflow-y: auto; padding: 20px 22px; }
+    .hazard-settings-list { display: grid; gap: 14px; }
+    .hazard-setting-row { padding: 15px; border: 1px solid #dbe4ef; border-radius: 13px; background: #f8fbff; }
+    .hazard-setting-top { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: end; }
+    .settings-label { display: block; color: #334155; font-size: 13px; font-weight: 700; }
+    .settings-name-input { width: 100%; height: 40px; margin-top: 7px; padding: 0 11px; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; background: #fff; }
+    .settings-name-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(30, 64, 175, .08); }
+    .settings-preview { min-width: 72px; height: 40px; display: flex; align-items: center; justify-content: center; gap: 5px; border-radius: 8px; background: #fff; color: #475569; font-size: 12px; }
+    .settings-preview .hazard-icon { font-size: 22px; }
+    .icon-picker { display: grid; grid-template-columns: repeat(8, minmax(38px, 1fr)); gap: 7px; margin-top: 12px; }
+    .icon-choice { min-height: 38px; border: 1px solid #dbe4ef; border-radius: 9px; background: #fff; font-size: 21px; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .icon-choice:hover { transform: translateY(-2px) scale(1.04); border-color: #93c5fd; background: #eff6ff; }
+    .icon-choice.selected { border: 2px solid #2563eb; background: #dbeafe; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+    .icon-choice .hazard-icon { font-size: 22px; }
+    .settings-add { margin-top: 20px; padding: 17px; border: 1px dashed #93c5fd; border-radius: 13px; background: #eff6ff; }
+    .settings-add h4 { color: #1e3a8a; font-size: 15px; }
+    .settings-add .settings-name-input { margin-bottom: 3px; }
+    .settings-footer { justify-content: flex-end; border-top: 1px solid var(--border); border-bottom: 0; background: #fff; }
   </style>
 </head>
 
@@ -604,6 +671,32 @@
       <button class="btn-primary" type="submit">เข้าสู่ระบบ</button>
       <div class="login-error" id="loginError" role="alert" aria-live="polite"></div>
     </form>
+  </div>
+</div>
+<div class="settings-modal" id="hazardSettingsModal" hidden onclick="closeHazardSettings(event)">
+  <div class="settings-dialog" onclick="event.stopPropagation()">
+    <div class="settings-header">
+      <div>
+        <h3>⚙ ตั้งค่า Hazard Overview</h3>
+        <p>แก้ไขชื่อ เลือกไอคอน และเพิ่มประเภท Hazard ได้ตามต้องการ</p>
+      </div>
+      <button class="settings-close" type="button" aria-label="ปิดหน้าตั้งค่า" onclick="closeHazardSettings()">×</button>
+    </div>
+    <div class="settings-body">
+      <div class="hazard-settings-list" id="hazardSettingsList"></div>
+      <div class="settings-add">
+        <h4>＋ เพิ่ม Hazard ใหม่</h4>
+        <label class="settings-label" for="newHazardName">ชื่อ Hazard</label>
+        <input class="settings-name-input" id="newHazardName" placeholder="เช่น Oxidizing" autocomplete="off">
+        <div class="settings-label" style="margin-top:12px;">เลือกไอคอน</div>
+        <div class="icon-picker" id="newHazardIconPicker"></div>
+        <button class="btn-primary" type="button" style="margin-top:14px;" onclick="addHazardDefinition()">เพิ่ม Hazard</button>
+      </div>
+    </div>
+    <div class="settings-footer">
+      <button class="btn-secondary" type="button" onclick="closeHazardSettings()">ยกเลิก</button>
+      <button class="btn-primary" type="button" onclick="saveHazardSettings()">บันทึกการตั้งค่า</button>
+    </div>
   </div>
 </div>
 <header class="topbar">
@@ -644,29 +737,11 @@
     </div>
 
     <div class="card">
-      <h3 class="section-title">Hazard Overview</h3>
-      <div class="hazards">
-        <div class="hazard clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('hazard', 'Flammable')" onkeydown="handleSummaryKey(event, 'hazard', 'Flammable')">
-          <div class="hazard-left"><span class="hazard-icon flame-icon" aria-hidden="true">🔥</span><span>Flammable</span></div>
-          <strong id="flammableCount">0</strong>
-        </div>
-        <div class="hazard clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('hazard', 'Toxic')" onkeydown="handleSummaryKey(event, 'hazard', 'Toxic')">
-          <div class="hazard-left"><span class="hazard-icon toxic-icon" aria-hidden="true">☠️</span><span>Acute Toxicity</span></div>
-          <strong id="acuteToxicityCount">0</strong>
-        </div>
-        <div class="hazard clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('hazard', 'Corrosive')" onkeydown="handleSummaryKey(event, 'hazard', 'Corrosive')">
-          <div class="hazard-left"><span class="hazard-icon corrosive-icon" aria-hidden="true">🧪</span><span>Corrosive</span></div>
-          <strong id="corrosiveCount">0</strong>
-        </div>
-        <div class="hazard clickable-summary" role="button" tabindex="0"
-          onclick="jumpToSdsTable('hazard', 'Irritant')" onkeydown="handleSummaryKey(event, 'hazard', 'Irritant')">
-          <div class="hazard-left"><span class="hazard-icon irritant-icon" aria-hidden="true">❗</span><span>Irritant</span></div>
-          <strong id="irritantCount">0</strong>
-        </div>
+      <div class="section-title-row">
+        <h3 class="section-title">Hazard Overview</h3>
+        <button class="settings-btn" type="button" onclick="openHazardSettings()">⚙ ตั้งค่า</button>
       </div>
+      <div class="hazards" id="hazardOverview"></div>
     </div>
   </section>
 
@@ -815,12 +890,11 @@
 
       <div class="form-section">
         <div class="form-section-title">3. Hazard Classification <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ)</span></div>
-        <div class="hazard-checkboxes">
-          <label class="check-item"><input type="radio" name="hazard" value="Flammable" class="hazardCheck"> 🔥 Flammable</label>
-          <label class="check-item"><input type="radio" name="hazard" value="Toxic" class="hazardCheck"> ☠️ Toxic</label>
-          <label class="check-item"><input type="radio" name="hazard" value="Corrosive" class="hazardCheck"> 🧪 Corrosive</label>
-          <label class="check-item"><input type="radio" name="hazard" value="Irritant" class="hazardCheck"> ❗ Irritant</label>
-        </div>
+        <input class="form-control hazard-list-search" id="hazardListSearch"
+          placeholder="พิมพ์ค้นหา Hazard..." autocomplete="off"
+          oninput="filterHazardOptions(this.value)">
+        <div class="hazard-checkboxes" id="hazardOptions"></div>
+        <div class="hazard-list-empty" id="hazardOptionsEmpty" hidden>ไม่พบ Hazard ที่ค้นหา</div>
       </div>
 
       <div class="form-section">
@@ -905,6 +979,68 @@
     window.setTimeout(() => document.getElementById("loginPassword")?.focus(), 0);
   }
 
+  const HAZARD_SETTINGS_KEY = "sdsHazardDefinitions";
+  const DEFAULT_HAZARD_DEFINITIONS = [
+    { id: "flammable", name: "Flammable", iconId: "flame", icon: "🔥", className: "flame-icon" },
+    { id: "acute-toxicity", name: "Acute Toxicity", aliases: ["Toxic"], iconId: "skull", icon: "☠️", className: "toxic-icon" },
+    { id: "corrosive", name: "Corrosive", iconId: "test-tube", icon: "🧪", className: "corrosive-icon" },
+    { id: "irritant", name: "Irritant", iconId: "irritant", icon: "❗", className: "irritant-icon" }
+  ];
+  const ICON_LIBRARY = [
+    { id: "flame", icon: "🔥", label: "Flame", className: "flame-icon" },
+    { id: "skull", icon: "☠️", label: "Toxic", className: "toxic-icon" },
+    { id: "test-tube", icon: "🧪", label: "Corrosive", className: "corrosive-icon" },
+    { id: "irritant", icon: "❗", label: "Irritant", className: "irritant-icon" },
+    { id: "sparkle", icon: "✨", label: "Sparkle", className: "hazard-sparkle" },
+    { id: "bolt", icon: "⚡", label: "Bolt", className: "hazard-bolt" },
+    { id: "bio", icon: "☣️", label: "Biohazard", className: "hazard-bio" },
+    { id: "radiation", icon: "☢️", label: "Radiation", className: "hazard-radiation" },
+    { id: "drop", icon: "💧", label: "Drop", className: "hazard-drop" },
+    { id: "leaf", icon: "🍃", label: "Leaf", className: "hazard-leaf" },
+    { id: "gear", icon: "⚙️", label: "Gear", className: "hazard-gear" },
+    { id: "alert", icon: "🚨", label: "Alert", className: "hazard-alert" },
+    { id: "snow", icon: "❄️", label: "Snow", className: "hazard-snow" },
+    { id: "orbit", icon: "⚛️", label: "Atom", className: "hazard-orbit" },
+    { id: "burst", icon: "💥", label: "Burst", className: "hazard-burst" },
+    { id: "microscope", icon: "🔬", label: "Microscope", className: "hazard-microscope" }
+  ];
+
+  function iconMeta(iconId, fallbackIcon) {
+    return ICON_LIBRARY.find(item => item.id === iconId || item.icon === fallbackIcon) || ICON_LIBRARY[0];
+  }
+
+  function sanitizeHazardDefinitions(value) {
+    const source = Array.isArray(value) && value.length ? value : DEFAULT_HAZARD_DEFINITIONS;
+    const used = new Set();
+    return source.map((item, index) => {
+      const name = String(item.name || "").trim();
+      const key = name.toLowerCase();
+      if (!name || used.has(key)) return null;
+      used.add(key);
+      const meta = iconMeta(item.iconId, item.icon);
+      return {
+        id: String(item.id || `hazard-${index}`),
+        name,
+        aliases: [...new Set((Array.isArray(item.aliases) ? item.aliases : [])
+          .map(alias => String(alias || "").trim())
+          .filter(alias => alias && alias.toLowerCase() !== key))],
+        iconId: meta.id,
+        icon: meta.icon,
+        className: meta.className
+      };
+    }).filter(Boolean);
+  }
+
+  function loadHazardDefinitions() {
+    try {
+      return sanitizeHazardDefinitions(JSON.parse(localStorage.getItem(HAZARD_SETTINGS_KEY) || "null"));
+    } catch (error) {
+      return sanitizeHazardDefinitions(null);
+    }
+  }
+
+  let hazardDefinitions = loadHazardDefinitions();
+
   const defaultData = [
     {
       id: 1, chemical: "Acetone", cas: "67-64-1",
@@ -971,12 +1107,15 @@
   }
 
   function normalizeHazards(hazards, fallback) {
-    const allowed = ["Flammable", "Toxic", "Corrosive", "Irritant"];
     const values = Array.isArray(hazards) ? hazards : String(hazards || "").split(/[|,]/);
     const fallbackValues = Array.isArray(fallback) ? fallback : String(fallback || "").split(/[|,]/);
     const selected = [...values, ...fallbackValues]
-      .map(value => String(value || "").trim())
-      .find(value => allowed.includes(value));
+      .map(value => {
+        const raw = String(value || "").trim();
+        const definition = hazardDefinitions.find(item => item.name === raw || (item.aliases || []).includes(raw));
+        return definition ? definition.name : raw;
+      })
+      .find(value => hazardDefinitions.some(definition => definition.name === value));
     return selected ? [selected] : [];
   }
 
@@ -1148,6 +1287,9 @@
   function openAddDrawer() {
     document.getElementById("sdsForm").reset();
     document.getElementById("editId").value = "";
+    const hazardSearch = document.getElementById("hazardListSearch");
+    if (hazardSearch) hazardSearch.value = "";
+    renderHazardFormOptions();
     document.getElementById("drawerTitle").innerText = "เพิ่มข้อมูล SDS";
     openDrawer();
   }
@@ -1230,6 +1372,9 @@
     document.querySelectorAll(".hazardCheck").forEach(check => {
       check.checked = selectedHazard === check.value;
     });
+    const hazardSearch = document.getElementById("hazardListSearch");
+    if (hazardSearch) hazardSearch.value = "";
+    renderHazardFormOptions();
 
     document.getElementById("drawerTitle").innerText = "แก้ไขข้อมูล SDS";
     openDrawer();
@@ -1311,16 +1456,238 @@
     return `<span class="language-badge ${className}">${escapeHTML(language)}</span>`;
   }
 
+  function getHazardDefinition(name) {
+    const raw = String(name || "").trim();
+    return hazardDefinitions.find(definition => definition.name === raw || (definition.aliases || []).includes(raw)) || null;
+  }
+
   function hazardVisual(item) {
     const hazard = (item.hazards || [])[0] || "";
-    const meta = {
-      Flammable: { icon: "🔥", className: "flame-icon" },
-      Toxic: { icon: "☠️", className: "toxic-icon" },
-      Corrosive: { icon: "🧪", className: "corrosive-icon" },
-      Irritant: { icon: "❗", className: "irritant-icon" }
-    }[hazard];
-    if (!meta) return "";
-    return `<span class="chemical-hazard-icon hazard-icon ${meta.className}" title="${escapeHTML(hazard)}" aria-label="${escapeHTML(hazard)}">${meta.icon}</span>`;
+    const definition = getHazardDefinition(hazard);
+    if (!definition) return "";
+    return `<span class="chemical-hazard-icon hazard-icon ${definition.className}" title="${escapeHTML(definition.name)}" aria-label="${escapeHTML(definition.name)}">${definition.icon}</span>`;
+  }
+
+  function renderHazardFormOptions() {
+    const container = document.getElementById("hazardOptions");
+    if (!container) return;
+    const selected = document.querySelector(".hazardCheck:checked")?.value || "";
+    const query = (document.getElementById("hazardListSearch")?.value || "").trim().toLowerCase();
+    let visibleCount = 0;
+    container.innerHTML = "";
+    hazardDefinitions.forEach(definition => {
+      const label = document.createElement("label");
+      label.className = "check-item";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "hazard";
+      input.value = definition.name;
+      input.className = "hazardCheck";
+      input.checked = definition.name === selected;
+      const icon = document.createElement("span");
+      icon.className = `hazard-icon ${definition.className}`;
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = definition.icon;
+      const text = document.createElement("span");
+      text.textContent = definition.name;
+      label.append(input, icon, text);
+      const visible = !query || definition.name.toLowerCase().includes(query);
+      label.hidden = !visible;
+      if (visible) visibleCount += 1;
+      container.appendChild(label);
+    });
+    const empty = document.getElementById("hazardOptionsEmpty");
+    if (empty) empty.hidden = visibleCount > 0;
+  }
+
+  function filterHazardOptions() {
+    renderHazardFormOptions();
+  }
+
+  function renderHazardOverview() {
+    const container = document.getElementById("hazardOverview");
+    if (!container) return;
+    container.innerHTML = "";
+    hazardDefinitions.forEach((definition, index) => {
+      const card = document.createElement("div");
+      card.className = "hazard clickable-summary";
+      card.setAttribute("role", "button");
+      card.tabIndex = 0;
+
+      const left = document.createElement("div");
+      left.className = "hazard-left";
+      const icon = document.createElement("span");
+      icon.className = `hazard-icon ${definition.className}`;
+      icon.setAttribute("aria-hidden", "true");
+      icon.style.animationDelay = `${index * 0.18}s`;
+      icon.textContent = definition.icon;
+      const name = document.createElement("span");
+      name.textContent = definition.name;
+      const count = document.createElement("strong");
+      count.textContent = String(sdsData.filter(item => {
+        const itemDefinition = getHazardDefinition((item.hazards || [])[0]);
+        return itemDefinition && itemDefinition.name === definition.name;
+      }).length);
+      left.append(icon, name);
+      card.append(left, count);
+
+      const activate = () => jumpToSdsTable("hazard", definition.name);
+      card.addEventListener("click", activate);
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          activate();
+        }
+      });
+      container.appendChild(card);
+    });
+  }
+
+  let hazardSettingsDraft = [];
+  let newHazardIconId = "sparkle";
+
+  function openHazardSettings() {
+    hazardSettingsDraft = hazardDefinitions.map(definition => ({ ...definition }));
+    newHazardIconId = "sparkle";
+    renderHazardSettings();
+    const modal = document.getElementById("hazardSettingsModal");
+    if (modal) modal.hidden = false;
+  }
+
+  function closeHazardSettings(event) {
+    if (event && event.target !== event.currentTarget) return;
+    const modal = document.getElementById("hazardSettingsModal");
+    if (modal) modal.hidden = true;
+  }
+
+  function renderIconPicker(container, selectedId, onSelect) {
+    if (!container) return;
+    container.innerHTML = "";
+    ICON_LIBRARY.forEach(meta => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `icon-choice${meta.id === selectedId ? " selected" : ""}`;
+      button.title = meta.label;
+      button.setAttribute("aria-label", `เลือกไอคอน ${meta.label}`);
+      const icon = document.createElement("span");
+      icon.className = `hazard-icon ${meta.className}`;
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = meta.icon;
+      button.appendChild(icon);
+      button.addEventListener("click", () => onSelect(meta.id));
+      container.appendChild(button);
+    });
+  }
+
+  function renderHazardSettings() {
+    const list = document.getElementById("hazardSettingsList");
+    if (!list) return;
+    list.innerHTML = "";
+    hazardSettingsDraft.forEach((definition, index) => {
+      const row = document.createElement("div");
+      row.className = "hazard-setting-row";
+      const top = document.createElement("div");
+      top.className = "hazard-setting-top";
+      const label = document.createElement("label");
+      label.className = "settings-label";
+      label.textContent = `Hazard ${index + 1} ชื่อ`;
+      const input = document.createElement("input");
+      input.className = "settings-name-input";
+      input.value = definition.name;
+      input.autocomplete = "off";
+      input.addEventListener("input", () => { hazardSettingsDraft[index].name = input.value; });
+      label.appendChild(input);
+
+      const preview = document.createElement("div");
+      preview.className = "settings-preview";
+      const previewIcon = document.createElement("span");
+      previewIcon.className = `hazard-icon ${definition.className}`;
+      previewIcon.textContent = definition.icon;
+      const previewText = document.createElement("span");
+      previewText.textContent = "ตัวอย่าง";
+      preview.append(previewIcon, previewText);
+      top.append(label, preview);
+
+      const caption = document.createElement("div");
+      caption.className = "settings-label";
+      caption.style.marginTop = "12px";
+      caption.textContent = "เลือกไอคอน";
+      const picker = document.createElement("div");
+      picker.className = "icon-picker";
+      renderIconPicker(picker, definition.iconId, iconId => {
+        const meta = iconMeta(iconId);
+        hazardSettingsDraft[index] = { ...hazardSettingsDraft[index], iconId: meta.id, icon: meta.icon, className: meta.className };
+        renderHazardSettings();
+      });
+      row.append(top, caption, picker);
+      list.appendChild(row);
+    });
+    renderIconPicker(document.getElementById("newHazardIconPicker"), newHazardIconId, iconId => {
+      newHazardIconId = iconId;
+      renderHazardSettings();
+    });
+  }
+
+  function addHazardDefinition() {
+    const input = document.getElementById("newHazardName");
+    const name = (input?.value || "").trim();
+    if (!name) {
+      alert("กรุณากรอกชื่อ Hazard ใหม่");
+      return;
+    }
+    if (hazardSettingsDraft.some(definition => definition.name.trim().toLowerCase() === name.toLowerCase())) {
+      alert("มีชื่อ Hazard นี้อยู่แล้ว");
+      return;
+    }
+    const meta = iconMeta(newHazardIconId);
+    hazardSettingsDraft.push({ id: `hazard-${Date.now()}`, name, iconId: meta.id, icon: meta.icon, className: meta.className });
+    input.value = "";
+    renderHazardSettings();
+  }
+
+  function saveHazardSettings() {
+    const draftNames = hazardSettingsDraft.map(definition => String(definition.name || "").trim());
+    if (!draftNames.length || draftNames.some(name => !name)) {
+      alert("กรุณากรอกชื่อ Hazard ให้ครบทุกช่อง");
+      return;
+    }
+    const normalizedNames = draftNames.map(name => name.toLowerCase());
+    if (normalizedNames.length !== new Set(normalizedNames).size) {
+      alert("ชื่อ Hazard ต้องไม่ซ้ำกัน");
+      return;
+    }
+    const cleaned = sanitizeHazardDefinitions(hazardSettingsDraft);
+    if (!cleaned.length) {
+      alert("ต้องมี Hazard อย่างน้อย 1 รายการ");
+      return;
+    }
+
+    const oldDefinitions = hazardDefinitions;
+    hazardDefinitions = cleaned.map(definition => {
+      const oldDefinition = oldDefinitions.find(item => item.id === definition.id);
+      const aliases = new Set(definition.aliases || []);
+      if (oldDefinition && oldDefinition.name !== definition.name) aliases.add(oldDefinition.name);
+      return { ...definition, aliases: [...aliases].filter(alias => alias !== definition.name) };
+    });
+
+    const renameMap = {};
+    oldDefinitions.forEach(oldDefinition => {
+      const nextDefinition = hazardDefinitions.find(definition => definition.id === oldDefinition.id);
+      if (nextDefinition && nextDefinition.name !== oldDefinition.name) {
+        renameMap[oldDefinition.name] = nextDefinition.name;
+      }
+    });
+    const hazardFilter = document.getElementById("hazardFilter");
+    if (hazardFilter && renameMap[hazardFilter.value]) hazardFilter.value = renameMap[hazardFilter.value];
+
+    sdsData = sdsData.map(item => ({
+      ...item,
+      hazards: normalizeHazards((item.hazards || []).map(name => renameMap[name] || name))
+    }));
+    localStorage.setItem(HAZARD_SETTINGS_KEY, JSON.stringify(hazardDefinitions));
+    saveLocal();
+    closeHazardSettings();
+    refreshDashboard();
   }
 
   function renderReviewChart() {
@@ -1441,11 +1808,7 @@
   }
 
   function updateHazardSummary() {
-    const count = name => sdsData.filter(item => item.hazards.includes(name)).length;
-    document.getElementById("flammableCount").innerText = count("Flammable");
-    document.getElementById("acuteToxicityCount").innerText = count("Toxic");
-    document.getElementById("corrosiveCount").innerText = count("Corrosive");
-    document.getElementById("irritantCount").innerText = count("Irritant");
+    renderHazardOverview();
   }
 
   function exportCSV() {
@@ -1499,11 +1862,11 @@
 
   const FILTER_OPTIONS = {
     statusFilter: ["Current", "Review Due", "Update Required"],
-    hazardFilter: ["Flammable", "Toxic", "Corrosive", "Irritant"],
     languageFilter: ["English", "Thai"]
   };
 
   function getFilterOptions(inputId) {
+    if (inputId === "hazardFilter") return hazardDefinitions.map(definition => definition.name);
     if (inputId === "supplierFilter") {
       return [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
     }
@@ -1592,6 +1955,7 @@
 
   function refreshDashboard() {
     refreshSupplierFilter();
+    renderHazardFormOptions();
     renderTable();
     updateSummary();
   }

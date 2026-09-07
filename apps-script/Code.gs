@@ -235,8 +235,7 @@ function findRowById_(sheet, id) {
 
 function normalizeRecord_(record) {
   var hazards = Array.isArray(record.hazards) ? record.hazards : [];
-  var allowedHazards = ["Flammable", "Toxic", "Corrosive", "Irritant"];
-  hazards = hazards.filter(function(item) { return allowedHazards.indexOf(item) !== -1; }).slice(0, 1);
+  hazards = hazards.map(function(item) { return clean_(item); }).filter(String).slice(0, 1);
   var thaiSds = record.thaiSds === true || String(record.thaiSds || "").toLowerCase() === "true";
   var language = clean_(record.language);
   if (["English", "Thai"].indexOf(language) === -1) language = thaiSds ? "Thai" : "English";

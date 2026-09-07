@@ -277,11 +277,12 @@
     thead th:nth-child(9) { background: #7c3aed; }
     thead th:nth-child(10) { background: #475569; }
     td { color: #334155; white-space: nowrap; }
-    th:nth-child(1), td:nth-child(1) { width: 30%; }
-    th:nth-child(2), td:nth-child(2) { width: 16%; }
-    th:nth-child(3), td:nth-child(3) { width: 20%; }
+    th:nth-child(1), td:nth-child(1) { width: 28%; }
+    th:nth-child(2), td:nth-child(2) { width: 14%; }
+    th:nth-child(3), td:nth-child(3) { width: 17%; }
     th:nth-child(4), td:nth-child(4) { width: 18%; }
-    th:nth-child(5), td:nth-child(5) { width: 16%; }
+    th:nth-child(5), td:nth-child(5) { width: 13%; }
+    th:nth-child(6), td:nth-child(6) { width: 10%; }
     th:last-child, td:last-child { border-right: 0; }
     tbody tr:last-child td { border-bottom: 0; }
     tbody tr:nth-child(even) { background: #f8fbff; }
@@ -594,21 +595,23 @@
       .form-group.full { grid-column: auto; }
       .table-wrapper { overflow-x: hidden; }
       table { width: 100%; min-width: 0; table-layout: fixed; }
-      th, td { padding: 11px 7px; font-size: 11px; }
+      th, td { padding: 9px 4px; font-size: 11px; }
       th { white-space: normal; }
-      th:nth-child(1), td:nth-child(1) { width: 24%; }
-      th:nth-child(2), td:nth-child(2) { width: 16%; }
-      th:nth-child(3), td:nth-child(3) { width: 26%; }
+      th:nth-child(1), td:nth-child(1) { width: 19%; }
+      th:nth-child(2), td:nth-child(2) { width: 13%; }
+      th:nth-child(3), td:nth-child(3) { width: 20%; }
       th:nth-child(4), td:nth-child(4) { width: 19%; }
       th:nth-child(5), td:nth-child(5) { width: 15%; }
+      th:nth-child(6), td:nth-child(6) { width: 14%; }
       td { white-space: normal; }
       td:nth-child(2) { overflow-wrap: anywhere; }
-      td:nth-child(3) { white-space: nowrap; font-size: 10px; }
+      td:nth-child(3) { white-space: nowrap; font-size: 9px; }
+      .days-badge { white-space: normal; justify-content: center; padding: 4px 3px; font-size: 9px; text-align: center; line-height: 1.15; }
       .sds-link { width: 100%; max-width: 100%; gap: 4px; white-space: normal; align-items: flex-start; overflow-wrap: anywhere; }
       .sds-link .chemical-name { overflow-wrap: anywhere; }
       .chemical-hazard-icon { flex: 0 0 19px; font-size: 18px; text-align: center; }
-      .pdf-btn { max-width: 100%; padding: 4px 2px; font-size: 9px; }
-      .action-btn { padding: 4px 1px; font-size: 14px; }
+      .pdf-btn { max-width: 100%; padding: 4px 1px; font-size: 9px; white-space: normal; }
+      .action-btn { padding: 4px 0; font-size: 12px; }
     }
     body.login-locked { overflow: hidden; }
     .login-gate {
@@ -826,6 +829,7 @@
             <th>Chemical</th>
             <th>CAS No.</th>
             <th>วันที่ครบกำหนด</th>
+            <th>เหลืออีกกี่วัน</th>
             <th>SDS</th>
             <th>Action</th>
           </tr>
@@ -1794,6 +1798,12 @@
       const reviewMatch = !reviewBucket || reviewBucket === "all" || (getReviewBucket(getDaysLeft(item)) || {}).key === reviewBucket;
 
       return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && reviewMatch;
+    }).sort((a, b) => {
+      const aDays = getDaysLeft(a);
+      const bDays = getDaysLeft(b);
+      if (aDays === null) return bDays === null ? 0 : 1;
+      if (bDays === null) return -1;
+      return aDays - bDays;
     });
 
     document.getElementById("tableCount").innerText = filtered.length + " รายการ";
@@ -1803,7 +1813,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
+          <td colspan="6"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
         </tr>`;
       return;
     }
@@ -1818,6 +1828,7 @@
           </td>
           <td>${escapeHTML(item.cas)}</td>
           <td>${escapeHTML(formatDate(item.reviewDate))}</td>
+          <td>${daysLeftBadge(item)}</td>
           <td>
             <button class="pdf-btn" onclick="viewSDS(${item.id})">📄 ดู SDS</button>
           </td>

@@ -200,9 +200,31 @@
     .table-toolbar {
       padding: 20px; border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
-      gap: 15px; flex-wrap: wrap;
+      gap: 15px; flex-wrap: wrap; position: relative; z-index: 5;
     }
     .toolbar-left { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-combobox { position: relative; width: 155px; }
+    .filter-combobox.language-combobox { width: 185px; }
+    .filter-combobox.supplier-combobox { width: 205px; }
+    .filter-combobox .filter-input { width: 100%; padding-right: 38px; }
+    .filter-menu-button {
+      position: absolute; top: 1px; right: 1px; width: 36px; height: 38px;
+      border: 0; border-left: 1px solid #e2e8f0; border-radius: 0 8px 8px 0;
+      background: #f8fafc; color: #475569; font-size: 18px; line-height: 1;
+    }
+    .filter-menu-button:hover { background: #eff6ff; color: var(--primary); }
+    .filter-menu {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 30;
+      max-height: 240px; overflow-y: auto; padding: 6px;
+      background: #fff; border: 1px solid #bfdbfe; border-radius: 10px;
+      box-shadow: 0 12px 26px rgba(15, 23, 42, 0.16);
+    }
+    .filter-menu[hidden] { display: none; }
+    .filter-option {
+      display: block; width: 100%; border: 0; border-radius: 7px; padding: 10px 11px;
+      background: transparent; color: var(--text); text-align: left; font-size: 13px;
+    }
+    .filter-option:hover, .filter-option:focus { background: #eff6ff; color: #1d4ed8; outline: none; }
     .input, .select {
       height: 40px; border: 1px solid var(--border); border-radius: 8px;
       padding: 0 12px; outline: none; background: #fff;
@@ -214,7 +236,7 @@
     .supplier-filter { width: 185px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
-      width: 100%; min-width: 1590px; table-layout: fixed;
+      width: 100%; min-width: 820px; table-layout: fixed;
       border-collapse: separate; border-spacing: 0; border: 1px solid #cbd5e1;
     }
     thead { background: #1e3a8a; }
@@ -234,16 +256,10 @@
     thead th:nth-child(9) { background: #7c3aed; }
     thead th:nth-child(10) { background: #475569; }
     td { color: #334155; white-space: nowrap; }
-    th:nth-child(1), td:nth-child(1) { width: 220px; }
-    th:nth-child(2), td:nth-child(2) { width: 125px; }
-    th:nth-child(3), td:nth-child(3) { width: 200px; }
-    th:nth-child(4), td:nth-child(4) { width: 175px; }
-    th:nth-child(5), td:nth-child(5) { width: 175px; }
-    th:nth-child(6), td:nth-child(6) { width: 140px; }
-    th:nth-child(7), td:nth-child(7) { width: 130px; }
-    th:nth-child(8), td:nth-child(8) { width: 155px; }
-    th:nth-child(9), td:nth-child(9) { width: 130px; }
-    th:nth-child(10), td:nth-child(10) { width: 140px; }
+    th:nth-child(1), td:nth-child(1) { width: 42%; }
+    th:nth-child(2), td:nth-child(2) { width: 22%; }
+    th:nth-child(3), td:nth-child(3) { width: 18%; }
+    th:nth-child(4), td:nth-child(4) { width: 18%; }
     th:last-child, td:last-child { border-right: 0; }
     tbody tr:last-child td { border-bottom: 0; }
     tbody tr:nth-child(even) { background: #f8fbff; }
@@ -421,7 +437,9 @@
       border: 0; background: transparent; color: var(--primary);
       font-weight: 600; padding: 0; text-align: left;
       text-decoration: underline; text-underline-offset: 3px;
+      display: inline-flex; align-items: center; gap: 9px; white-space: nowrap;
     }
+    .chemical-hazard-icon { display: inline-block; font-size: 20px; text-decoration: none; }
     .pdf-btn {
       border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8;
       padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;
@@ -532,7 +550,8 @@
       .cards { grid-template-columns: 1fr; }
       .page-header { align-items: flex-start; flex-direction: column; }
       .page-header .btn-primary { width: 100%; }
-      .search, .toolbar-left, .input, .select { width: 100%; }
+      .search, .toolbar-left, .input, .select, .filter-combobox,
+      .filter-combobox.language-combobox, .filter-combobox.supplier-combobox { width: 100%; }
       .hazards { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
@@ -616,33 +635,45 @@
           placeholder="🔍 Chemical / CAS / Supplier"
           oninput="clearSpecialFilter(); renderTable()">
 
-        <input class="input filter-input" id="statusFilter" list="statusOptions"
-          placeholder="Status" aria-label="ค้นหา Status" oninput="renderTable()">
-        <datalist id="statusOptions">
-          <option value="Current"></option>
-          <option value="Review Due"></option>
-          <option value="Update Required"></option>
-        </datalist>
+        <div class="filter-combobox status-combobox">
+          <input class="input filter-input" id="statusFilter"
+            placeholder="Status" aria-label="ค้นหา Status" autocomplete="off"
+            onfocus="openFilterMenu('statusFilter', 'statusMenu')"
+            oninput="filterMenu('statusFilter', 'statusMenu'); renderTable()">
+          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Status"
+            onclick="toggleFilterMenu('statusFilter', 'statusMenu')">⌄</button>
+          <div class="filter-menu" id="statusMenu" role="listbox" hidden></div>
+        </div>
 
-        <input class="input filter-input" id="hazardFilter" list="hazardOptions"
-          placeholder="ทุก Hazard" aria-label="ค้นหา Hazard" oninput="renderTable()">
-        <datalist id="hazardOptions">
-          <option value="Flammable"></option>
-          <option value="Toxic"></option>
-          <option value="Corrosive"></option>
-          <option value="Irritant"></option>
-        </datalist>
+        <div class="filter-combobox hazard-combobox">
+          <input class="input filter-input" id="hazardFilter"
+            placeholder="ทุก Hazard" aria-label="ค้นหา Hazard" autocomplete="off"
+            onfocus="openFilterMenu('hazardFilter', 'hazardMenu')"
+            oninput="filterMenu('hazardFilter', 'hazardMenu'); renderTable()">
+          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Hazard"
+            onclick="toggleFilterMenu('hazardFilter', 'hazardMenu')">⌄</button>
+          <div class="filter-menu" id="hazardMenu" role="listbox" hidden></div>
+        </div>
 
-        <input class="input filter-input language-filter" id="languageFilter" list="languageOptions"
-          placeholder="ภาษา / Language" aria-label="กรองตามภาษา / Filter by language" oninput="renderTable()">
-        <datalist id="languageOptions">
-          <option value="English"></option>
-          <option value="Thai"></option>
-        </datalist>
+        <div class="filter-combobox language-combobox">
+          <input class="input filter-input" id="languageFilter"
+            placeholder="ภาษา / Language" aria-label="กรองตามภาษา / Filter by language" autocomplete="off"
+            onfocus="openFilterMenu('languageFilter', 'languageMenu')"
+            oninput="filterMenu('languageFilter', 'languageMenu'); renderTable()">
+          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Language"
+            onclick="toggleFilterMenu('languageFilter', 'languageMenu')">⌄</button>
+          <div class="filter-menu" id="languageMenu" role="listbox" hidden></div>
+        </div>
 
-        <input class="input filter-input supplier-filter" id="supplierFilter" list="supplierOptions"
-          placeholder="Supplier" aria-label="ค้นหา Supplier" oninput="renderTable()">
-        <datalist id="supplierOptions"></datalist>
+        <div class="filter-combobox supplier-combobox">
+          <input class="input filter-input" id="supplierFilter"
+            placeholder="Supplier" aria-label="ค้นหา Supplier" autocomplete="off"
+            onfocus="openFilterMenu('supplierFilter', 'supplierMenu')"
+            oninput="filterMenu('supplierFilter', 'supplierMenu'); renderTable()">
+          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Supplier"
+            onclick="toggleFilterMenu('supplierFilter', 'supplierMenu')">⌄</button>
+          <div class="filter-menu" id="supplierMenu" role="listbox" hidden></div>
+        </div>
       </div>
 
       <button class="btn-secondary export-btn" onclick="exportCSV()">↓ Export CSV</button>
@@ -654,12 +685,6 @@
           <tr>
             <th>Chemical</th>
             <th>CAS No.</th>
-            <th>Supplier</th>
-            <th>Revision</th>
-            <th>Next Review Date</th>
-            <th>Days Left</th>
-            <th>Language</th>
-            <th>Hazard</th>
             <th>SDS</th>
             <th>Action</th>
           </tr>
@@ -1201,6 +1226,18 @@
     return `<span class="language-badge ${className}">${escapeHTML(language)}</span>`;
   }
 
+  function hazardVisual(item) {
+    const hazard = (item.hazards || [])[0] || "";
+    const meta = {
+      Flammable: { icon: "🔥", className: "flame-icon" },
+      Toxic: { icon: "☠️", className: "toxic-icon" },
+      Corrosive: { icon: "🧪", className: "corrosive-icon" },
+      Irritant: { icon: "❗", className: "irritant-icon" }
+    }[hazard];
+    if (!meta) return "";
+    return `<span class="chemical-hazard-icon hazard-icon ${meta.className}" title="${escapeHTML(hazard)}" aria-label="${escapeHTML(hazard)}">${meta.icon}</span>`;
+  }
+
   function renderReviewChart() {
     const chart = document.getElementById("reviewChart");
     if (!chart) return;
@@ -1239,8 +1276,10 @@
   }
 
   function toggleReviewBucket(key) {
-    window.reviewBucketFilter = window.reviewBucketFilter === key ? "" : key;
-    window.sdsSpecialFilter = "";
+    const isSameBucket = window.reviewBucketFilter === key;
+    window.reviewBucketFilter = isSameBucket ? "" : key;
+    if (key === "all") resetAllTableFilters();
+    else window.sdsSpecialFilter = "";
     renderReviewChart();
     renderTable();
     const tableSection = document.getElementById("sdsTableSection");
@@ -1287,27 +1326,20 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="10"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
+          <td colspan="4"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
         </tr>`;
       return;
     }
 
-    tbody.innerHTML = filtered.map(item => {
-      const hazardText = item.hazards.length ? item.hazards.join(", ") : "-";
-      return `
+    tbody.innerHTML = filtered.map(item => `
         <tr>
           <td>
             <button class="sds-link" title="เปิด SDS PDF" onclick="viewSDS(${item.id})">
-              ${escapeHTML(item.chemical)}
+              ${hazardVisual(item)}
+              <span>${escapeHTML(item.chemical)}</span>
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>
-          <td>${escapeHTML(item.supplier || "-")}</td>
-          <td>${escapeHTML(item.revision || "-")}</td>
-          <td>${formatDate(item.reviewDate)}</td>
-          <td>${daysLeftBadge(item)}</td>
-          <td>${languageBadge(item)}</td>
-          <td>${escapeHTML(hazardText)}</td>
           <td>
             <button class="pdf-btn" onclick="viewSDS(${item.id})">📄 ดู SDS</button>
           </td>
@@ -1315,8 +1347,7 @@
             <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
             <button class="action-btn" title="ลบ" onclick="deleteSDS(${item.id})">🗑️</button>
           </td>
-        </tr>`;
-    }).join("");
+        </tr>`).join("");
   }
 
   function updateSummary() {
@@ -1372,15 +1403,87 @@
     window.sdsSpecialFilter = "";
   }
 
+  function resetAllTableFilters() {
+    ["searchInput", "statusFilter", "hazardFilter", "supplierFilter", "languageFilter"].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.value = "";
+    });
+    closeFilterMenus();
+    window.sdsSpecialFilter = "";
+  }
+
+  const FILTER_OPTIONS = {
+    statusFilter: ["Current", "Review Due", "Update Required"],
+    hazardFilter: ["Flammable", "Toxic", "Corrosive", "Irritant"],
+    languageFilter: ["English", "Thai"]
+  };
+
+  function getFilterOptions(inputId) {
+    if (inputId === "supplierFilter") {
+      return [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
+    }
+    return FILTER_OPTIONS[inputId] || [];
+  }
+
+  function closeFilterMenus() {
+    document.querySelectorAll(".filter-menu").forEach(menu => { menu.hidden = true; });
+    document.querySelectorAll(".filter-combobox input").forEach(input => input.setAttribute("aria-expanded", "false"));
+  }
+
+  function renderFilterMenu(inputId, menuId) {
+    const input = document.getElementById(inputId);
+    const menu = document.getElementById(menuId);
+    if (!input || !menu) return;
+    const query = input.value.trim().toLowerCase();
+    const options = getFilterOptions(inputId).filter(option => !query || option.toLowerCase().includes(query));
+    menu.innerHTML = "";
+    options.forEach(option => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "filter-option";
+      button.setAttribute("role", "option");
+      button.textContent = option;
+      button.addEventListener("click", () => selectFilterOption(inputId, option));
+      menu.appendChild(button);
+    });
+    menu.hidden = options.length === 0;
+    input.setAttribute("aria-expanded", String(!menu.hidden));
+  }
+
+  function openFilterMenu(inputId, menuId) {
+    closeFilterMenus();
+    renderFilterMenu(inputId, menuId);
+  }
+
+  function toggleFilterMenu(inputId, menuId) {
+    const menu = document.getElementById(menuId);
+    if (!menu || menu.hidden) openFilterMenu(inputId, menuId);
+    else closeFilterMenus();
+  }
+
+  function filterMenu(inputId, menuId) {
+    renderFilterMenu(inputId, menuId);
+  }
+
+  function selectFilterOption(inputId, value) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.value = value;
+    closeFilterMenus();
+    renderTable();
+  }
+
   function refreshSupplierFilter() {
     const input = document.getElementById("supplierFilter");
-    const list = document.getElementById("supplierOptions");
     const current = input.value;
     const suppliers = [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
-    list.innerHTML = suppliers.map(item =>
-      `<option value="${escapeHTML(item)}"></option>`).join("");
     input.value = suppliers.includes(current) ? current : "";
+    renderFilterMenu("supplierFilter", "supplierMenu");
   }
+
+  document.addEventListener("click", event => {
+    if (!event.target.closest(".filter-combobox")) closeFilterMenus();
+  });
 
   function formatDate(date) {
     if (!date) return "-";

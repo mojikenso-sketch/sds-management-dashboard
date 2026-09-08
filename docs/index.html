@@ -751,14 +751,6 @@
             <input class="form-control" id="revision" placeholder="Rev.06">
           </div>
           <div class="form-group">
-            <label><span class="bilingual-label">สถานะ<small>Status</small></span></label>
-            <select class="form-control" id="status">
-              <option value="Current">ปัจจุบัน / Current</option>
-              <option value="Review Due">ถึงรอบทบทวน / Review Due</option>
-              <option value="Update Required">ต้องปรับปรุง / Update Required</option>
-            </select>
-          </div>
-          <div class="form-group">
             <label><span class="bilingual-label">คำสัญญาณ<small>Signal Word</small></span></label>
             <select class="form-control" id="signalWord">
               <option value="">-</option>
@@ -1179,7 +1171,7 @@
       cas,
       supplier: document.getElementById("supplier").value.trim(),
       revision: document.getElementById("revision").value.trim(),
-      status: document.getElementById("status").value,
+      status: existing ? normalizeStatus(existing.status) : "Current",
       signalWord: document.getElementById("signalWord").value,
       language: document.getElementById("language").value,
       hazards,
@@ -1226,7 +1218,6 @@
     document.getElementById("cas").value = item.cas;
     document.getElementById("supplier").value = item.supplier;
     document.getElementById("revision").value = item.revision;
-    document.getElementById("status").value = normalizeStatus(item.status);
     document.getElementById("signalWord").value = item.signalWord || "";
     document.getElementById("language").value = getLanguageLabel(item);
     document.getElementById("thaiSds").checked = Boolean(item.thaiSds);
@@ -2066,13 +2057,14 @@
 
     function collectRecord() {
       var editId = document.getElementById("editId").value;
+      var existing = editId ? sdsData.find(function (item) { return String(item.id) === String(editId); }) : null;
       return {
         id: editId || "",
         chemical: document.getElementById("chemical").value.trim(),
         cas: document.getElementById("cas").value.trim(),
         supplier: document.getElementById("supplier").value.trim(),
         revision: document.getElementById("revision").value.trim(),
-        status: document.getElementById("status").value,
+        status: existing ? normalizeStatus(existing.status) : "Current",
         signalWord: document.getElementById("signalWord").value,
         language: document.getElementById("language").value,
         hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; }),

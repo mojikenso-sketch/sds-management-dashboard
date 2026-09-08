@@ -265,7 +265,7 @@
     .supplier-filter { width: 185px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
-      width: 100%; min-width: 820px; table-layout: fixed;
+      width: 100%; min-width: 680px; table-layout: fixed;
       border-collapse: separate; border-spacing: 0; border: 1px solid #cbd5e1;
     }
     thead { background: #1e3a8a; }
@@ -285,12 +285,10 @@
     thead th:nth-child(9) { background: #7c3aed; }
     thead th:nth-child(10) { background: #475569; }
     td { color: #334155; white-space: nowrap; }
-    th:nth-child(1), td:nth-child(1) { width: 28%; }
-    th:nth-child(2), td:nth-child(2) { width: 14%; }
+    th:nth-child(1), td:nth-child(1) { width: 42%; }
+    th:nth-child(2), td:nth-child(2) { width: 23%; }
     th:nth-child(3), td:nth-child(3) { width: 17%; }
     th:nth-child(4), td:nth-child(4) { width: 18%; }
-    th:nth-child(5), td:nth-child(5) { width: 13%; }
-    th:nth-child(6), td:nth-child(6) { width: 10%; }
     th:last-child, td:last-child { border-right: 0; }
     tbody tr:last-child td { border-bottom: 0; }
     tbody tr:nth-child(even) { background: #f8fbff; }
@@ -388,14 +386,8 @@
       50% { filter: brightness(1.16) saturate(1.28); }
     }
     .chart-empty { color: var(--muted); font-size: 13px; padding: 14px 0 2px; }
-    .days-badge, .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
-    .days-badge .bilingual-label, .language-badge .bilingual-label { align-items: center; }
-    .days-overdue { color: #b91c1c; background: #fee2e2; }
-    .days-near { color: #c2410c; background: #ffedd5; }
-    .days-mid { color: #a16207; background: #fef9c3; }
-    .days-long { color: #1d4ed8; background: #dbeafe; }
-    .days-far { color: #15803d; background: #dcfce7; }
-    .days-missing { color: var(--muted); background: #f1f5f9; }
+    .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
+    .language-badge .bilingual-label { align-items: center; }
     .language-english { color: #1d4ed8; background: #dbeafe; }
     .language-thai { color: #7c3aed; background: #ede9fe; }
     .table-heading-row {
@@ -610,16 +602,13 @@
       table { width: 100%; min-width: 0; table-layout: fixed; }
       th, td { padding: 9px 4px; font-size: 11px; }
       th { white-space: normal; }
-      th:nth-child(1), td:nth-child(1) { width: 19%; }
-      th:nth-child(2), td:nth-child(2) { width: 13%; }
-      th:nth-child(3), td:nth-child(3) { width: 20%; }
-      th:nth-child(4), td:nth-child(4) { width: 19%; }
-      th:nth-child(5), td:nth-child(5) { width: 15%; }
-      th:nth-child(6), td:nth-child(6) { width: 14%; }
+      th:nth-child(1), td:nth-child(1) { width: 40%; }
+      th:nth-child(2), td:nth-child(2) { width: 24%; }
+      th:nth-child(3), td:nth-child(3) { width: 18%; }
+      th:nth-child(4), td:nth-child(4) { width: 18%; }
       td { white-space: normal; }
       td:nth-child(2) { overflow-wrap: anywhere; }
       td:nth-child(3) { white-space: nowrap; font-size: 9px; }
-      .days-badge { white-space: normal; justify-content: center; padding: 4px 3px; font-size: 9px; text-align: center; line-height: 1.15; }
       .sds-link { width: 100%; max-width: 100%; gap: 4px; white-space: normal; align-items: flex-start; overflow-wrap: anywhere; }
       .sds-link .chemical-name { overflow-wrap: anywhere; }
       .chemical-hazard-icon { flex: 0 0 19px; font-size: 18px; text-align: center; }
@@ -718,11 +707,11 @@
     <div class="card">
       <h3 class="section-title"><span class="bilingual-label">ต้องดำเนินการ<small>Action Required</small></span></h3>
       <div class="review-chart-head">
-        <span class="bilingual-label">จำนวน SDS แยกตามระยะเวลาก่อนถึงวันทบทวนครั้งถัดไป<small>SDS by time remaining until next review date</small></span>
-        <button class="clear-filter-btn" id="clearReviewFilter" type="button" onclick="clearReviewFilter()" hidden><span class="bilingual-label">ล้างตัวกรอง<small>Clear filter</small></span></button>
+        <span class="bilingual-label">จำนวน SDS แยกตามสถานะและเอกสารที่ต้องดำเนินการ<small>SDS by status and document actions</small></span>
+        <button class="clear-filter-btn" id="clearActionFilter" type="button" onclick="clearActionFilter()" hidden><span class="bilingual-label">ล้างตัวกรอง<small>Clear filter</small></span></button>
       </div>
-      <div class="review-chart" id="reviewChart" role="group" aria-label="SDS ตามระยะเวลาก่อนถึง Next Review Date"></div>
-      <div class="chart-empty" id="reviewChartEmpty" hidden><span class="bilingual-label">ยังไม่มีรายการที่ระบุวันที่ทบทวนครั้งถัดไป<small>No SDS has a Next Review Date</small></span></div>
+      <div class="review-chart" id="actionChart" role="group" aria-label="SDS ตามสถานะและเอกสารที่ต้องดำเนินการ"></div>
+      <div class="chart-empty" id="actionChartEmpty" hidden><span class="bilingual-label">ยังไม่มีข้อมูล SDS<small>No SDS data available</small></span></div>
     </div>
 
     <div class="card">
@@ -796,8 +785,6 @@
           <tr>
             <th><span class="bilingual-label">สารเคมี<small>Chemical</small></span></th>
             <th><span class="bilingual-label">เลข CAS<small>CAS No.</small></span></th>
-            <th><span class="bilingual-label">วันที่ครบกำหนด<small>Due Date</small></span></th>
-            <th><span class="bilingual-label">เหลืออีกกี่วัน<small>Days Left</small></span></th>
             <th><span class="bilingual-label">เอกสาร SDS<small>SDS</small></span></th>
             <th><span class="bilingual-label">การดำเนินการ<small>Actions</small></span></th>
           </tr>
@@ -844,14 +831,6 @@
           <div class="form-group">
             <label><span class="bilingual-label">ฉบับแก้ไข SDS<small>SDS Revision</small></span></label>
             <input class="form-control" id="revision" placeholder="Rev.06">
-          </div>
-          <div class="form-group">
-            <label><span class="bilingual-label">วันที่แก้ไข<small>Revision Date</small></span></label>
-            <input class="form-control" id="revisionDate" type="date">
-          </div>
-          <div class="form-group">
-            <label><span class="bilingual-label">วันที่ทบทวนครั้งถัดไป<small>Next Review Date</small></span></label>
-            <input class="form-control" id="reviewDate" type="date">
           </div>
           <div class="form-group">
             <label><span class="bilingual-label">สถานะ<small>Status</small></span></label>
@@ -1032,8 +1011,7 @@
   const defaultData = [
     {
       id: 1, chemical: "Acetone", cas: "67-64-1",
-      supplier: "Sigma-Aldrich", revision: "Version 6.7",
-      revisionDate: "2026-08-12", reviewDate: "2027-05-04", status: "Current",
+      supplier: "Sigma-Aldrich", revision: "Version 6.7", status: "Current",
       signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/534064",
@@ -1041,8 +1019,7 @@
     },
     {
       id: 2, chemical: "Methanol", cas: "67-56-1",
-      supplier: "Sigma-Aldrich", revision: "Version 6.10",
-      revisionDate: "2023-06-18", reviewDate: "2026-06-18", status: "Review Due",
+      supplier: "Sigma-Aldrich", revision: "Version 6.10", status: "Review Due",
       signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sial/33607",
@@ -1050,8 +1027,7 @@
     },
     {
       id: 3, chemical: "Toluene", cas: "108-88-3",
-      supplier: "Sigma-Aldrich", revision: "Version 8.28",
-      revisionDate: "2023-01-03", reviewDate: "2026-09-26", status: "Update Required",
+      supplier: "Sigma-Aldrich", revision: "Version 8.28", status: "Update Required",
       signalWord: "Danger", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/mm/tx0735",
@@ -1059,8 +1035,7 @@
     },
     {
       id: 4, chemical: "Hydrochloric Acid", cas: "7647-01-0",
-      supplier: "Sigma-Aldrich", revision: "Version 6.9",
-      revisionDate: "2025-04-28", reviewDate: "2028-04-28", status: "Current",
+      supplier: "Sigma-Aldrich", revision: "Version 6.9", status: "Current",
       signalWord: "Danger", hazards: ["Corrosive"],
       thaiSds: false,
       pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/30721",
@@ -1068,8 +1043,7 @@
     },
     {
       id: 5, chemical: "Acetochlor 50% W/V EC", cas: "34256-82-1",
-      supplier: "Thep Watana Co., Ltd.", revision: "Full registration",
-      revisionDate: "", reviewDate: "2026-12-10", status: "Current",
+      supplier: "Thep Watana Co., Ltd.", revision: "Full registration", status: "Current",
       signalWord: "Warning", hazards: ["Flammable"],
       thaiSds: false,
       pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
@@ -1078,15 +1052,6 @@
   ];
 
   const storedSdsData = JSON.parse(localStorage.getItem("sdsData") || "null");
-  const REVIEW_SEED_MIGRATION_KEY = "sdsReviewSeedMigration";
-  const shouldMigrateReviewSeed = localStorage.getItem(REVIEW_SEED_MIGRATION_KEY) !== "v2";
-  const legacyReviewDates = {
-    "1": "2029-08-12",
-    "2": "2026-06-18",
-    "3": "",
-    "4": "2028-04-28",
-    "5": ""
-  };
   function normalizeStatus(status) {
     if (status === "Active") return "Current";
     if (status === "Expiring") return "Review Due";
@@ -1109,20 +1074,15 @@
 
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
-    const legacyDate = legacyReviewDates[String(item.id)];
-    const shouldUseUpdatedSeedDate = shouldMigrateReviewSeed && seed &&
-      Object.prototype.hasOwnProperty.call(legacyReviewDates, String(item.id)) &&
-      String(item.reviewDate || "") === legacyDate;
+    const { revisionDate, reviewDate, ...itemWithoutDates } = item;
     return seed
-      ? { ...item, status: normalizeStatus(item.status),
+      ? { ...itemWithoutDates, status: normalizeStatus(item.status),
           supplier: item.supplier || seed.supplier, revision: item.revision || seed.revision,
-          revisionDate: item.revisionDate || seed.revisionDate,
-          reviewDate: shouldUseUpdatedSeedDate ? seed.reviewDate : (item.reviewDate || seed.reviewDate),
           pdfUrl: item.pdfUrl || seed.pdfUrl, pdfName: item.pdfName || seed.pdfName,
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId || seed.pdfUrl),
           thaiSds: typeof item.thaiSds === "boolean" ? item.thaiSds : seed.thaiSds,
           hazards: normalizeHazards(item.hazards, seed.hazards) }
-      : { ...item, status: normalizeStatus(item.status), reviewDate: item.reviewDate || "", thaiSds: Boolean(item.thaiSds),
+      : { ...itemWithoutDates, status: normalizeStatus(item.status), thaiSds: Boolean(item.thaiSds),
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId), hazards: normalizeHazards(item.hazards) };
   }) : defaultData.slice();
   if (storedSdsData) {
@@ -1131,7 +1091,6 @@
     });
   }
   if (storedSdsData) localStorage.setItem("sdsData", JSON.stringify(sdsData));
-  if (shouldMigrateReviewSeed) localStorage.setItem(REVIEW_SEED_MIGRATION_KEY, "v2");
 
 
   /* ------------------------------
@@ -1302,8 +1261,6 @@
       cas,
       supplier: document.getElementById("supplier").value.trim(),
       revision: document.getElementById("revision").value.trim(),
-      revisionDate: document.getElementById("revisionDate").value,
-      reviewDate: document.getElementById("reviewDate").value,
       status: document.getElementById("status").value,
       signalWord: document.getElementById("signalWord").value,
       language: document.getElementById("language").value,
@@ -1311,6 +1268,8 @@
       thaiSds: document.getElementById("thaiSds").checked || document.getElementById("language").value === "Thai",
       hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
     };
+    delete record.revisionDate;
+    delete record.reviewDate;
 
     if (editId) {
       const index = sdsData.findIndex(item => String(item.id) === String(editId));
@@ -1349,8 +1308,6 @@
     document.getElementById("cas").value = item.cas;
     document.getElementById("supplier").value = item.supplier;
     document.getElementById("revision").value = item.revision;
-    document.getElementById("revisionDate").value = item.revisionDate;
-    document.getElementById("reviewDate").value = item.reviewDate || "";
     document.getElementById("status").value = normalizeStatus(item.status);
     document.getElementById("signalWord").value = item.signalWord || "";
     document.getElementById("language").value = getLanguageLabel(item);
@@ -1383,59 +1340,8 @@
     refreshDashboard();
   }
 
-  const REVIEW_BUCKETS = [
-    { key: "overdue", label: "เกินกำหนด", englishLabel: "Overdue", className: "overdue" },
-    { key: "near", label: "0–30 วัน", englishLabel: "0–30 days", className: "near" },
-    { key: "mid", label: "31–180 วัน", englishLabel: "31–180 days", className: "mid" },
-    { key: "long", label: "181–360 วัน", englishLabel: "181–360 days", className: "long" },
-    { key: "far", label: "มากกว่า 360 วัน", englishLabel: "Over 360 days", className: "far" }
-  ];
-  const REVIEW_CHART_ITEMS = [
-    { key: "all", label: "ทั้งหมด", englishLabel: "All", className: "all" },
-    ...REVIEW_BUCKETS
-  ];
-
-  function parseDateOnly(value) {
-    if (!value) return null;
-    const parts = String(value).slice(0, 10).split("-").map(Number);
-    if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    return Number.isNaN(date.getTime()) ? null : date;
-  }
-
-  function getDaysLeft(item) {
-    const reviewDate = parseDateOnly(item.reviewDate);
-    if (!reviewDate) return null;
-    const today = new Date();
-    const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    return Math.ceil((reviewDate - startToday) / 86400000);
-  }
-
-  function getReviewBucket(days) {
-    if (days === null || days === undefined) return null;
-    if (days < 0) return REVIEW_BUCKETS[0];
-    if (days <= 30) return REVIEW_BUCKETS[1];
-    if (days <= 180) return REVIEW_BUCKETS[2];
-    if (days <= 360) return REVIEW_BUCKETS[3];
-    return REVIEW_BUCKETS[4];
-  }
-
-  function formatDaysLeft(days) {
-    if (days === null || days === undefined) return { label: "-", englishLabel: "-", className: "days-missing" };
-    if (days < 0) return { label: `เกิน ${Math.abs(days)} วัน`, englishLabel: `${Math.abs(days)} days overdue`, className: "days-overdue" };
-    if (days <= 30) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-near" };
-    if (days <= 180) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-mid" };
-    if (days <= 360) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-long" };
-    return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-far" };
-  }
-
   function getLanguageLabel(item) {
     return item.language || (item.thaiSds ? "Thai" : "English");
-  }
-
-  function daysLeftBadge(item) {
-    const info = formatDaysLeft(getDaysLeft(item));
-    return `<span class="days-badge ${info.className}">${bilingualHTML(info.label, info.englishLabel)}</span>`;
   }
 
   function languageBadge(item) {
@@ -1682,57 +1588,74 @@
     refreshDashboard();
   }
 
-  function renderReviewChart() {
-    const chart = document.getElementById("reviewChart");
-    if (!chart) return;
-    const counts = REVIEW_CHART_ITEMS.reduce((result, bucket) => {
-      result[bucket.key] = 0;
-      return result;
-    }, {});
-    counts.all = sdsData.length;
-    let datedCount = 0;
-    sdsData.forEach(item => {
-      const bucket = getReviewBucket(getDaysLeft(item));
-      if (bucket) {
-        counts[bucket.key] += 1;
-        datedCount += 1;
-      }
-    });
-    const max = Math.max(1, ...REVIEW_CHART_ITEMS.map(bucket => counts[bucket.key]));
-    const activeKey = window.reviewBucketFilter || "";
+  const ACTION_BUCKETS = [
+    { key: "update", label: "ต้องปรับปรุง", englishLabel: "Update Required", className: "overdue" },
+    { key: "review", label: "ถึงรอบทบทวน", englishLabel: "Review Due", className: "near" },
+    { key: "missing-pdf", label: "ไม่มีไฟล์ PDF", englishLabel: "Missing PDF", className: "mid" },
+    { key: "missing-thai", label: "ไม่มี SDS ภาษาไทย", englishLabel: "Missing Thai SDS", className: "long" },
+    { key: "current", label: "ปัจจุบัน", englishLabel: "Current", className: "far" }
+  ];
+  const ACTION_CHART_ITEMS = [
+    { key: "all", label: "ทั้งหมด", englishLabel: "All", className: "all" },
+    ...ACTION_BUCKETS
+  ];
 
-    chart.innerHTML = REVIEW_CHART_ITEMS.map(bucket => {
-      const count = counts[bucket.key];
+  function hasPdf(item) {
+    return Boolean(item && (item.hasPdf || item.pdfUrl || item.pdfFileId));
+  }
+
+  function matchesActionBucket(item, key) {
+    if (key === "all") return true;
+    if (key === "update") return normalizeStatus(item.status) === "Update Required";
+    if (key === "review") return normalizeStatus(item.status) === "Review Due";
+    if (key === "missing-pdf") return !hasPdf(item);
+    if (key === "missing-thai") return !item.thaiSds;
+    if (key === "current") return normalizeStatus(item.status) === "Current";
+    return false;
+  }
+
+  function renderActionChart() {
+    const chart = document.getElementById("actionChart");
+    if (!chart) return;
+    const counts = { all: sdsData.length };
+    ACTION_BUCKETS.forEach(bucket => {
+      counts[bucket.key] = sdsData.filter(item => matchesActionBucket(item, bucket.key)).length;
+    });
+    const max = Math.max(1, ...ACTION_CHART_ITEMS.map(bucket => counts[bucket.key]));
+    const activeKey = window.actionFilter || "";
+
+    chart.innerHTML = ACTION_CHART_ITEMS.map(bucket => {
+      const count = counts[bucket.key] || 0;
       const width = count ? Math.max(4, Math.round((count / max) * 100)) : 0;
       const active = activeKey === bucket.key;
       return `<button type="button" class="review-bar-row${active ? " active" : ""}"
-        aria-pressed="${active}" onclick="toggleReviewBucket('${bucket.key}')">
+        aria-pressed="${active}" onclick="toggleActionBucket('${bucket.key}')">
         <span class="review-bar-label">${bilingualHTML(bucket.label, bucket.englishLabel)}</span>
         <span class="review-bar-track"><span class="review-bar-fill ${bucket.className}" style="width:${width}%"></span></span>
         <strong class="review-bar-count">${count}</strong>
       </button>`;
     }).join("");
 
-    const clearButton = document.getElementById("clearReviewFilter");
+    const clearButton = document.getElementById("clearActionFilter");
     if (clearButton) clearButton.hidden = !activeKey;
-    const empty = document.getElementById("reviewChartEmpty");
-    if (empty) empty.hidden = datedCount > 0;
+    const empty = document.getElementById("actionChartEmpty");
+    if (empty) empty.hidden = sdsData.length > 0;
   }
 
-  function toggleReviewBucket(key) {
-    const isSameBucket = window.reviewBucketFilter === key;
-    window.reviewBucketFilter = isSameBucket ? "" : key;
+  function toggleActionBucket(key) {
+    const isSameBucket = window.actionFilter === key;
+    window.actionFilter = isSameBucket ? "" : key;
     if (key === "all") resetAllTableFilters();
     else window.sdsSpecialFilter = "";
-    renderReviewChart();
+    renderActionChart();
     renderTable();
     const tableSection = document.getElementById("sdsTableSection");
     if (tableSection) tableSection.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function clearReviewFilter() {
-    window.reviewBucketFilter = "";
-    renderReviewChart();
+  function clearActionFilter() {
+    window.actionFilter = "";
+    renderActionChart();
     renderTable();
   }
 
@@ -1743,7 +1666,7 @@
     const supplier = document.getElementById("supplierFilter").value.trim().toLowerCase();
     const language = document.getElementById("languageFilter").value.trim().toLowerCase();
     const special = window.sdsSpecialFilter || "";
-    const reviewBucket = window.reviewBucketFilter || "";
+    const actionFilter = window.actionFilter || "";
 
     const filtered = sdsData.filter(item => {
       const searchMatch =
@@ -1766,15 +1689,9 @@
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
-      const reviewMatch = !reviewBucket || reviewBucket === "all" || (getReviewBucket(getDaysLeft(item)) || {}).key === reviewBucket;
+      const actionMatch = !actionFilter || actionFilter === "all" || matchesActionBucket(item, actionFilter);
 
-      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && reviewMatch;
-    }).sort((a, b) => {
-      const aDays = getDaysLeft(a);
-      const bDays = getDaysLeft(b);
-      if (aDays === null) return bDays === null ? 0 : 1;
-      if (bDays === null) return -1;
-      return aDays - bDays;
+      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && actionMatch;
     });
 
     document.getElementById("tableCount").innerHTML = bilingualHTML(`${filtered.length} รายการ`, `${filtered.length} items`);
@@ -1784,7 +1701,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
+          <td colspan="4"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
         </tr>`;
       return;
     }
@@ -1798,8 +1715,6 @@
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>
-          <td>${escapeHTML(formatDate(item.reviewDate))}</td>
-          <td>${daysLeftBadge(item)}</td>
           <td>
             <button class="pdf-btn" onclick="viewSDS(${item.id})"><span class="bilingual-label">📄 ดู SDS<small>View SDS</small></span></button>
           </td>
@@ -1811,7 +1726,7 @@
   }
 
   function updateSummary() {
-    renderReviewChart();
+    renderActionChart();
     updateHazardSummary();
   }
 
@@ -1821,9 +1736,8 @@
 
   function exportCSV() {
     const rows = [
-      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "วันที่ทบทวนครั้งถัดไป / Next Review Date", "เหลืออีกกี่วัน / Days Left", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "มี SDS ภาษาไทย / Thai SDS"],
+      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "มี SDS ภาษาไทย / Thai SDS"],
       ...sdsData.map(item => {
-        const days = formatDaysLeft(getDaysLeft(item));
         const language = getLanguageLabel(item);
         const languageLabels = LANGUAGE_LABELS[language] || { thai: language, english: language };
         const status = normalizeStatus(item.status);
@@ -1835,7 +1749,6 @@
         }).join(" | ");
         return [
           item.chemical, item.cas, item.supplier, item.revision,
-          item.reviewDate, `${days.label} / ${days.englishLabel}`,
           `${languageLabels.thai} / ${languageLabels.english}`, hazards,
           `${statusLabels.thai} / ${statusLabels.english}`, item.thaiSds ? "มี / Yes" : "ไม่มี / No"
         ];
@@ -1961,13 +1874,6 @@
   document.addEventListener("click", event => {
     if (!event.target.closest(".filter-combobox")) closeFilterMenus();
   });
-
-  function formatDate(date) {
-    if (!date) return "-";
-    return new Date(date + "T00:00:00").toLocaleDateString("th-TH", {
-      day: "2-digit", month: "2-digit", year: "numeric"
-    });
-  }
 
   function escapeHTML(value = "") {
     return String(value)
@@ -2201,8 +2107,8 @@
       if (supplierFilter) supplierFilter.value = "";
       if (languageFilter) languageFilter.value = "";
       window.sdsSpecialFilter = type === "missing" ? value : "";
-      window.reviewBucketFilter = "";
-      renderReviewChart();
+      window.actionFilter = "";
+      renderActionChart();
       renderTable();
 
       var tableSection = document.getElementById("sdsTableSection");
@@ -2241,7 +2147,10 @@
 
     function applyData(data) {
       sdsData = Array.isArray(data)
-        ? data.map(item => ({ ...item, hazards: normalizeHazards(item.hazards) }))
+        ? data.map(item => {
+            const { revisionDate, reviewDate, ...itemWithoutDates } = item;
+            return { ...itemWithoutDates, hazards: normalizeHazards(item.hazards) };
+          })
         : [];
       refreshDashboard();
       applyPublicMode();
@@ -2321,8 +2230,6 @@
         cas: document.getElementById("cas").value.trim(),
         supplier: document.getElementById("supplier").value.trim(),
         revision: document.getElementById("revision").value.trim(),
-        revisionDate: document.getElementById("revisionDate").value,
-        reviewDate: document.getElementById("reviewDate").value,
         status: document.getElementById("status").value,
         signalWord: document.getElementById("signalWord").value,
         language: document.getElementById("language").value,

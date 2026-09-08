@@ -13,10 +13,10 @@ var SDS_HEADERS = [
 ];
 
 var SAMPLE_ROWS = [
-  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "2026-08-12", "Current", "Danger", "Flammable", "", "", new Date().toISOString(), "2029-08-12", false, "English"],
-  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "2023-06-18", "Review Due", "Danger", "Flammable", "", "", new Date().toISOString(), "2026-06-18", false, "English"],
-  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "2023-01-03", "Update Required", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
-  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "2025-04-28", "Current", "Danger", "Corrosive", "", "", new Date().toISOString(), "2028-04-28", false, "English"]
+  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "", "Current", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
+  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "", "Review Due", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
+  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "", "Update Required", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
+  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "", "Current", "Danger", "Corrosive", "", "", new Date().toISOString(), "", false, "English"]
 ];
 
 function doGet(e) {

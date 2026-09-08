@@ -131,7 +131,7 @@
     .cards .card:nth-child(2) { animation-delay: 0.08s; }
     .cards .card:nth-child(3) { animation-delay: 0.16s; }
     .cards .card:nth-child(4) { animation-delay: 0.24s; }
-    .overview > .card:nth-child(2) { animation-delay: 0.12s; }
+    .overview.single-overview > .card { animation-delay: 0.12s; }
     .clickable-summary { cursor: pointer; transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s; }
     .clickable-summary:hover { transform: translateY(-2px); border-color: #93c5fd; box-shadow: 0 6px 18px rgba(30, 64, 175, 0.1); }
     .clickable-summary:focus-visible { outline: 3px solid rgba(30, 64, 175, 0.28); outline-offset: 2px; }
@@ -157,6 +157,7 @@
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 18px; margin-bottom: 22px;
     }
+    .overview.single-overview { grid-template-columns: 1fr; }
     .section-title { font-size: 16px; margin-bottom: 18px; }
     .hazard-total { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
     .section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
@@ -251,9 +252,8 @@
       background: transparent; color: var(--text); text-align: left; font-size: 13px;
     }
     .filter-option:hover, .filter-option:focus { background: #eff6ff; color: #1d4ed8; outline: none; }
-    .filter-option .bilingual-label, .review-bar-label .bilingual-label,
-    .hazard-left .bilingual-label { align-items: flex-start; }
-    .review-bar-label .bilingual-label small, .filter-option .bilingual-label small { color: var(--muted); }
+    .filter-option .bilingual-label, .hazard-left .bilingual-label { align-items: flex-start; }
+    .filter-option .bilingual-label small { color: var(--muted); }
     .input, .select {
       height: 40px; border: 1px solid var(--border); border-radius: 8px;
       padding: 0 12px; outline: none; background: #fff;
@@ -314,78 +314,6 @@
     }
     .action-btn:hover { background: #e2e8f0; }
     .empty-state { text-align: center; padding: 45px; color: var(--muted); }
-    .action-list { display: grid; gap: 10px; }
-    .action-item {
-      min-height: 42px; padding: 10px 12px; border: 1px solid var(--border);
-      border-radius: 9px; display: flex; align-items: center; justify-content: space-between;
-      font-size: 14px;
-    }
-    .action-label { display: flex; align-items: center; gap: 9px; }
-    .action-label > span { font-size: 16px; }
-    .review-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -4px 0 14px; color: var(--muted); font-size: 12px; }
-    .clear-filter-btn {
-      border: 1px solid #bfdbfe; background: #eff6ff; color: var(--primary);
-      border-radius: 7px; padding: 6px 10px; font-size: 12px; font-weight: 700;
-      cursor: pointer;
-    }
-    .clear-filter-btn:hover { background: #dbeafe; }
-    .review-chart { display: grid; gap: 11px; }
-    .review-bar-row {
-      display: grid; grid-template-columns: 105px minmax(0, 1fr) 38px; align-items: center;
-      gap: 10px; width: 100%; border: 0; background: transparent; padding: 3px 0;
-      color: var(--text); text-align: left; cursor: pointer; border-radius: 8px;
-    }
-    .review-bar-row:hover, .review-bar-row.active { background: #f8fafc; }
-    .review-bar-row.active { outline: 2px solid rgba(30, 64, 175, 0.16); outline-offset: 3px; }
-    .review-bar-label { font-size: 13px; font-weight: 600; white-space: normal; }
-    .review-bar-label .bilingual-label { white-space: nowrap; }
-    .review-bar-row.active .review-bar-label { color: var(--primary); }
-    .review-bar-track {
-      position: relative; height: 17px; background: #e8eef7; border-radius: 99px; overflow: hidden;
-      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08);
-    }
-    .review-bar-fill {
-      position: relative; display: block; height: 100%; min-width: 0; overflow: hidden;
-      border-radius: inherit; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.18);
-      transform-origin: left center;
-      transition: width 0.55s cubic-bezier(.22,.8,.36,1), filter 0.2s ease;
-      animation: reviewBarGrow 0.85s cubic-bezier(.22,.8,.36,1) both;
-    }
-    .review-bar-fill::after {
-      content: ""; position: absolute; inset: 0; width: 42%;
-      background: linear-gradient(105deg, transparent, rgba(255,255,255,.58), transparent);
-      transform: translateX(-180%); animation: reviewBarShine 5.2s ease-in-out 1.1s infinite;
-    }
-    .review-bar-row:nth-child(2) .review-bar-fill { animation-delay: .08s; }
-    .review-bar-row:nth-child(3) .review-bar-fill { animation-delay: .16s; }
-    .review-bar-row:nth-child(4) .review-bar-fill { animation-delay: .24s; }
-    .review-bar-row:nth-child(5) .review-bar-fill { animation-delay: .32s; }
-    .review-bar-row:nth-child(6) .review-bar-fill { animation-delay: .4s; }
-    .review-bar-row.active .review-bar-fill {
-      animation: reviewBarGrow 0.85s cubic-bezier(.22,.8,.36,1) both, reviewBarGlow 1.5s ease-in-out .85s infinite;
-    }
-    .review-bar-row:hover .review-bar-fill, .review-bar-row.active .review-bar-fill { filter: brightness(0.94) saturate(1.18); }
-    .review-bar-fill.overdue { background: #dc2626; }
-    .review-bar-fill.near { background: #f97316; }
-    .review-bar-fill.mid { background: #eab308; }
-    .review-bar-fill.long { background: #2563eb; }
-    .review-bar-fill.far { background: #16a34a; }
-    .review-bar-fill.all { background: var(--primary); }
-    .review-bar-count { font-size: 14px; text-align: right; }
-    @keyframes reviewBarGrow {
-      from { transform: scaleX(0); opacity: .25; }
-      to { transform: scaleX(1); opacity: 1; }
-    }
-    @keyframes reviewBarShine {
-      0%, 35% { transform: translateX(-180%); opacity: 0; }
-      45% { opacity: .85; }
-      72%, 100% { transform: translateX(360%); opacity: 0; }
-    }
-    @keyframes reviewBarGlow {
-      0%, 100% { filter: brightness(1) saturate(1); }
-      50% { filter: brightness(1.16) saturate(1.28); }
-    }
-    .chart-empty { color: var(--muted); font-size: 13px; padding: 14px 0 2px; }
     .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
     .language-badge .bilingual-label { align-items: center; }
     .language-english { color: #1d4ed8; background: #dbeafe; }
@@ -703,17 +631,7 @@
     <button class="btn-primary" onclick="openAddDrawer()"><span class="bilingual-label">＋ เพิ่มข้อมูล SDS<small>Add SDS</small></span></button>
   </section>
 
-  <section class="overview">
-    <div class="card">
-      <h3 class="section-title"><span class="bilingual-label">ต้องดำเนินการ<small>Action Required</small></span></h3>
-      <div class="review-chart-head">
-        <span class="bilingual-label">จำนวน SDS แยกตามสถานะและเอกสารที่ต้องดำเนินการ<small>SDS by status and document actions</small></span>
-        <button class="clear-filter-btn" id="clearActionFilter" type="button" onclick="clearActionFilter()" hidden><span class="bilingual-label">ล้างตัวกรอง<small>Clear filter</small></span></button>
-      </div>
-      <div class="review-chart" id="actionChart" role="group" aria-label="SDS ตามสถานะและเอกสารที่ต้องดำเนินการ"></div>
-      <div class="chart-empty" id="actionChartEmpty" hidden><span class="bilingual-label">ยังไม่มีข้อมูล SDS<small>No SDS data available</small></span></div>
-    </div>
-
+  <section class="overview single-overview">
     <div class="card">
       <div class="section-title-row">
         <h3 class="section-title"><span class="bilingual-label">ภาพรวมอันตราย<small>Hazard Overview</small></span> <span class="hazard-total" id="hazardOverviewTotal">(<span class="bilingual-label">รวมทั้งหมด 0 เอกสาร<small>0 documents total</small></span>)</span></h3>
@@ -1588,77 +1506,6 @@
     refreshDashboard();
   }
 
-  const ACTION_BUCKETS = [
-    { key: "update", label: "ต้องปรับปรุง", englishLabel: "Update Required", className: "overdue" },
-    { key: "review", label: "ถึงรอบทบทวน", englishLabel: "Review Due", className: "near" },
-    { key: "missing-pdf", label: "ไม่มีไฟล์ PDF", englishLabel: "Missing PDF", className: "mid" },
-    { key: "missing-thai", label: "ไม่มี SDS ภาษาไทย", englishLabel: "Missing Thai SDS", className: "long" },
-    { key: "current", label: "ปัจจุบัน", englishLabel: "Current", className: "far" }
-  ];
-  const ACTION_CHART_ITEMS = [
-    { key: "all", label: "ทั้งหมด", englishLabel: "All", className: "all" },
-    ...ACTION_BUCKETS
-  ];
-
-  function hasPdf(item) {
-    return Boolean(item && (item.hasPdf || item.pdfUrl || item.pdfFileId));
-  }
-
-  function matchesActionBucket(item, key) {
-    if (key === "all") return true;
-    if (key === "update") return normalizeStatus(item.status) === "Update Required";
-    if (key === "review") return normalizeStatus(item.status) === "Review Due";
-    if (key === "missing-pdf") return !hasPdf(item);
-    if (key === "missing-thai") return !item.thaiSds;
-    if (key === "current") return normalizeStatus(item.status) === "Current";
-    return false;
-  }
-
-  function renderActionChart() {
-    const chart = document.getElementById("actionChart");
-    if (!chart) return;
-    const counts = { all: sdsData.length };
-    ACTION_BUCKETS.forEach(bucket => {
-      counts[bucket.key] = sdsData.filter(item => matchesActionBucket(item, bucket.key)).length;
-    });
-    const max = Math.max(1, ...ACTION_CHART_ITEMS.map(bucket => counts[bucket.key]));
-    const activeKey = window.actionFilter || "";
-
-    chart.innerHTML = ACTION_CHART_ITEMS.map(bucket => {
-      const count = counts[bucket.key] || 0;
-      const width = count ? Math.max(4, Math.round((count / max) * 100)) : 0;
-      const active = activeKey === bucket.key;
-      return `<button type="button" class="review-bar-row${active ? " active" : ""}"
-        aria-pressed="${active}" onclick="toggleActionBucket('${bucket.key}')">
-        <span class="review-bar-label">${bilingualHTML(bucket.label, bucket.englishLabel)}</span>
-        <span class="review-bar-track"><span class="review-bar-fill ${bucket.className}" style="width:${width}%"></span></span>
-        <strong class="review-bar-count">${count}</strong>
-      </button>`;
-    }).join("");
-
-    const clearButton = document.getElementById("clearActionFilter");
-    if (clearButton) clearButton.hidden = !activeKey;
-    const empty = document.getElementById("actionChartEmpty");
-    if (empty) empty.hidden = sdsData.length > 0;
-  }
-
-  function toggleActionBucket(key) {
-    const isSameBucket = window.actionFilter === key;
-    window.actionFilter = isSameBucket ? "" : key;
-    if (key === "all") resetAllTableFilters();
-    else window.sdsSpecialFilter = "";
-    renderActionChart();
-    renderTable();
-    const tableSection = document.getElementById("sdsTableSection");
-    if (tableSection) tableSection.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function clearActionFilter() {
-    window.actionFilter = "";
-    renderActionChart();
-    renderTable();
-  }
-
   function renderTable() {
     const search = document.getElementById("searchInput").value.toLowerCase();
     const status = document.getElementById("statusFilter").value.trim().toLowerCase();
@@ -1666,7 +1513,6 @@
     const supplier = document.getElementById("supplierFilter").value.trim().toLowerCase();
     const language = document.getElementById("languageFilter").value.trim().toLowerCase();
     const special = window.sdsSpecialFilter || "";
-    const actionFilter = window.actionFilter || "";
 
     const filtered = sdsData.filter(item => {
       const searchMatch =
@@ -1689,9 +1535,7 @@
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
-      const actionMatch = !actionFilter || actionFilter === "all" || matchesActionBucket(item, actionFilter);
-
-      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch && actionMatch;
+      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch;
     });
 
     document.getElementById("tableCount").innerHTML = bilingualHTML(`${filtered.length} รายการ`, `${filtered.length} items`);
@@ -1726,7 +1570,6 @@
   }
 
   function updateSummary() {
-    renderActionChart();
     updateHazardSummary();
   }
 
@@ -2108,8 +1951,6 @@
       if (supplierFilter) supplierFilter.value = "";
       if (languageFilter) languageFilter.value = "";
       window.sdsSpecialFilter = type === "missing" ? value : "";
-      window.actionFilter = "";
-      renderActionChart();
       renderTable();
 
       var tableSection = document.getElementById("sdsTableSection");

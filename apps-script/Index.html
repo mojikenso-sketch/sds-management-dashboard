@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SDS Management Dashboard</title>
+  <title>ระบบจัดการ SDS | SDS Management Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -16,6 +16,10 @@
     body { font-family: Arial, "Noto Sans Thai", sans-serif; background: var(--bg); color: var(--text); }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
+    .bilingual-label { display: inline-flex; flex-direction: column; gap: 2px; line-height: 1.15; }
+    .bilingual-label small { color: inherit; font-size: .72em; font-weight: 500; letter-spacing: 0; opacity: .78; }
+    .btn-primary .bilingual-label small { color: rgba(255, 255, 255, .9); }
+    .btn-secondary .bilingual-label small, .settings-btn .bilingual-label small { color: currentColor; }
 
     .topbar {
       height: 70px; background: #fff; border-bottom: 1px solid var(--border);
@@ -247,6 +251,9 @@
       background: transparent; color: var(--text); text-align: left; font-size: 13px;
     }
     .filter-option:hover, .filter-option:focus { background: #eff6ff; color: #1d4ed8; outline: none; }
+    .filter-option .bilingual-label, .review-bar-label .bilingual-label,
+    .hazard-left .bilingual-label { align-items: flex-start; }
+    .review-bar-label .bilingual-label small, .filter-option .bilingual-label small { color: var(--muted); }
     .input, .select {
       height: 40px; border: 1px solid var(--border); border-radius: 8px;
       padding: 0 12px; outline: none; background: #fff;
@@ -332,7 +339,8 @@
     }
     .review-bar-row:hover, .review-bar-row.active { background: #f8fafc; }
     .review-bar-row.active { outline: 2px solid rgba(30, 64, 175, 0.16); outline-offset: 3px; }
-    .review-bar-label { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .review-bar-label { font-size: 13px; font-weight: 600; white-space: normal; }
+    .review-bar-label .bilingual-label { white-space: nowrap; }
     .review-bar-row.active .review-bar-label { color: var(--primary); }
     .review-bar-track {
       position: relative; height: 17px; background: #e8eef7; border-radius: 99px; overflow: hidden;
@@ -381,6 +389,7 @@
     }
     .chart-empty { color: var(--muted); font-size: 13px; padding: 14px 0 2px; }
     .days-badge, .language-badge { display: inline-flex; align-items: center; white-space: nowrap; border-radius: 999px; padding: 5px 8px; font-size: 12px; font-weight: 700; }
+    .days-badge .bilingual-label, .language-badge .bilingual-label { align-items: center; }
     .days-overdue { color: #b91c1c; background: #fee2e2; }
     .days-near { color: #c2410c; background: #ffedd5; }
     .days-mid { color: #a16207; background: #fef9c3; }
@@ -397,6 +406,9 @@
       color: #1d4ed8; background: #dbeafe; padding: 6px 10px;
       border-radius: 999px; font-size: 12px;
     }
+    .table-heading-row strong .bilingual-label { align-items: center; }
+    .table-heading-row strong .bilingual-label small { color: inherit; }
+    .hazard-total .bilingual-label { align-items: center; }
     .check-item.full { grid-column: 1 / -1; }
 
     .overlay {
@@ -430,7 +442,7 @@
     .form-group { display: flex; flex-direction: column; gap: 7px; }
     .form-group.full { grid-column: 1 / -1; }
     label { font-size: 12px; font-weight: 600; color: #475569; }
-    label span { color: var(--danger); }
+    label > span:not(.bilingual-label), label .bilingual-label > span { color: var(--danger); }
     .form-control {
       height: 42px; padding: 0 12px; border: 1px solid var(--border);
       border-radius: 8px; outline: none;
@@ -614,38 +626,6 @@
       .pdf-btn { max-width: 100%; padding: 4px 1px; font-size: 9px; white-space: normal; }
       .action-btn { padding: 4px 0; font-size: 12px; }
     }
-    body.login-locked { overflow: hidden; }
-    .login-gate {
-      position: fixed; inset: 0; z-index: 200; display: grid; place-items: center;
-      padding: 24px; background: radial-gradient(circle at top, #1e40af 0%, #0f172a 62%);
-    }
-    .login-gate[hidden] { display: none; }
-    .login-card {
-      width: min(420px, 100%); padding: 34px; border: 1px solid rgba(191, 219, 254, 0.35);
-      border-radius: 22px; background: rgba(255, 255, 255, 0.98);
-      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.35); text-align: center;
-      animation: loginPop 0.5s cubic-bezier(.22,.8,.36,1) both;
-    }
-    .login-badge {
-      width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
-      border-radius: 18px; background: linear-gradient(135deg, #2563eb, #4f46e5);
-      color: #fff; font-size: 20px; font-weight: 900; letter-spacing: 0.04em;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
-    }
-    .login-card h2 { margin: 0; color: #0f172a; font-size: 24px; }
-    .login-card p { margin: 8px 0 24px; color: #64748b; font-size: 14px; }
-    .login-label { display: block; margin-bottom: 8px; color: #334155; text-align: left; font-size: 14px; font-weight: 700; }
-    .login-input {
-      width: 100%; height: 48px; padding: 0 14px; border: 1px solid #cbd5e1;
-      border-radius: 10px; outline: none; text-align: center; font-size: 20px;
-      letter-spacing: 0.3em; box-sizing: border-box;
-    }
-    .login-input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); }
-    .login-card .btn-primary { width: 100%; margin-top: 16px; justify-content: center; }
-    .login-error { min-height: 20px; margin-top: 12px; color: #dc2626; font-size: 13px; }
-    .login-shake { animation: loginShake 0.35s ease both; }
-    @keyframes loginPop { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    @keyframes loginShake { 20%, 60% { transform: translateX(-7px); } 40%, 80% { transform: translateX(7px); } }
     .settings-modal {
       position: fixed; inset: 0; z-index: 140; display: grid; place-items: center;
       padding: 22px; background: rgba(15, 23, 42, 0.56);
@@ -654,7 +634,7 @@
     .settings-dialog {
       width: min(900px, 100%); max-height: 92vh; display: flex; flex-direction: column;
       overflow: hidden; border: 1px solid #bfdbfe; border-radius: 18px; background: #fff;
-      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.3); animation: loginPop 0.35s ease both;
+      box-shadow: 0 24px 70px rgba(2, 6, 23, 0.3); animation: cardRise 0.35s ease both;
     }
     .settings-header, .settings-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
     .settings-header h3 { color: #1e3a8a; font-size: 19px; }
@@ -681,44 +661,30 @@
   </style>
 </head>
 
-<body class="login-locked">
-<div class="login-gate" id="loginGate" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
-  <div class="login-card" id="loginCard">
-    <div class="login-badge" aria-hidden="true">SDS</div>
-    <h2 id="loginTitle">SDS Management</h2>
-    <p>กรุณาใส่รหัสผ่านเพื่อเข้าสู่ Dashboard</p>
-    <form onsubmit="return attemptLogin()">
-      <label class="login-label" for="loginPassword">รหัสผ่าน</label>
-      <input class="login-input" id="loginPassword" type="password" inputmode="numeric"
-        maxlength="6" autocomplete="off" required aria-describedby="loginError">
-      <button class="btn-primary" type="submit">เข้าสู่ระบบ</button>
-      <div class="login-error" id="loginError" role="alert" aria-live="polite"></div>
-    </form>
-  </div>
-</div>
+<body>
 <div class="settings-modal" id="hazardSettingsModal" hidden onclick="closeHazardSettings(event)">
   <div class="settings-dialog" onclick="event.stopPropagation()">
     <div class="settings-header">
       <div>
-        <h3>⚙ ตั้งค่า Hazard Overview</h3>
-        <p>แก้ไขชื่อ เลือกไอคอน และเพิ่มประเภท Hazard ได้ตามต้องการ</p>
+        <h3><span class="bilingual-label">⚙ ตั้งค่าภาพรวมอันตราย<small>Hazard Overview Settings</small></span></h3>
+        <p>แก้ไขชื่อ เลือกไอคอน และเพิ่มประเภทอันตรายได้ตามต้องการ<br><span class="bilingual-label"><small>Edit names, choose icons, and add hazard types</small></span></p>
       </div>
       <button class="settings-close" type="button" aria-label="ปิดหน้าตั้งค่า" onclick="closeHazardSettings()">×</button>
     </div>
     <div class="settings-body">
       <div class="hazard-settings-list" id="hazardSettingsList"></div>
       <div class="settings-add">
-        <h4>＋ เพิ่ม Hazard ใหม่</h4>
-        <label class="settings-label" for="newHazardName">ชื่อ Hazard</label>
-        <input class="settings-name-input" id="newHazardName" placeholder="เช่น Oxidizing" autocomplete="off">
-        <div class="settings-label" style="margin-top:12px;">เลือกไอคอน</div>
+        <h4><span class="bilingual-label">＋ เพิ่มประเภทอันตรายใหม่<small>Add New Hazard</small></span></h4>
+        <label class="settings-label" for="newHazardName"><span class="bilingual-label">ชื่อประเภทอันตราย<small>Hazard name</small></span></label>
+        <input class="settings-name-input" id="newHazardName" placeholder="เช่น สารออกซิไดซ์ / Oxidizing" autocomplete="off">
+        <div class="settings-label" style="margin-top:12px;"><span class="bilingual-label">เลือกไอคอน<small>Choose icon</small></span></div>
         <div class="icon-picker" id="newHazardIconPicker"></div>
-        <button class="btn-primary" type="button" style="margin-top:14px;" onclick="addHazardDefinition()">เพิ่ม Hazard</button>
+        <button class="btn-primary" type="button" style="margin-top:14px;" onclick="addHazardDefinition()"><span class="bilingual-label">เพิ่มประเภทอันตราย<small>Add Hazard</small></span></button>
       </div>
     </div>
     <div class="settings-footer">
-      <button class="btn-secondary" type="button" onclick="closeHazardSettings()">ยกเลิก</button>
-      <button class="btn-primary" type="button" onclick="saveHazardSettings()">บันทึกการตั้งค่า</button>
+      <button class="btn-secondary" type="button" onclick="closeHazardSettings()"><span class="bilingual-label">ยกเลิก<small>Cancel</small></span></button>
+      <button class="btn-primary" type="button" onclick="saveHazardSettings()"><span class="bilingual-label">บันทึกการตั้งค่า<small>Save settings</small></span></button>
     </div>
   </div>
 </div>
@@ -726,43 +692,43 @@
   <div class="brand">
     <div class="logo">SDS</div>
     <div>
-      <h1>SDS Management</h1>
-      <p>Safety Data Sheet System</p>
+      <h1><span class="bilingual-label">ระบบจัดการ SDS<small>SDS Management</small></span></h1>
+      <p><span class="bilingual-label">ระบบเอกสารข้อมูลความปลอดภัย<small>Safety Data Sheet System</small></span></p>
     </div>
   </div>
   <div class="topbar-right">
     <label class="topbar-search">
       <span>🔍</span>
-      <input id="globalSearch" type="search" placeholder="Search" oninput="syncGlobalSearch(this.value)">
+      <input id="globalSearch" type="search" placeholder="ค้นหา / Search" aria-label="ค้นหา / Search" oninput="syncGlobalSearch(this.value)">
     </label>
-    <div class="admin"><span class="user">👤</span><span>Admin</span></div>
+    <div class="admin"><span class="user">👤</span><span class="bilingual-label">ผู้ดูแลระบบ<small>Administrator</small></span></div>
   </div>
 </header>
 
 <main class="container">
   <section class="page-header">
     <div>
-      <h2>SDS Dashboard</h2>
-      <p>ภาพรวมและควบคุมเอกสาร Safety Data Sheet</p>
+      <h2><span class="bilingual-label">แดชบอร์ด SDS<small>SDS Dashboard</small></span></h2>
+      <p>ภาพรวมและควบคุมเอกสารข้อมูลความปลอดภัย<br><span class="bilingual-label"><small>Safety Data Sheet overview and control</small></span></p>
     </div>
-    <button class="btn-primary" onclick="openAddDrawer()">＋ เพิ่มข้อมูล SDS</button>
+    <button class="btn-primary" onclick="openAddDrawer()"><span class="bilingual-label">＋ เพิ่มข้อมูล SDS<small>Add SDS</small></span></button>
   </section>
 
   <section class="overview">
     <div class="card">
-      <h3 class="section-title">ต้องดำเนินการ</h3>
+      <h3 class="section-title"><span class="bilingual-label">ต้องดำเนินการ<small>Action Required</small></span></h3>
       <div class="review-chart-head">
-        <span>จำนวน SDS แยกตามระยะเวลาก่อนถึง Next Review Date</span>
-        <button class="clear-filter-btn" id="clearReviewFilter" type="button" onclick="clearReviewFilter()" hidden>ล้างตัวกรอง</button>
+        <span class="bilingual-label">จำนวน SDS แยกตามระยะเวลาก่อนถึงวันทบทวนครั้งถัดไป<small>SDS by time remaining until next review date</small></span>
+        <button class="clear-filter-btn" id="clearReviewFilter" type="button" onclick="clearReviewFilter()" hidden><span class="bilingual-label">ล้างตัวกรอง<small>Clear filter</small></span></button>
       </div>
       <div class="review-chart" id="reviewChart" role="group" aria-label="SDS ตามระยะเวลาก่อนถึง Next Review Date"></div>
-      <div class="chart-empty" id="reviewChartEmpty" hidden>ยังไม่มีรายการที่ระบุ Next Review Date</div>
+      <div class="chart-empty" id="reviewChartEmpty" hidden><span class="bilingual-label">ยังไม่มีรายการที่ระบุวันที่ทบทวนครั้งถัดไป<small>No SDS has a Next Review Date</small></span></div>
     </div>
 
     <div class="card">
       <div class="section-title-row">
-        <h3 class="section-title">Hazard Overview <span class="hazard-total" id="hazardOverviewTotal">(รวมทั้งหมด 0 เอกสาร)</span></h3>
-        <button class="settings-btn" type="button" onclick="openHazardSettings()">⚙ ตั้งค่า</button>
+        <h3 class="section-title"><span class="bilingual-label">ภาพรวมอันตราย<small>Hazard Overview</small></span> <span class="hazard-total" id="hazardOverviewTotal">(<span class="bilingual-label">รวมทั้งหมด 0 เอกสาร<small>0 documents total</small></span>)</span></h3>
+        <button class="settings-btn" type="button" onclick="openHazardSettings()"><span class="bilingual-label">⚙ ตั้งค่า<small>Settings</small></span></button>
       </div>
       <div class="hazards" id="hazardOverview"></div>
     </div>
@@ -770,18 +736,19 @@
 
   <section class="table-card" id="sdsTableSection" tabindex="-1">
     <div class="table-toolbar table-heading-row">
-      <div class="table-heading">SDS DOCUMENTS</div>
-      <strong id="tableCount">0 รายการ</strong>
+      <div class="table-heading"><span class="bilingual-label">เอกสาร SDS<small>SDS Documents</small></span></div>
+      <strong id="tableCount"><span class="bilingual-label">0 รายการ<small>0 items</small></span></strong>
     </div>
     <div class="table-toolbar">
       <div class="toolbar-left">
         <input class="input search" id="searchInput"
-          placeholder="🔍 Chemical / CAS / Supplier"
+          placeholder="🔍 ค้นหาสารเคมี / CAS / ผู้จัดจำหน่าย"
+          aria-label="ค้นหาสารเคมี / CAS / ผู้จัดจำหน่าย"
           oninput="clearSpecialFilter(); renderTable()">
 
         <div class="filter-combobox status-combobox">
           <input class="input filter-input" id="statusFilter"
-            placeholder="Status" aria-label="ค้นหา Status" autocomplete="off"
+            placeholder="สถานะ / Status" aria-label="ค้นหาสถานะ / Search status" autocomplete="off"
             onfocus="openFilterMenu('statusFilter', 'statusMenu')"
             oninput="filterMenu('statusFilter', 'statusMenu'); renderTable()">
           <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Status"
@@ -791,7 +758,7 @@
 
         <div class="filter-combobox hazard-combobox">
           <input class="input filter-input" id="hazardFilter"
-            placeholder="ทุก Hazard" aria-label="ค้นหา Hazard" autocomplete="off"
+            placeholder="อันตรายทั้งหมด / All hazards" aria-label="ค้นหาประเภทอันตราย / Search hazard" autocomplete="off"
             onfocus="openFilterMenu('hazardFilter', 'hazardMenu')"
             oninput="filterMenu('hazardFilter', 'hazardMenu'); renderTable()">
           <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Hazard"
@@ -811,7 +778,7 @@
 
         <div class="filter-combobox supplier-combobox">
           <input class="input filter-input" id="supplierFilter"
-            placeholder="Supplier" aria-label="ค้นหา Supplier" autocomplete="off"
+            placeholder="ผู้จัดจำหน่าย / Supplier" aria-label="ค้นหาผู้จัดจำหน่าย / Search supplier" autocomplete="off"
             onfocus="openFilterMenu('supplierFilter', 'supplierMenu')"
             oninput="filterMenu('supplierFilter', 'supplierMenu'); renderTable()">
           <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Supplier"
@@ -820,19 +787,19 @@
         </div>
       </div>
 
-      <button class="btn-secondary export-btn" onclick="exportCSV()">↓ Export CSV</button>
+      <button class="btn-secondary export-btn" onclick="exportCSV()"><span class="bilingual-label">↓ ส่งออก CSV<small>Export CSV</small></span></button>
     </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
-            <th>Chemical</th>
-            <th>CAS No.</th>
-            <th>วันที่ครบกำหนด</th>
-            <th>เหลืออีกกี่วัน</th>
-            <th>SDS</th>
-            <th>Action</th>
+            <th><span class="bilingual-label">สารเคมี<small>Chemical</small></span></th>
+            <th><span class="bilingual-label">เลข CAS<small>CAS No.</small></span></th>
+            <th><span class="bilingual-label">วันที่ครบกำหนด<small>Due Date</small></span></th>
+            <th><span class="bilingual-label">เหลืออีกกี่วัน<small>Days Left</small></span></th>
+            <th><span class="bilingual-label">เอกสาร SDS<small>SDS</small></span></th>
+            <th><span class="bilingual-label">การดำเนินการ<small>Actions</small></span></th>
           </tr>
         </thead>
         <tbody id="sdsTable"></tbody>
@@ -845,7 +812,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-header">
-    <h3 id="drawerTitle">เพิ่มข้อมูล SDS</h3>
+    <h3 id="drawerTitle"><span class="bilingual-label">เพิ่มข้อมูล SDS<small>Add SDS</small></span></h3>
     <button class="close-btn" type="button" onclick="closeDrawer()">×</button>
   </div>
 
@@ -854,88 +821,88 @@
       <input type="hidden" id="editId">
 
       <div class="form-section">
-        <div class="form-section-title">1. ข้อมูลสารเคมี</div>
+        <div class="form-section-title"><span class="bilingual-label">1. ข้อมูลสารเคมี<small>1. Chemical Information</small></span></div>
         <div class="form-grid">
           <div class="form-group full">
-            <label>ชื่อสารเคมี / Product Name <span>*</span></label>
-            <input class="form-control" id="chemical" required placeholder="เช่น Acetone">
+            <label><span class="bilingual-label">ชื่อสารเคมี <span>*</span><small>Product Name</small></span></label>
+            <input class="form-control" id="chemical" required placeholder="เช่น Acetone / ตัวอย่างสารเคมี">
           </div>
           <div class="form-group">
-            <label>CAS Number <span>*</span></label>
+            <label><span class="bilingual-label">เลข CAS <span>*</span><small>CAS Number</small></span></label>
             <input class="form-control" id="cas" required placeholder="67-64-1">
           </div>
           <div class="form-group">
-            <label>Supplier</label>
-            <input class="form-control" id="supplier" placeholder="ชื่อ Supplier">
+            <label><span class="bilingual-label">ผู้จัดจำหน่าย<small>Supplier</small></span></label>
+            <input class="form-control" id="supplier" placeholder="ชื่อผู้จัดจำหน่าย / Supplier name">
           </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">2. ข้อมูล SDS</div>
+        <div class="form-section-title"><span class="bilingual-label">2. ข้อมูล SDS<small>2. SDS Information</small></span></div>
         <div class="form-grid">
           <div class="form-group">
-            <label>SDS Revision</label>
+            <label><span class="bilingual-label">ฉบับแก้ไข SDS<small>SDS Revision</small></span></label>
             <input class="form-control" id="revision" placeholder="Rev.06">
           </div>
           <div class="form-group">
-            <label>Revision Date</label>
+            <label><span class="bilingual-label">วันที่แก้ไข<small>Revision Date</small></span></label>
             <input class="form-control" id="revisionDate" type="date">
           </div>
           <div class="form-group">
-            <label>Next Review Date</label>
+            <label><span class="bilingual-label">วันที่ทบทวนครั้งถัดไป<small>Next Review Date</small></span></label>
             <input class="form-control" id="reviewDate" type="date">
           </div>
           <div class="form-group">
-            <label>สถานะ</label>
+            <label><span class="bilingual-label">สถานะ<small>Status</small></span></label>
             <select class="form-control" id="status">
-              <option value="Current">Current</option>
-              <option value="Review Due">Review Due</option>
-              <option value="Update Required">Update Required</option>
+              <option value="Current">ปัจจุบัน / Current</option>
+              <option value="Review Due">ถึงรอบทบทวน / Review Due</option>
+              <option value="Update Required">ต้องปรับปรุง / Update Required</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Signal Word</label>
+            <label><span class="bilingual-label">คำสัญญาณ<small>Signal Word</small></span></label>
             <select class="form-control" id="signalWord">
               <option value="">-</option>
-              <option value="Danger">Danger</option>
-              <option value="Warning">Warning</option>
+              <option value="Danger">อันตราย / Danger</option>
+              <option value="Warning">คำเตือน / Warning</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Language</label>
+            <label><span class="bilingual-label">ภาษา<small>Language</small></span></label>
             <select class="form-control" id="language">
-              <option value="English">English</option>
-              <option value="Thai">Thai</option>
+              <option value="English">ภาษาอังกฤษ / English</option>
+              <option value="Thai">ภาษาไทย / Thai</option>
             </select>
           </div>
-          <label class="check-item full"><input type="checkbox" id="thaiSds"> มี SDS ภาษาไทย</label>
+          <label class="check-item full"><input type="checkbox" id="thaiSds"><span class="bilingual-label">มี SDS ภาษาไทย<small>Thai SDS available</small></span></label>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">3. Hazard Classification <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ)</span></div>
+        <div class="form-section-title"><span class="bilingual-label">3. การจำแนกประเภทอันตราย<small>3. Hazard Classification</small></span> <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ / Select one)</span></div>
         <input class="form-control hazard-list-search" id="hazardListSearch"
-          placeholder="พิมพ์ค้นหา Hazard..." autocomplete="off"
+          placeholder="พิมพ์ค้นหาประเภทอันตราย / Search hazard..." autocomplete="off"
           oninput="filterHazardOptions(this.value)">
         <div class="hazard-checkboxes" id="hazardOptions"></div>
-        <div class="hazard-list-empty" id="hazardOptionsEmpty" hidden>ไม่พบ Hazard ที่ค้นหา</div>
+        <div class="hazard-list-empty" id="hazardOptionsEmpty" hidden>ไม่พบประเภทอันตรายที่ค้นหา / No matching hazard</div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title">4. SDS Document</div>
+        <div class="form-section-title"><span class="bilingual-label">4. เอกสาร SDS<small>4. SDS Document</small></span></div>
         <div class="upload-box">
-          📄 Upload Safety Data Sheet<br>
+          📄 <span class="bilingual-label">อัปโหลดเอกสารข้อมูลความปลอดภัย<small>Upload Safety Data Sheet</small></span><br>
           <input type="file" id="sdsFile" accept=".pdf">
-          <div style="font-size:11px; margin-top:8px;">รองรับไฟล์ PDF</div>
+          <div style="font-size:11px; margin-top:8px;">รองรับไฟล์ PDF / PDF files only</div>
         </div>
       </div>
     </form>
   </div>
 
   <div class="drawer-footer">
-    <button class="btn-secondary" onclick="closeDrawer()">ยกเลิก</button>
-    <button class="btn-primary" onclick="saveSDS()">💾 บันทึก SDS</button>
+    <button class="btn-secondary" onclick="closeDrawer()"><span class="bilingual-label">ยกเลิก<small>Cancel</small></span></button>
+    <button class="btn-primary" onclick="saveSDS()"><span class="bilingual-label">💾 บันทึก SDS<small>Save SDS</small></span></button>
   </div>
 </aside>
 
@@ -944,71 +911,27 @@
   <div class="pdf-dialog">
     <div class="pdf-dialog-header">
       <div class="pdf-dialog-title">
-        <h3 id="pdfTitle">SDS Document</h3>
-        <p id="pdfSubtitle">PDF Viewer</p>
+        <h3 id="pdfTitle"><span class="bilingual-label">เอกสาร SDS<small>SDS Document</small></span></h3>
+        <p id="pdfSubtitle">ตัวแสดง PDF / PDF Viewer</p>
       </div>
       <div class="pdf-dialog-actions">
-        <a class="btn-secondary" id="pdfOpenNew" href="#" target="_blank" rel="noopener">เปิดแท็บใหม่</a>
-        <a class="btn-secondary" id="pdfDownload" href="#" download>ดาวน์โหลด</a>
+        <a class="btn-secondary" id="pdfOpenNew" href="#" target="_blank" rel="noopener"><span class="bilingual-label">เปิดแท็บใหม่<small>Open in new tab</small></span></a>
+        <a class="btn-secondary" id="pdfDownload" href="#" download><span class="bilingual-label">ดาวน์โหลด<small>Download</small></span></a>
         <button class="close-btn" type="button" onclick="closePdfViewer()">×</button>
       </div>
     </div>
-    <iframe class="pdf-viewer" id="pdfViewer" title="SDS PDF Viewer"></iframe>
+    <iframe class="pdf-viewer" id="pdfViewer" title="ตัวแสดงเอกสาร SDS PDF / SDS PDF Viewer"></iframe>
     <div class="pdf-empty" id="pdfEmpty">
       <div>
         <div style="font-size:42px; margin-bottom:10px;">📄</div>
-        <strong>ยังไม่มีไฟล์ SDS PDF</strong>
-        <div style="margin-top:6px;">กดแก้ไขรายการนี้เพื่ออัปโหลดไฟล์ PDF</div>
+        <strong><span class="bilingual-label">ยังไม่มีไฟล์ SDS PDF<small>No SDS PDF file</small></span></strong>
+        <div style="margin-top:6px;">กดแก้ไขรายการนี้เพื่ออัปโหลดไฟล์ PDF / Edit this item to upload a PDF</div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const APP_ACCESS_CODE = "588144";
-  const LOGIN_SESSION_KEY = "sdsDashboardAuthenticated";
-
-  function unlockDashboard() {
-    const gate = document.getElementById("loginGate");
-    if (gate) {
-      gate.hidden = true;
-      gate.setAttribute("aria-hidden", "true");
-    }
-    document.body.classList.remove("login-locked");
-    closeFilterMenus();
-    document.querySelectorAll("input:focus, button:focus").forEach(element => element.blur());
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  }
-
-  function attemptLogin() {
-    const input = document.getElementById("loginPassword");
-    const error = document.getElementById("loginError");
-    const card = document.getElementById("loginCard");
-    if (input && input.value === APP_ACCESS_CODE) {
-      try { sessionStorage.setItem(LOGIN_SESSION_KEY, "true"); } catch (storageError) { /* session-only fallback */ }
-      if (error) error.textContent = "";
-      unlockDashboard();
-      return false;
-    }
-    if (error) error.textContent = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
-    if (input) { input.value = ""; input.focus(); }
-    if (card) {
-      card.classList.remove("login-shake");
-      void card.offsetWidth;
-      card.classList.add("login-shake");
-    }
-    return false;
-  }
-
-  try {
-    if (sessionStorage.getItem(LOGIN_SESSION_KEY) === "true") unlockDashboard();
-    else window.setTimeout(() => document.getElementById("loginPassword")?.focus(), 0);
-  } catch (storageError) {
-    window.setTimeout(() => document.getElementById("loginPassword")?.focus(), 0);
-  }
-
   const HAZARD_SETTINGS_KEY = "sdsHazardDefinitions";
   const DEFAULT_HAZARD_DEFINITIONS = [
     { id: "flammable", name: "Flammable", iconId: "flame", icon: "🔥", className: "flame-icon" },
@@ -1070,6 +993,41 @@
   }
 
   let hazardDefinitions = loadHazardDefinitions();
+  const HAZARD_LABELS = {
+    flammable: { thai: "ไวไฟ", english: "Flammable" },
+    "acute-toxicity": { thai: "พิษเฉียบพลัน", english: "Acute Toxicity" },
+    corrosive: { thai: "กัดกร่อน", english: "Corrosive" },
+    irritant: { thai: "ระคายเคือง", english: "Irritant" }
+  };
+  const STATUS_LABELS = {
+    Current: { thai: "ปัจจุบัน", english: "Current" },
+    "Review Due": { thai: "ถึงรอบทบทวน", english: "Review Due" },
+    "Update Required": { thai: "ต้องปรับปรุง", english: "Update Required" }
+  };
+  const LANGUAGE_LABELS = {
+    Thai: { thai: "ภาษาไทย", english: "Thai" },
+    English: { thai: "ภาษาอังกฤษ", english: "English" }
+  };
+
+  function bilingualHTML(thai, english) {
+    return `<span class="bilingual-label">${escapeHTML(thai)}<small>${escapeHTML(english)}</small></span>`;
+  }
+
+  function hazardLabels(definition) {
+    return HAZARD_LABELS[definition.id] && definition.name === HAZARD_LABELS[definition.id].english
+      ? HAZARD_LABELS[definition.id]
+      : { thai: definition.name, english: definition.name };
+  }
+
+  function filterOptionLabels(inputId, option) {
+    if (inputId === "hazardFilter") {
+      const definition = getHazardDefinition(option);
+      return definition ? hazardLabels(definition) : { thai: option, english: option };
+    }
+    if (inputId === "statusFilter") return STATUS_LABELS[option] || { thai: option, english: option };
+    if (inputId === "languageFilter") return LANGUAGE_LABELS[option] || { thai: option, english: option };
+    return { thai: option, english: option };
+  }
 
   const defaultData = [
     {
@@ -1320,7 +1278,7 @@
     const hazardSearch = document.getElementById("hazardListSearch");
     if (hazardSearch) hazardSearch.value = "";
     renderHazardFormOptions();
-    document.getElementById("drawerTitle").innerText = "เพิ่มข้อมูล SDS";
+    document.getElementById("drawerTitle").innerHTML = bilingualHTML("เพิ่มข้อมูล SDS", "Add SDS");
     openDrawer();
   }
 
@@ -1406,7 +1364,7 @@
     if (hazardSearch) hazardSearch.value = "";
     renderHazardFormOptions();
 
-    document.getElementById("drawerTitle").innerText = "แก้ไขข้อมูล SDS";
+    document.getElementById("drawerTitle").innerHTML = bilingualHTML("แก้ไขข้อมูล SDS", "Edit SDS");
     openDrawer();
   }
 
@@ -1426,14 +1384,14 @@
   }
 
   const REVIEW_BUCKETS = [
-    { key: "overdue", label: "เกินกำหนด", className: "overdue" },
-    { key: "near", label: "0–30 วัน", className: "near" },
-    { key: "mid", label: "31–180 วัน", className: "mid" },
-    { key: "long", label: "181–360 วัน", className: "long" },
-    { key: "far", label: "> 360 วัน", className: "far" }
+    { key: "overdue", label: "เกินกำหนด", englishLabel: "Overdue", className: "overdue" },
+    { key: "near", label: "0–30 วัน", englishLabel: "0–30 days", className: "near" },
+    { key: "mid", label: "31–180 วัน", englishLabel: "31–180 days", className: "mid" },
+    { key: "long", label: "181–360 วัน", englishLabel: "181–360 days", className: "long" },
+    { key: "far", label: "มากกว่า 360 วัน", englishLabel: "Over 360 days", className: "far" }
   ];
   const REVIEW_CHART_ITEMS = [
-    { key: "all", label: "ทั้งหมด", className: "all" },
+    { key: "all", label: "ทั้งหมด", englishLabel: "All", className: "all" },
     ...REVIEW_BUCKETS
   ];
 
@@ -1463,12 +1421,12 @@
   }
 
   function formatDaysLeft(days) {
-    if (days === null || days === undefined) return { label: "-", className: "days-missing" };
-    if (days < 0) return { label: `เกิน ${Math.abs(days)} วัน`, className: "days-overdue" };
-    if (days <= 30) return { label: `เหลือ ${days} วัน`, className: "days-near" };
-    if (days <= 180) return { label: `เหลือ ${days} วัน`, className: "days-mid" };
-    if (days <= 360) return { label: `เหลือ ${days} วัน`, className: "days-long" };
-    return { label: `เหลือ ${days} วัน`, className: "days-far" };
+    if (days === null || days === undefined) return { label: "-", englishLabel: "-", className: "days-missing" };
+    if (days < 0) return { label: `เกิน ${Math.abs(days)} วัน`, englishLabel: `${Math.abs(days)} days overdue`, className: "days-overdue" };
+    if (days <= 30) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-near" };
+    if (days <= 180) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-mid" };
+    if (days <= 360) return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-long" };
+    return { label: `เหลือ ${days} วัน`, englishLabel: `${days} days left`, className: "days-far" };
   }
 
   function getLanguageLabel(item) {
@@ -1477,13 +1435,14 @@
 
   function daysLeftBadge(item) {
     const info = formatDaysLeft(getDaysLeft(item));
-    return `<span class="days-badge ${info.className}">${escapeHTML(info.label)}</span>`;
+    return `<span class="days-badge ${info.className}">${bilingualHTML(info.label, info.englishLabel)}</span>`;
   }
 
   function languageBadge(item) {
     const language = getLanguageLabel(item);
     const className = language === "Thai" ? "language-thai" : "language-english";
-    return `<span class="language-badge ${className}">${escapeHTML(language)}</span>`;
+    const labels = LANGUAGE_LABELS[language] || { thai: language, english: language };
+    return `<span class="language-badge ${className}">${bilingualHTML(labels.thai, labels.english)}</span>`;
   }
 
   function getHazardDefinition(name) {
@@ -1519,9 +1478,10 @@
       icon.setAttribute("aria-hidden", "true");
       icon.textContent = definition.icon;
       const text = document.createElement("span");
-      text.textContent = definition.name;
+      text.innerHTML = bilingualHTML(...Object.values(hazardLabels(definition)));
       label.append(input, icon, text);
-      const visible = !query || definition.name.toLowerCase().includes(query);
+      const labels = hazardLabels(definition);
+      const visible = !query || `${definition.name} ${labels.thai} ${labels.english}`.toLowerCase().includes(query);
       label.hidden = !visible;
       if (visible) visibleCount += 1;
       container.appendChild(label);
@@ -1538,7 +1498,7 @@
     const container = document.getElementById("hazardOverview");
     if (!container) return;
     const total = document.getElementById("hazardOverviewTotal");
-    if (total) total.textContent = `(รวมทั้งหมด ${sdsData.length} เอกสาร)`;
+    if (total) total.innerHTML = `(<span class="bilingual-label">รวมทั้งหมด ${sdsData.length} เอกสาร<small>${sdsData.length} documents total</small></span>)`;
     container.innerHTML = "";
     hazardDefinitions.forEach((definition, index) => {
       const card = document.createElement("div");
@@ -1554,7 +1514,7 @@
       icon.style.animationDelay = `${index * 0.18}s`;
       icon.textContent = definition.icon;
       const name = document.createElement("span");
-      name.textContent = definition.name;
+      name.innerHTML = bilingualHTML(...Object.values(hazardLabels(definition)));
       const count = document.createElement("strong");
       count.textContent = String(sdsData.filter(item => {
         const itemDefinition = getHazardDefinition((item.hazards || [])[0]);
@@ -1622,7 +1582,7 @@
       top.className = "hazard-setting-top";
       const label = document.createElement("label");
       label.className = "settings-label";
-      label.textContent = `Hazard ${index + 1} ชื่อ`;
+      label.innerHTML = bilingualHTML(`ชื่อประเภทอันตรายที่ ${index + 1}`, `Hazard ${index + 1} name`);
       const input = document.createElement("input");
       input.className = "settings-name-input";
       input.value = definition.name;
@@ -1636,14 +1596,14 @@
       previewIcon.className = `hazard-icon ${definition.className}`;
       previewIcon.textContent = definition.icon;
       const previewText = document.createElement("span");
-      previewText.textContent = "ตัวอย่าง";
+      previewText.innerHTML = bilingualHTML("ตัวอย่าง", "Preview");
       preview.append(previewIcon, previewText);
       top.append(label, preview);
 
       const caption = document.createElement("div");
       caption.className = "settings-label";
       caption.style.marginTop = "12px";
-      caption.textContent = "เลือกไอคอน";
+      caption.innerHTML = bilingualHTML("เลือกไอคอน", "Choose icon");
       const picker = document.createElement("div");
       picker.className = "icon-picker";
       renderIconPicker(picker, definition.iconId, iconId => {
@@ -1747,7 +1707,7 @@
       const active = activeKey === bucket.key;
       return `<button type="button" class="review-bar-row${active ? " active" : ""}"
         aria-pressed="${active}" onclick="toggleReviewBucket('${bucket.key}')">
-        <span class="review-bar-label">${bucket.label}</span>
+        <span class="review-bar-label">${bilingualHTML(bucket.label, bucket.englishLabel)}</span>
         <span class="review-bar-track"><span class="review-bar-fill ${bucket.className}" style="width:${width}%"></span></span>
         <strong class="review-bar-count">${count}</strong>
       </button>`;
@@ -1791,10 +1751,18 @@
         item.cas.toLowerCase().includes(search) ||
         (item.supplier || "").toLowerCase().includes(search);
 
-      const statusMatch = !status || normalizeStatus(item.status).toLowerCase().includes(status);
-      const hazardMatch = !hazard || item.hazards.some(name => name.toLowerCase().includes(hazard));
+      const normalizedItemStatus = normalizeStatus(item.status);
+      const statusLabels = STATUS_LABELS[normalizedItemStatus] || { thai: normalizedItemStatus, english: normalizedItemStatus };
+      const statusMatch = !status || `${normalizedItemStatus} ${statusLabels.thai} ${statusLabels.english}`.toLowerCase().includes(status);
+      const hazardMatch = !hazard || item.hazards.some(name => {
+        const definition = getHazardDefinition(name);
+        const labels = definition ? hazardLabels(definition) : { thai: name, english: name };
+        return `${name} ${labels.thai} ${labels.english}`.toLowerCase().includes(hazard);
+      });
       const supplierMatch = !supplier || (item.supplier || "").toLowerCase().includes(supplier);
-      const languageMatch = !language || getLanguageLabel(item).toLowerCase().includes(language);
+      const itemLanguage = getLanguageLabel(item);
+      const languageLabels = LANGUAGE_LABELS[itemLanguage] || { thai: itemLanguage, english: itemLanguage };
+      const languageMatch = !language || `${itemLanguage} ${languageLabels.thai} ${languageLabels.english}`.toLowerCase().includes(language);
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
@@ -1809,14 +1777,14 @@
       return aDays - bDays;
     });
 
-    document.getElementById("tableCount").innerText = filtered.length + " รายการ";
+    document.getElementById("tableCount").innerHTML = bilingualHTML(`${filtered.length} รายการ`, `${filtered.length} items`);
 
     const tbody = document.getElementById("sdsTable");
 
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="6"><div class="empty-state">ไม่พบข้อมูล SDS</div></td>
+          <td colspan="6"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
         </tr>`;
       return;
     }
@@ -1833,7 +1801,7 @@
           <td>${escapeHTML(formatDate(item.reviewDate))}</td>
           <td>${daysLeftBadge(item)}</td>
           <td>
-            <button class="pdf-btn" onclick="viewSDS(${item.id})">📄 ดู SDS</button>
+            <button class="pdf-btn" onclick="viewSDS(${item.id})"><span class="bilingual-label">📄 ดู SDS<small>View SDS</small></span></button>
           </td>
           <td>
             <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
@@ -1853,12 +1821,25 @@
 
   function exportCSV() {
     const rows = [
-      ["Chemical", "CAS Number", "Supplier", "Revision", "Next Review Date", "Days Left", "Language", "Hazards", "Status", "Thai SDS"],
-      ...sdsData.map(item => [
-        item.chemical, item.cas, item.supplier, item.revision,
-        item.reviewDate, formatDaysLeft(getDaysLeft(item)).label, getLanguageLabel(item),
-        item.hazards.join(" / "), normalizeStatus(item.status), item.thaiSds ? "Yes" : "No"
-      ])
+      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "วันที่ทบทวนครั้งถัดไป / Next Review Date", "เหลืออีกกี่วัน / Days Left", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "มี SDS ภาษาไทย / Thai SDS"],
+      ...sdsData.map(item => {
+        const days = formatDaysLeft(getDaysLeft(item));
+        const language = getLanguageLabel(item);
+        const languageLabels = LANGUAGE_LABELS[language] || { thai: language, english: language };
+        const status = normalizeStatus(item.status);
+        const statusLabels = STATUS_LABELS[status] || { thai: status, english: status };
+        const hazards = (item.hazards || []).map(name => {
+          const definition = getHazardDefinition(name);
+          const labels = definition ? hazardLabels(definition) : { thai: name, english: name };
+          return `${labels.thai} / ${labels.english}`;
+        }).join(" | ");
+        return [
+          item.chemical, item.cas, item.supplier, item.revision,
+          item.reviewDate, `${days.label} / ${days.englishLabel}`,
+          `${languageLabels.thai} / ${languageLabels.english}`, hazards,
+          `${statusLabels.thai} / ${statusLabels.english}`, item.thaiSds ? "มี / Yes" : "ไม่มี / No"
+        ];
+      })
     ];
 
     const csv = rows.map(row =>
@@ -1876,9 +1857,9 @@
 
   function statusBadge(status) {
     const normalized = normalizeStatus(status);
-    if (normalized === "Current") return `<span class="badge current">● Current</span>`;
-    if (normalized === "Review Due") return `<span class="badge review-due">● Review Due</span>`;
-    return `<span class="badge update-required">● Update Required</span>`;
+    const labels = STATUS_LABELS[normalized] || { thai: normalized, english: normalized };
+    const className = normalized === "Current" ? "current" : normalized === "Review Due" ? "review-due" : "update-required";
+    return `<span class="badge ${className}">● ${bilingualHTML(labels.thai, labels.english)}</span>`;
   }
 
   function syncGlobalSearch(value) {
@@ -1923,14 +1904,19 @@
     const menu = document.getElementById(menuId);
     if (!input || !menu) return;
     const query = input.value.trim().toLowerCase();
-    const options = getFilterOptions(inputId).filter(option => !query || option.toLowerCase().includes(query));
+    const options = getFilterOptions(inputId).filter(option => {
+      if (!query) return true;
+      const labels = filterOptionLabels(inputId, option);
+      return `${option} ${labels.thai} ${labels.english}`.toLowerCase().includes(query);
+    });
     menu.innerHTML = "";
     options.forEach(option => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "filter-option";
       button.setAttribute("role", "option");
-      button.textContent = option;
+      const labels = filterOptionLabels(inputId, option);
+      button.innerHTML = bilingualHTML(labels.thai, labels.english);
       button.addEventListener("click", () => selectFilterOption(inputId, option));
       menu.appendChild(button);
     });
@@ -2057,7 +2043,7 @@
       viewer.style.display = "block";
       empty.style.display = "none";
       openNew.href = item.pdfUrl;
-      openNew.textContent = "เปิดแท็บใหม่";
+      openNew.innerHTML = bilingualHTML("เปิดแท็บใหม่", "Open in new tab");
       openNew.style.display = "inline-block";
       download.href = item.pdfUrl;
       download.download = item.pdfName || (item.chemical + "-SDS.pdf");
@@ -2075,22 +2061,22 @@
       viewer.removeAttribute("src");
       viewer.style.display = "none";
       openNew.href = sourceUrl;
-      openNew.textContent = "เปิด SDS ต้นฉบับ";
+      openNew.innerHTML = bilingualHTML("เปิด SDS ต้นฉบับ", "Open original SDS");
       openNew.style.display = "inline-block";
       download.style.display = "none";
       empty.innerHTML = `
         <div>
           <div style="font-size:42px; margin-bottom:10px;">📄</div>
-          <strong>ข้อมูล SDS พร้อมให้เปิด</strong>
+          <strong>${bilingualHTML("ข้อมูล SDS พร้อมให้เปิด", "SDS information is ready")}</strong>
           <div style="margin-top:10px; text-align:left; line-height:1.7;">
-            <div><b>สารเคมี:</b> ${escapeHTML(item.chemical)}</div>
-            <div><b>CAS:</b> ${escapeHTML(item.cas || "-")}</div>
-            <div><b>ผู้ผลิต:</b> ${escapeHTML(item.supplier || "-")}</div>
-            <div><b>Version:</b> ${escapeHTML(item.revision || "-")}</div>
-            <div><b>Hazard:</b> ${escapeHTML((item.hazards || []).join(", ") || "-")}</div>
+            <div><b>${bilingualHTML("สารเคมี", "Chemical")}:</b> ${escapeHTML(item.chemical)}</div>
+            <div><b>${bilingualHTML("เลข CAS", "CAS No.")}:</b> ${escapeHTML(item.cas || "-")}</div>
+            <div><b>${bilingualHTML("ผู้จัดจำหน่าย", "Supplier")}:</b> ${escapeHTML(item.supplier || "-")}</div>
+            <div><b>${bilingualHTML("ฉบับแก้ไข", "Revision")}:</b> ${escapeHTML(item.revision || "-")}</div>
+            <div><b>${bilingualHTML("ประเภทอันตราย", "Hazard")}:</b> ${escapeHTML((item.hazards || []).join(", ") || "-")}</div>
           </div>
-          <a class="btn-primary" style="display:inline-block; margin-top:18px; text-decoration:none;" href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener">เปิดเอกสาร SDS ต้นฉบับ</a>
-          <div style="margin-top:10px; font-size:12px;">เอกสารผู้ผลิตอาจไม่อนุญาตให้แสดงในกรอบนี้ จึงมีปุ่มเปิดแท็บใหม่ให้ใช้งาน</div>
+          <a class="btn-primary" style="display:inline-block; margin-top:18px; text-decoration:none;" href="${escapeHTML(sourceUrl)}" target="_blank" rel="noopener">${bilingualHTML("เปิดเอกสาร SDS ต้นฉบับ", "Open original SDS document")}</a>
+          <div style="margin-top:10px; font-size:12px;">เอกสารผู้ผลิตอาจไม่อนุญาตให้แสดงในกรอบนี้ จึงมีปุ่มเปิดแท็บใหม่ให้ใช้งาน / The supplier document may block embedded viewing; use the new-tab button.</div>
         </div>`;
       empty.style.display = "grid";
     }
@@ -2108,8 +2094,8 @@
       empty.innerHTML = `
         <div>
           <div style="font-size:42px; margin-bottom:10px;">📄</div>
-          <strong>กำลังโหลด SDS...</strong>
-          <div style="margin-top:6px;">กำลังเตรียมเอกสารสำหรับผู้ชมโดยไม่ต้องเข้าสู่ Google Drive</div>
+          <strong>${bilingualHTML("กำลังโหลด SDS...", "Loading SDS...")}</strong>
+          <div style="margin-top:6px;">กำลังเตรียมเอกสารสำหรับผู้ชมโดยไม่ต้องเข้าสู่ Google Drive / Preparing the document without Google Drive login</div>
         </div>`;
       empty.style.display = "grid";
     }
@@ -2127,7 +2113,7 @@
       empty.innerHTML = `
         <div>
           <div style="font-size:42px; margin-bottom:10px;">⚠️</div>
-          <strong>เปิดเอกสาร SDS ไม่สำเร็จ</strong>
+          <strong>${bilingualHTML("เปิดเอกสาร SDS ไม่สำเร็จ", "Unable to open SDS document")}</strong>
           <div style="margin-top:8px;">${escapeHTML(message)}</div>
           <div style="margin-top:8px; font-size:12px;">กรุณาตรวจสอบการเผยแพร่ Web app เป็น “Anyone” และเลือกให้ทำงานในฐานะเจ้าของระบบ</div>
         </div>`;
@@ -2154,7 +2140,7 @@
       viewer.style.display = "block";
       empty.style.display = "none";
       openNew.href = currentPdfUrl;
-      openNew.textContent = "เปิดแท็บใหม่";
+      openNew.innerHTML = bilingualHTML("เปิดแท็บใหม่", "Open in new tab");
       openNew.style.display = "inline-block";
       download.href = currentPdfUrl;
       download.download = fileData.name || item.pdfName || (item.chemical + "-SDS.pdf");
@@ -2235,9 +2221,9 @@
       }
     };
 
-    function setConnectionStatus(text) {
+    function setConnectionStatus(thai, english) {
       var subtitle = document.querySelector(".brand p");
-      if (subtitle) subtitle.textContent = text;
+      if (subtitle) subtitle.innerHTML = bilingualHTML(thai, english || "Status");
     }
 
     function applyPublicMode() {
@@ -2262,12 +2248,12 @@
     }
 
     function loadFromAppsScript() {
-      setConnectionStatus("เชื่อมต่อ Google Sheet / Drive");
+      setConnectionStatus("เชื่อมต่อ Google Sheet / Drive", "Connected to Google Sheets / Drive");
       google.script.run
         .withSuccessHandler(applyData)
         .withFailureHandler(function (error) {
           console.error(error);
-          setConnectionStatus("เชื่อมต่อ Google Sheet ไม่สำเร็จ");
+          setConnectionStatus("เชื่อมต่อ Google Sheet ไม่สำเร็จ", "Google Sheets connection failed");
           alert(error && error.message ? error.message : "ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้");
         })
         .listSds();
@@ -2286,7 +2272,7 @@
           try {
             if (!response || response.ok === false) throw new Error(response && response.error || "API error");
             applyData(response.data || []);
-            setConnectionStatus("โหมดดูข้อมูลสาธารณะ");
+            setConnectionStatus("โหมดดูข้อมูลสาธารณะ", "Public read-only mode");
             resolve(response.data || []);
           } catch (error) {
             reject(error);
@@ -2442,10 +2428,10 @@
       applyPublicMode();
       loadFromRemoteApi().catch(function (error) {
         console.error(error);
-        setConnectionStatus("โหลดข้อมูลจาก Apps Script ไม่สำเร็จ");
+        setConnectionStatus("โหลดข้อมูลจาก Apps Script ไม่สำเร็จ", "Apps Script data loading failed");
       });
     } else {
-      setConnectionStatus("โหมดตัวอย่างในเครื่อง");
+      setConnectionStatus("โหมดตัวอย่างในเครื่อง", "Local demo mode");
     }
   })();
 </script>

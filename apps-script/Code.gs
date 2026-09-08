@@ -37,7 +37,7 @@ function doGet(e) {
 
   return HtmlService.createTemplateFromFile("Index")
     .evaluate()
-    .setTitle("SDS Management Dashboard")
+    .setTitle("ระบบจัดการ SDS | SDS Management")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -53,7 +53,7 @@ function doPost(e) {
     } else if (action === "delete") {
       result = deleteSds(payload.id);
     } else {
-      throw new Error("Unsupported action.");
+      throw new Error("ไม่รองรับคำสั่งนี้ / Unsupported action.");
     }
 
     return jsonResponse_({ ok: true, data: result });

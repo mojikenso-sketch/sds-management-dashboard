@@ -265,7 +265,7 @@
     .supplier-filter { width: 185px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
-      width: 100%; min-width: 680px; table-layout: fixed;
+      width: 100%; min-width: 760px; table-layout: fixed;
       border-collapse: separate; border-spacing: 0; border: 1px solid #cbd5e1;
     }
     thead { background: #1e3a8a; }
@@ -279,16 +279,19 @@
       white-space: nowrap; line-height: 1.25;
       border-right-color: rgba(255, 255, 255, 0.28);
     }
-    thead th:nth-child(1), thead th:nth-child(2), thead th:nth-child(3) { background: #1e40af; }
-    thead th:nth-child(4), thead th:nth-child(5), thead th:nth-child(6) { background: #2563eb; }
-    thead th:nth-child(7), thead th:nth-child(8) { background: #0f766e; }
-    thead th:nth-child(9) { background: #7c3aed; }
-    thead th:nth-child(10) { background: #475569; }
+    thead th:nth-child(1), thead th:nth-child(2) { background: #1e40af; }
+    thead th:nth-child(3) { background: #2563eb; }
+    thead th:nth-child(4) { background: #0f766e; }
+    thead th:nth-child(5) { background: #dc2626; }
     td { color: #334155; white-space: nowrap; }
     th:nth-child(1), td:nth-child(1) { width: 42%; }
     th:nth-child(2), td:nth-child(2) { width: 23%; }
     th:nth-child(3), td:nth-child(3) { width: 17%; }
-    th:nth-child(4), td:nth-child(4) { width: 18%; }
+    th:nth-child(4), td:nth-child(4) { width: 9%; }
+    th:nth-child(5), td:nth-child(5) { width: 9%; }
+    .action-column, .action-cell { text-align: center; }
+    body.public-readonly .action-column,
+    body.public-readonly .action-cell { display: none; }
     th:last-child, td:last-child { border-right: 0; }
     tbody tr:last-child td { border-bottom: 0; }
     tbody tr:nth-child(even) { background: #f8fbff; }
@@ -533,7 +536,8 @@
       th:nth-child(1), td:nth-child(1) { width: 40%; }
       th:nth-child(2), td:nth-child(2) { width: 24%; }
       th:nth-child(3), td:nth-child(3) { width: 18%; }
-      th:nth-child(4), td:nth-child(4) { width: 18%; }
+      th:nth-child(4), td:nth-child(4) { width: 9%; }
+      th:nth-child(5), td:nth-child(5) { width: 9%; }
       td { white-space: normal; }
       td:nth-child(2) { overflow-wrap: anywhere; }
       td:nth-child(3) { white-space: nowrap; font-size: 9px; }
@@ -704,7 +708,8 @@
             <th><span class="bilingual-label">สารเคมี<small>Chemical</small></span></th>
             <th><span class="bilingual-label">เลข CAS<small>CAS No.</small></span></th>
             <th><span class="bilingual-label">เอกสาร SDS<small>SDS</small></span></th>
-            <th><span class="bilingual-label">การดำเนินการ<small>Actions</small></span></th>
+            <th class="action-column"><span class="bilingual-label">แก้ไข<small>Edit</small></span></th>
+            <th class="action-column"><span class="bilingual-label">ลบ<small>Delete</small></span></th>
           </tr>
         </thead>
         <tbody id="sdsTable"></tbody>
@@ -1500,7 +1505,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="4"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
+          <td colspan="5"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
         </tr>`;
       return;
     }
@@ -1517,8 +1522,10 @@
           <td>
             <button class="pdf-btn" onclick="viewSDS(${item.id})"><span class="bilingual-label">📄 ดู SDS<small>View SDS</small></span></button>
           </td>
-          <td>
+          <td class="action-cell">
             <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
+          </td>
+          <td class="action-cell">
             <button class="action-btn" title="ลบ" onclick="deleteSDS(${item.id})">🗑️</button>
           </td>
         </tr>`).join("");
@@ -1933,12 +1940,11 @@
       if (!publicReadOnly) return;
       var addButton = document.querySelector(".page-header .btn-primary");
       if (addButton) addButton.style.display = "none";
+      document.body.classList.add("public-readonly");
       var drawer = document.getElementById("drawer");
       if (drawer) drawer.style.display = "none";
-      var actionHeader = document.querySelector("thead th:last-child");
-      if (actionHeader) actionHeader.style.display = "none";
-      document.querySelectorAll("#sdsTable tr").forEach(function (row) {
-        if (row.lastElementChild) row.lastElementChild.style.display = "none";
+      document.querySelectorAll("thead th.action-column, #sdsTable .action-cell").forEach(function (cell) {
+        cell.style.display = "none";
       });
     }
 

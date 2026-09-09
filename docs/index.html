@@ -736,41 +736,11 @@
             <label><span class="bilingual-label">เลข CAS <span>*</span><small>CAS Number</small></span></label>
             <input class="form-control" id="cas" required placeholder="67-64-1">
           </div>
-          <div class="form-group">
-            <label><span class="bilingual-label">ผู้จัดจำหน่าย<small>Supplier</small></span></label>
-            <input class="form-control" id="supplier" placeholder="ชื่อผู้จัดจำหน่าย / Supplier name">
-          </div>
         </div>
       </div>
 
       <div class="form-section">
-        <div class="form-section-title"><span class="bilingual-label">2. ข้อมูล SDS<small>2. SDS Information</small></span></div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label><span class="bilingual-label">ฉบับแก้ไข SDS<small>SDS Revision</small></span></label>
-            <input class="form-control" id="revision" placeholder="Rev.06">
-          </div>
-          <div class="form-group">
-            <label><span class="bilingual-label">คำสัญญาณ<small>Signal Word</small></span></label>
-            <select class="form-control" id="signalWord">
-              <option value="">-</option>
-              <option value="Danger">อันตราย / Danger</option>
-              <option value="Warning">คำเตือน / Warning</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label><span class="bilingual-label">ภาษา<small>Language</small></span></label>
-            <select class="form-control" id="language">
-              <option value="English">ภาษาอังกฤษ / English</option>
-              <option value="Thai">ภาษาไทย / Thai</option>
-            </select>
-          </div>
-          <label class="check-item full"><input type="checkbox" id="thaiSds"><span class="bilingual-label">มี SDS ภาษาไทย<small>Thai SDS available</small></span></label>
-        </div>
-      </div>
-
-      <div class="form-section">
-        <div class="form-section-title"><span class="bilingual-label">3. การจำแนกประเภทอันตราย<small>3. Hazard Classification</small></span> <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ / Select one)</span></div>
+        <div class="form-section-title"><span class="bilingual-label">2. การจำแนกประเภทอันตราย<small>2. Hazard Classification</small></span> <span style="font-size:12px; color:var(--muted); font-weight:500;">(เลือกได้ 1 รายการ / Select one)</span></div>
         <input class="form-control hazard-list-search" id="hazardListSearch"
           placeholder="พิมพ์ค้นหาประเภทอันตราย / Search hazard..." autocomplete="off"
           oninput="filterHazardOptions(this.value)">
@@ -779,7 +749,7 @@
       </div>
 
       <div class="form-section">
-        <div class="form-section-title"><span class="bilingual-label">4. เอกสาร SDS<small>4. SDS Document</small></span></div>
+        <div class="form-section-title"><span class="bilingual-label">3. เอกสาร SDS<small>3. SDS Document</small></span></div>
         <div class="upload-box">
           📄 <span class="bilingual-label">อัปโหลดเอกสารข้อมูลความปลอดภัย<small>Upload Safety Data Sheet</small></span><br>
           <input type="file" id="sdsFile" accept=".pdf">
@@ -1169,13 +1139,13 @@
       id: editId ? (existing ? existing.id : editId) : Date.now(),
       chemical,
       cas,
-      supplier: document.getElementById("supplier").value.trim(),
-      revision: document.getElementById("revision").value.trim(),
+      supplier: existing ? (existing.supplier || "") : "",
+      revision: existing ? (existing.revision || "") : "",
       status: existing ? normalizeStatus(existing.status) : "Current",
-      signalWord: document.getElementById("signalWord").value,
-      language: document.getElementById("language").value,
+      signalWord: existing ? (existing.signalWord || "") : "",
+      language: existing ? getLanguageLabel(existing) : "English",
       hazards,
-      thaiSds: document.getElementById("thaiSds").checked || document.getElementById("language").value === "Thai",
+      thaiSds: existing ? Boolean(existing.thaiSds) : false,
       hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
     };
     delete record.revisionDate;
@@ -1216,12 +1186,6 @@
     document.getElementById("editId").value = item.id;
     document.getElementById("chemical").value = item.chemical;
     document.getElementById("cas").value = item.cas;
-    document.getElementById("supplier").value = item.supplier;
-    document.getElementById("revision").value = item.revision;
-    document.getElementById("signalWord").value = item.signalWord || "";
-    document.getElementById("language").value = getLanguageLabel(item);
-    document.getElementById("thaiSds").checked = Boolean(item.thaiSds);
-
     const selectedHazard = (item.hazards || [])[0] || "";
     document.querySelectorAll(".hazardCheck").forEach(check => {
       check.checked = selectedHazard === check.value;
@@ -2062,13 +2026,13 @@
         id: editId || "",
         chemical: document.getElementById("chemical").value.trim(),
         cas: document.getElementById("cas").value.trim(),
-        supplier: document.getElementById("supplier").value.trim(),
-        revision: document.getElementById("revision").value.trim(),
+        supplier: existing ? (existing.supplier || "") : "",
+        revision: existing ? (existing.revision || "") : "",
         status: existing ? normalizeStatus(existing.status) : "Current",
-        signalWord: document.getElementById("signalWord").value,
-        language: document.getElementById("language").value,
+        signalWord: existing ? (existing.signalWord || "") : "",
+        language: existing ? getLanguageLabel(existing) : "English",
         hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; }),
-        thaiSds: document.getElementById("thaiSds").checked || document.getElementById("language").value === "Thai"
+        thaiSds: existing ? Boolean(existing.thaiSds) : false
       };
     }
 

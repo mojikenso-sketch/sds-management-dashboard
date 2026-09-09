@@ -231,8 +231,6 @@
     }
     .toolbar-left { display: flex; gap: 10px; flex-wrap: wrap; }
     .filter-combobox { position: relative; width: 155px; }
-    .filter-combobox.language-combobox { width: 185px; }
-    .filter-combobox.supplier-combobox { width: 205px; }
     .filter-combobox .filter-input { width: 100%; padding-right: 38px; }
     .filter-menu-button {
       position: absolute; top: 1px; right: 1px; width: 36px; height: 38px;
@@ -260,9 +258,7 @@
     }
     .input:focus, .select:focus { border-color: var(--primary); }
     .search { width: 260px; }
-    .language-filter { min-width: 150px; }
     .filter-input { width: 155px; }
-    .supplier-filter { width: 185px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
       width: 100%; min-width: 760px; table-layout: fixed;
@@ -524,8 +520,7 @@
       .cards { grid-template-columns: 1fr; }
       .page-header { align-items: flex-start; flex-direction: column; }
       .page-header .btn-primary { width: 100%; }
-      .search, .toolbar-left, .input, .select, .filter-combobox,
-      .filter-combobox.language-combobox, .filter-combobox.supplier-combobox { width: 100%; }
+      .search, .toolbar-left, .input, .select, .filter-combobox { width: 100%; }
       .hazards { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
@@ -657,16 +652,6 @@
           aria-label="ค้นหาสารเคมี / CAS / ผู้จัดจำหน่าย"
           oninput="clearSpecialFilter(); renderTable()">
 
-        <div class="filter-combobox status-combobox">
-          <input class="input filter-input" id="statusFilter"
-            placeholder="สถานะ / Status" aria-label="ค้นหาสถานะ / Search status" autocomplete="off"
-            onfocus="openFilterMenu('statusFilter', 'statusMenu')"
-            oninput="filterMenu('statusFilter', 'statusMenu'); renderTable()">
-          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Status"
-            onclick="toggleFilterMenu('statusFilter', 'statusMenu')">⌄</button>
-          <div class="filter-menu" id="statusMenu" role="listbox" hidden></div>
-        </div>
-
         <div class="filter-combobox hazard-combobox">
           <input class="input filter-input" id="hazardFilter"
             placeholder="อันตรายทั้งหมด / All hazards" aria-label="ค้นหาประเภทอันตราย / Search hazard" autocomplete="off"
@@ -677,25 +662,6 @@
           <div class="filter-menu" id="hazardMenu" role="listbox" hidden></div>
         </div>
 
-        <div class="filter-combobox language-combobox">
-          <input class="input filter-input" id="languageFilter"
-            placeholder="ภาษา / Language" aria-label="กรองตามภาษา / Filter by language" autocomplete="off"
-            onfocus="openFilterMenu('languageFilter', 'languageMenu')"
-            oninput="filterMenu('languageFilter', 'languageMenu'); renderTable()">
-          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Language"
-            onclick="toggleFilterMenu('languageFilter', 'languageMenu')">⌄</button>
-          <div class="filter-menu" id="languageMenu" role="listbox" hidden></div>
-        </div>
-
-        <div class="filter-combobox supplier-combobox">
-          <input class="input filter-input" id="supplierFilter"
-            placeholder="ผู้จัดจำหน่าย / Supplier" aria-label="ค้นหาผู้จัดจำหน่าย / Search supplier" autocomplete="off"
-            onfocus="openFilterMenu('supplierFilter', 'supplierMenu')"
-            oninput="filterMenu('supplierFilter', 'supplierMenu'); renderTable()">
-          <button class="filter-menu-button" type="button" aria-label="เปิดรายการ Supplier"
-            onclick="toggleFilterMenu('supplierFilter', 'supplierMenu')">⌄</button>
-          <div class="filter-menu" id="supplierMenu" role="listbox" hidden></div>
-        </div>
       </div>
 
       <button class="btn-secondary export-btn" onclick="exportCSV()"><span class="bilingual-label">↓ ส่งออก CSV<small>Export CSV</small></span></button>
@@ -888,8 +854,6 @@
       const definition = getHazardDefinition(option);
       return definition ? hazardLabels(definition) : { thai: option, english: option };
     }
-    if (inputId === "statusFilter") return STATUS_LABELS[option] || { thai: option, english: option };
-    if (inputId === "languageFilter") return LANGUAGE_LABELS[option] || { thai: option, english: option };
     return { thai: option, english: option };
   }
 
@@ -1468,10 +1432,7 @@
 
   function renderTable() {
     const search = document.getElementById("searchInput").value.toLowerCase();
-    const status = document.getElementById("statusFilter").value.trim().toLowerCase();
     const hazard = document.getElementById("hazardFilter").value.trim().toLowerCase();
-    const supplier = document.getElementById("supplierFilter").value.trim().toLowerCase();
-    const language = document.getElementById("languageFilter").value.trim().toLowerCase();
     const special = window.sdsSpecialFilter || "";
 
     const filtered = sdsData.filter(item => {
@@ -1480,22 +1441,15 @@
         item.cas.toLowerCase().includes(search) ||
         (item.supplier || "").toLowerCase().includes(search);
 
-      const normalizedItemStatus = normalizeStatus(item.status);
-      const statusLabels = STATUS_LABELS[normalizedItemStatus] || { thai: normalizedItemStatus, english: normalizedItemStatus };
-      const statusMatch = !status || `${normalizedItemStatus} ${statusLabels.thai} ${statusLabels.english}`.toLowerCase().includes(status);
       const hazardMatch = !hazard || item.hazards.some(name => {
         const definition = getHazardDefinition(name);
         const labels = definition ? hazardLabels(definition) : { thai: name, english: name };
         return `${name} ${labels.thai} ${labels.english}`.toLowerCase().includes(hazard);
       });
-      const supplierMatch = !supplier || (item.supplier || "").toLowerCase().includes(supplier);
-      const itemLanguage = getLanguageLabel(item);
-      const languageLabels = LANGUAGE_LABELS[itemLanguage] || { thai: itemLanguage, english: itemLanguage };
-      const languageMatch = !language || `${itemLanguage} ${languageLabels.thai} ${languageLabels.english}`.toLowerCase().includes(language);
       const missingMatch = !special || (special === "pdf"
         ? (!item.hasPdf && !item.pdfUrl && !item.pdfFileId)
         : (special === "thai" && !item.thaiSds));
-      return searchMatch && statusMatch && hazardMatch && supplierMatch && languageMatch && missingMatch;
+      return searchMatch && hazardMatch && missingMatch;
     });
 
     document.getElementById("tableCount").innerHTML = bilingualHTML(`${filtered.length} รายการ`, `${filtered.length} items`);
@@ -1591,7 +1545,7 @@
   }
 
   function resetAllTableFilters() {
-    ["searchInput", "statusFilter", "hazardFilter", "supplierFilter", "languageFilter"].forEach(id => {
+    ["searchInput", "hazardFilter"].forEach(id => {
       const input = document.getElementById(id);
       if (input) input.value = "";
     });
@@ -1599,17 +1553,9 @@
     window.sdsSpecialFilter = "";
   }
 
-  const FILTER_OPTIONS = {
-    statusFilter: ["Current", "Review Due", "Update Required"],
-    languageFilter: ["English", "Thai"]
-  };
-
   function getFilterOptions(inputId) {
     if (inputId === "hazardFilter") return hazardDefinitions.map(definition => definition.name);
-    if (inputId === "supplierFilter") {
-      return [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
-    }
-    return FILTER_OPTIONS[inputId] || [];
+    return [];
   }
 
   function closeFilterMenus() {
@@ -1665,17 +1611,6 @@
     renderTable();
   }
 
-  function refreshSupplierFilter() {
-    const input = document.getElementById("supplierFilter");
-    const current = input.value;
-    const suppliers = [...new Set(sdsData.map(item => item.supplier).filter(Boolean))].sort();
-    input.value = suppliers.includes(current) ? current : "";
-    renderFilterMenu("supplierFilter", "supplierMenu");
-    const menu = document.getElementById("supplierMenu");
-    if (menu) menu.hidden = true;
-    if (input) input.setAttribute("aria-expanded", "false");
-  }
-
   document.addEventListener("click", event => {
     if (!event.target.closest(".filter-combobox")) closeFilterMenus();
   });
@@ -1694,7 +1629,6 @@
   }
 
   function refreshDashboard() {
-    refreshSupplierFilter();
     renderHazardFormOptions();
     renderTable();
     updateSummary();
@@ -1903,15 +1837,9 @@
 
     window.jumpToSdsTable = function (type, value) {
       var searchInput = document.getElementById("searchInput");
-      var statusFilter = document.getElementById("statusFilter");
       var hazardFilter = document.getElementById("hazardFilter");
-      var supplierFilter = document.getElementById("supplierFilter");
-      var languageFilter = document.getElementById("languageFilter");
       if (searchInput) searchInput.value = "";
-      if (statusFilter) statusFilter.value = type === "status" ? value : "";
       if (hazardFilter) hazardFilter.value = type === "hazard" ? value : "";
-      if (supplierFilter) supplierFilter.value = "";
-      if (languageFilter) languageFilter.value = "";
       window.sdsSpecialFilter = type === "missing" ? value : "";
       renderTable();
 

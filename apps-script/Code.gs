@@ -9,7 +9,7 @@
 var SDS_HEADERS = [
   "id", "chemical", "cas", "supplier", "revision", "revisionDate",
   "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt",
-  "reviewDate", "thaiSds", "language"
+  "reviewDate", "thaiSds", "language", "flashPoint", "emergencyResponse"
 ];
 
 // New installations start empty. SDS records are added by the administrator.
@@ -169,7 +169,9 @@ function saveSds(record, fileData) {
       new Date().toISOString(),
       normalized.reviewDate,
       normalized.thaiSds,
-      normalized.language
+      normalized.language,
+      normalized.flashPoint,
+      normalized.emergencyResponse
     ];
 
     if (existing) {
@@ -250,7 +252,9 @@ function normalizeRecord_(record) {
     signalWord: ["Danger", "Warning", ""].indexOf(record.signalWord || "") !== -1 ? (record.signalWord || "") : "",
     hazards: hazards,
     thaiSds: thaiSds,
-    language: language
+    language: language,
+    flashPoint: clean_(record.flashPoint),
+    emergencyResponse: clean_(record.emergencyResponse)
   };
 }
 
@@ -286,7 +290,9 @@ function rowToObject_(row) {
     thaiSds: String(row[13] || "").toLowerCase() === "true",
     language: ["English", "Thai"].indexOf(String(row[14] || "")) !== -1
       ? String(row[14])
-      : (String(row[13] || "").toLowerCase() === "true" ? "Thai" : "English")
+      : (String(row[13] || "").toLowerCase() === "true" ? "Thai" : "English"),
+    flashPoint: String(row[15] || ""),
+    emergencyResponse: String(row[16] || "")
   };
 }
 

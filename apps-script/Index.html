@@ -261,7 +261,7 @@
     .filter-input { width: 155px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
-      width: 100%; min-width: 760px; table-layout: fixed;
+      width: 100%; min-width: 1120px; table-layout: fixed;
       border-collapse: separate; border-spacing: 0; border: 1px solid #cbd5e1;
     }
     thead { background: #1e3a8a; }
@@ -277,17 +277,28 @@
     }
     thead th:nth-child(1), thead th:nth-child(2) { background: #1e40af; }
     thead th:nth-child(3) { background: #2563eb; }
-    thead th:nth-child(4) { background: #0f766e; }
-    thead th:nth-child(5) { background: #dc2626; }
+    thead th:nth-child(4) { background: #d97706; }
+    thead th:nth-child(5) { background: #7c3aed; }
+    thead th:nth-child(6) { background: #0f766e; }
+    thead th:nth-child(7) { background: #15803d; }
+    thead th:nth-child(8) { background: #dc2626; }
     td { color: #334155; white-space: nowrap; }
-    th:nth-child(1), td:nth-child(1) { width: 42%; }
-    th:nth-child(2), td:nth-child(2) { width: 23%; }
-    th:nth-child(3), td:nth-child(3) { width: 17%; }
-    th:nth-child(4), td:nth-child(4) { width: 9%; }
-    th:nth-child(5), td:nth-child(5) { width: 9%; }
+    th:nth-child(1), td:nth-child(1) { width: 22%; }
+    th:nth-child(2), td:nth-child(2) { width: 12%; }
+    th:nth-child(3), td:nth-child(3) { width: 13%; }
+    th:nth-child(4), td:nth-child(4) { width: 20%; }
+    th:nth-child(5), td:nth-child(5) { width: 10%; }
+    th:nth-child(6), td:nth-child(6) { width: 10%; }
+    th:nth-child(7), td:nth-child(7) { width: 6.5%; }
+    th:nth-child(8), td:nth-child(8) { width: 6.5%; }
     .action-column, .action-cell { text-align: center; }
     body.public-readonly .action-column,
     body.public-readonly .action-cell { display: none; }
+    .detail-cell { white-space: pre-line; line-height: 1.4; }
+    .sds-missing { color: var(--muted); font-size: 12px; }
+    .sds-available { display: inline-flex; flex-direction: column; gap: 2px; color: #15803d; font-size: 12px; font-weight: 700; }
+    .sds-available small { font-size: 10px; font-weight: 600; opacity: .78; }
+    .sds-language-btn { padding: 7px 8px; font-size: 11px; white-space: nowrap; }
     th:last-child, td:last-child { border-right: 0; }
     tbody tr:last-child td { border-bottom: 0; }
     tbody tr:nth-child(even) { background: #f8fbff; }
@@ -524,22 +535,17 @@
       .hazards { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
-      .table-wrapper { overflow-x: hidden; }
-      table { width: 100%; min-width: 0; table-layout: fixed; }
+      .table-wrapper { overflow-x: auto; }
+      table { width: 1120px; min-width: 1120px; table-layout: fixed; }
       th, td { padding: 9px 4px; font-size: 11px; }
       th { white-space: normal; }
-      th:nth-child(1), td:nth-child(1) { width: 40%; }
-      th:nth-child(2), td:nth-child(2) { width: 24%; }
-      th:nth-child(3), td:nth-child(3) { width: 18%; }
-      th:nth-child(4), td:nth-child(4) { width: 9%; }
-      th:nth-child(5), td:nth-child(5) { width: 9%; }
       td { white-space: normal; }
       td:nth-child(2) { overflow-wrap: anywhere; }
-      td:nth-child(3) { white-space: nowrap; font-size: 9px; }
+      td:nth-child(5), td:nth-child(6) { white-space: nowrap; font-size: 9px; }
       .sds-link { width: 100%; max-width: 100%; gap: 4px; white-space: normal; align-items: flex-start; overflow-wrap: anywhere; }
       .sds-link .chemical-name { overflow-wrap: anywhere; }
       .chemical-hazard-icon { flex: 0 0 19px; font-size: 18px; text-align: center; }
-      .pdf-btn { max-width: 100%; padding: 4px 1px; font-size: 9px; white-space: normal; }
+      .pdf-btn, .sds-language-btn { max-width: 100%; padding: 4px 1px; font-size: 9px; white-space: normal; }
       .action-btn { padding: 4px 0; font-size: 12px; }
     }
     .settings-modal {
@@ -673,7 +679,10 @@
           <tr>
             <th><span class="bilingual-label">สารเคมี<small>Chemical</small></span></th>
             <th><span class="bilingual-label">เลข CAS<small>CAS No.</small></span></th>
-            <th><span class="bilingual-label">เอกสาร SDS<small>SDS</small></span></th>
+            <th><span class="bilingual-label">จุดวาบไฟ<small>Flash Point</small></span></th>
+            <th><span class="bilingual-label">การระงับเหตุ<small>Emergency Response</small></span></th>
+            <th><span class="bilingual-label">SDS ภาษาไทย<small>Thai SDS</small></span></th>
+            <th><span class="bilingual-label">SDS ภาษาอังกฤษ<small>English SDS</small></span></th>
             <th class="action-column"><span class="bilingual-label">แก้ไข<small>Edit</small></span></th>
             <th class="action-column"><span class="bilingual-label">ลบ<small>Delete</small></span></th>
           </tr>
@@ -1086,6 +1095,8 @@
       language: existing ? getLanguageLabel(existing) : "English",
       hazards,
       thaiSds: existing ? Boolean(existing.thaiSds) : false,
+      flashPoint: existing ? (existing.flashPoint || "") : "",
+      emergencyResponse: existing ? (existing.emergencyResponse || "") : "",
       hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
     };
     delete record.revisionDate;
@@ -1430,7 +1441,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
+          <td colspan="8"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
         </tr>`;
       return;
     }
@@ -1444,9 +1455,10 @@
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>
-          <td>
-            <button class="pdf-btn" onclick="viewSDS(${item.id})"><span class="bilingual-label">📄 ดู SDS<small>View SDS</small></span></button>
-          </td>
+          <td class="detail-cell">${escapeHTML(item.flashPoint || "-")}</td>
+          <td class="detail-cell">${escapeHTML(item.emergencyResponse || "-")}</td>
+          <td>${languageSdsCell(item, "Thai")}</td>
+          <td>${languageSdsCell(item, "English")}</td>
           <td class="action-cell">
             <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
           </td>
@@ -1454,6 +1466,19 @@
             <button class="action-btn" title="ลบ" onclick="deleteSDS(${item.id})">🗑️</button>
           </td>
         </tr>`).join("");
+  }
+
+  function languageSdsCell(item, language) {
+    const itemLanguage = getLanguageLabel(item);
+    const hasPdf = Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId);
+    const isAvailable = language === itemLanguage && hasPdf;
+    if (isAvailable) {
+      return `<button class="pdf-btn sds-language-btn" onclick="viewSDS(${item.id})"><span class="bilingual-label">📄 ดู SDS<small>View SDS</small></span></button>`;
+    }
+    if (language === "Thai" && item.thaiSds) {
+      return `<span class="sds-available">✓ มี<small>Available</small></span>`;
+    }
+    return `<span class="sds-missing">-</span>`;
   }
 
   function updateSummary() {
@@ -1466,9 +1491,12 @@
 
   function exportCSV() {
     const rows = [
-      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "มี SDS ภาษาไทย / Thai SDS"],
+      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "จุดวาบไฟ / Flash Point", "การระงับเหตุ / Emergency Response", "SDS ภาษาไทย / Thai SDS", "SDS ภาษาอังกฤษ / English SDS", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status"],
       ...sdsData.map(item => {
         const language = getLanguageLabel(item);
+        const hasPdf = Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId);
+        const thaiAvailable = Boolean(item.thaiSds || (language === "Thai" && hasPdf));
+        const englishAvailable = Boolean(language === "English" && hasPdf);
         const languageLabels = LANGUAGE_LABELS[language] || { thai: language, english: language };
         const status = normalizeStatus(item.status);
         const statusLabels = STATUS_LABELS[status] || { thai: status, english: status };
@@ -1478,9 +1506,12 @@
           return `${labels.thai} / ${labels.english}`;
         }).join(" | ");
         return [
-          item.chemical, item.cas, item.supplier, item.revision,
+          item.chemical, item.cas, item.flashPoint || "", item.emergencyResponse || "",
+          thaiAvailable ? "มี / Available" : "ไม่มี / Not available",
+          englishAvailable ? "มี / Available" : "ไม่มี / Not available",
+          item.supplier, item.revision,
           `${languageLabels.thai} / ${languageLabels.english}`, hazards,
-          `${statusLabels.thai} / ${statusLabels.english}`, item.thaiSds ? "มี / Yes" : "ไม่มี / No"
+          `${statusLabels.thai} / ${statusLabels.english}`
         ];
       })
     ];
@@ -1936,7 +1967,9 @@
         signalWord: existing ? (existing.signalWord || "") : "",
         language: existing ? getLanguageLabel(existing) : "English",
         hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; }),
-        thaiSds: existing ? Boolean(existing.thaiSds) : false
+        thaiSds: existing ? Boolean(existing.thaiSds) : false,
+        flashPoint: existing ? (existing.flashPoint || "") : "",
+        emergencyResponse: existing ? (existing.emergencyResponse || "") : ""
       };
     }
 

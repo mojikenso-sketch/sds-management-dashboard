@@ -12,7 +12,7 @@
 
 หน้า GitHub Pages จะเริ่มต้นโดยไม่มีข้อมูล SDS ตัวอย่าง ข้อมูลที่แสดงจะมาจากรายการที่ผู้ดูแลเพิ่มจริงผ่านระบบ หรือข้อมูลที่บันทึกไว้ใน browser local storage
 
-ตารางหลักแสดง Chemical, CAS No., SDS, Edit และ Delete โดยมีตัวค้นหาและตัวกรอง Hazard ส่วนข้อมูลเดิมที่มีฟิลด์เพิ่มเติมยังรองรับเพื่อความเข้ากันได้กับ Google Sheet เดิม
+ตารางหลักแสดง Chemical, CAS No., Flash Point, Emergency Response, SDS ภาษาไทย, SDS ภาษาอังกฤษ, Edit และ Delete โดยมีตัวค้นหาและตัวกรอง Hazard ส่วนข้อมูลเดิมที่มีฟิลด์เพิ่มเติมยังรองรับเพื่อความเข้ากันได้กับ Google Sheet เดิม
 
 ## 1) ตั้งค่า Google Apps Script
 

@@ -477,8 +477,8 @@
     }
     .qr-dialog-header h3 { color: #065f46; font-size: 16px; }
     .qr-dialog-body { padding: 20px; text-align: center; }
-    .qr-code-box { display: grid; place-items: center; min-height: 250px; padding: 14px; border: 1px dashed #86efac; border-radius: 14px; background: #f8fffb; }
-    .qr-code-box img, .qr-code-box canvas { width: 220px !important; height: 220px !important; max-width: 100%; image-rendering: pixelated; }
+    .qr-code-box { display: grid; place-items: center; min-height: 310px; padding: 14px; border: 1px dashed #86efac; border-radius: 14px; background: #f8fffb; }
+    .qr-code-box img, .qr-code-box canvas { width: 280px !important; height: 280px !important; max-width: 100%; image-rendering: pixelated; }
     .qr-record-name { margin-top: 14px; font-size: 18px; font-weight: 800; color: #1e3a8a; }
     .qr-record-cas { margin-top: 4px; color: var(--muted); font-size: 13px; }
     .qr-url { margin-top: 12px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 9px; color: #475569; font-size: 10px; line-height: 1.4; word-break: break-all; background: #f8fafc; }
@@ -1191,23 +1191,38 @@
       return text.length > max ? text.slice(0, max) + "..." : text;
     };
    return {
-     id: String(item.id || ""),
-      chemical: compact(item.chemical, 160),
-     cas: String(item.cas || ""),
-      supplier: compact(item.supplier, 180),
-     hazards: Array.isArray(item.hazards) ? item.hazards.slice(0, 1) : [],
-      flashPoint: compact(item.flashPoint, 80),
-      emergencyResponse: compact(item.emergencyResponse, 520),
-     sdsLanguages: getSdsLanguages(item),
-     thaiSds: Boolean(item.thaiSds)
+     i: String(item.id || ""),
+      c: compact(item.chemical, 140),
+     ca: String(item.cas || ""),
+      s: compact(item.supplier, 150),
+     h: Array.isArray(item.hazards) ? item.hazards.slice(0, 1) : [],
+      f: compact(item.flashPoint, 60),
+      e: compact(item.emergencyResponse, 360),
+     l: getSdsLanguages(item),
+     t: Boolean(item.thaiSds)
    };
  }
+
+  function normalizeQrSnapshot(snapshot, fallbackId = "") {
+    if (!snapshot || typeof snapshot !== "object") return null;
+    return {
+      id: String(snapshot.id || snapshot.i || fallbackId || ""),
+      chemical: snapshot.chemical || snapshot.c || "",
+      cas: snapshot.cas || snapshot.ca || "",
+      supplier: snapshot.supplier || snapshot.s || "",
+      hazards: Array.isArray(snapshot.hazards) ? snapshot.hazards : (Array.isArray(snapshot.h) ? snapshot.h : []),
+      flashPoint: snapshot.flashPoint || snapshot.f || "",
+      emergencyResponse: snapshot.emergencyResponse || snapshot.e || "",
+      sdsLanguages: Array.isArray(snapshot.sdsLanguages) ? snapshot.sdsLanguages : (Array.isArray(snapshot.l) ? snapshot.l : []),
+      thaiSds: typeof snapshot.thaiSds === "boolean" ? snapshot.thaiSds : Boolean(snapshot.t)
+    };
+  }
 
   function publicSdsUrl(item) {
     const snapshot = qrRecordSnapshot(item);
     const url = new URL("https://mojikenso-sketch.github.io/sds-management-dashboard/");
-    url.searchParams.set("sds", snapshot.id);
-    url.searchParams.set("data", encodeQrPayload(JSON.stringify(snapshot)));
+    url.searchParams.set("sds", snapshot.i);
+    url.hash = "data=" + encodeQrPayload(JSON.stringify(snapshot));
     return url.toString();
   }
 
@@ -1225,9 +1240,9 @@
    if (!window.QRCode) {
      box.innerHTML = bilingualHTML("ไม่สามารถโหลดตัวสร้าง QR Code ได้", "QR Code generator is unavailable");
    } else {
-     const correction = window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.H : 3;
+     const correction = window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 0;
       try {
-        new window.QRCode(box, { text: url, width: 220, height: 220, correctLevel: correction });
+        new window.QRCode(box, { text: url, width: 280, height: 280, correctLevel: correction });
       } catch (error) {
         console.error("QR generation error:", error);
         box.innerHTML = bilingualHTML("ข้อมูลยาวเกินไป ไม่สามารถสร้าง QR ได้", "The SDS data is too long for a QR Code");
@@ -1255,7 +1270,7 @@
     const item = currentQrRecord;
     const url = publicSdsUrl(item);
     popup.document.open();
-    popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>QR Code - ${escapeHTML(item.chemical)}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:28px;color:#1e293b}h1{font-size:22px;color:#1e3a8a;margin:0 0 8px}p{color:#64748b;margin:5px 0 18px}.qr{display:inline-block;padding:14px;border:1px solid #bfdbfe;border-radius:14px;background:#fff}.qr img{width:260px;height:260px;image-rendering:pixelated}.url{margin:18px auto 0;max-width:420px;word-break:break-all;font-size:10px;color:#64748b} @media print{button{display:none}}</style></head><body><h1>${escapeHTML(item.chemical || "SDS")}</h1><p>CAS No. ${escapeHTML(item.cas || "-")} · สแกนเพื่อดูข้อมูล SDS</p><div class="qr"><img src="${dataUrl}" alt="QR Code"></div><div class="url">${escapeHTML(url)}</div><p>ระบบจัดการ SDS / SDS Management</p><button onclick="window.print()">พิมพ์อีกครั้ง / Print again</button></body></html>`);
+    popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>QR Code - ${escapeHTML(item.chemical)}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:28px;color:#1e293b}h1{font-size:22px;color:#1e3a8a;margin:0 0 8px}p{color:#64748b;margin:5px 0 18px}.qr{display:inline-block;padding:14px;border:1px solid #bfdbfe;border-radius:14px;background:#fff}.qr img{width:320px;height:320px;image-rendering:pixelated}.url{margin:18px auto 0;max-width:420px;word-break:break-all;font-size:10px;color:#64748b} @media print{button{display:none}}</style></head><body><h1>${escapeHTML(item.chemical || "SDS")}</h1><p>CAS No. ${escapeHTML(item.cas || "-")} · สแกนเพื่อดูข้อมูล SDS</p><div class="qr"><img src="${dataUrl}" alt="QR Code"></div><div class="url">${escapeHTML(url)}</div><p>ระบบจัดการ SDS / SDS Management</p><button onclick="window.print()">พิมพ์อีกครั้ง / Print again</button></body></html>`);
     popup.document.close();
     popup.focus();
     popup.setTimeout(() => popup.print(), 300);
@@ -1315,14 +1330,16 @@
 
   function openSdsFromQrUrl() {
     const params = new URLSearchParams(window.location.search);
-    const id = params.get("sds");
+    const hashParams = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+    const requestedId = params.get("sds") || hashParams.get("sds");
+    let snapshot = null;
+    const encoded = params.get("data") || params.get("q") || hashParams.get("data") || hashParams.get("q");
+    if (encoded) {
+      try { snapshot = normalizeQrSnapshot(JSON.parse(decodeQrPayload(encoded)), requestedId); } catch (error) { snapshot = null; }
+    }
+    const id = requestedId || (snapshot && snapshot.id);
     if (!id) return;
     const liveItem = sdsData.find(row => String(row.id) === String(id));
-    let snapshot = null;
-    const encoded = params.get("data");
-    if (encoded) {
-      try { snapshot = JSON.parse(decodeQrPayload(encoded)); } catch (error) { snapshot = null; }
-    }
     if (liveItem) {
       showSdsQuickView(liveItem);
     } else if (snapshot && String(snapshot.id || id) === String(id)) {

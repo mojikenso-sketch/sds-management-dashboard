@@ -866,13 +866,30 @@
     return { thai: option, english: option };
   }
 
-  const defaultData = [];
+  const defaultData = [
+    {
+      id: 5,
+      chemical: "Acetochlor 50% W/V EC",
+      cas: "34256-82-1",
+      supplier: "Thep Watana Co., Ltd.",
+      revision: "Full registration",
+      status: "Current",
+      signalWord: "Warning",
+      hazards: ["Flammable"],
+      flashPoint: "< 17 °C",
+      emergencyResponse: "เพลิงไหม้: น้ำ โฟม ผงเคมีแห้ง หรือคาร์บอนไดออกไซด์ (CO₂)\nหกรั่วไหล: ใช้ดิน ทราย หรือวัสดุดูดซับ และป้องกันไม่ให้ลงท่อระบายน้ำ\nFire: Water, foam, dry chemical or CO₂\nSpill: Absorb with earth, sand or absorbent material; keep out of drains",
+      language: "English",
+      thaiSds: false,
+      hasPdf: true,
+      pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
+      pdfName: "SDS - Acetochlor 50 EC.pdf"
+    }
+  ];
   const demoRecordSignatures = new Set([
     "Acetone|67-64-1",
     "Methanol|67-56-1",
     "Toluene|108-88-3",
-    "Hydrochloric Acid|7647-01-0",
-    "Acetochlor 50% W/V EC|34256-82-1"
+    "Hydrochloric Acid|7647-01-0"
   ]);
   const storedSdsDataRaw = JSON.parse(localStorage.getItem("sdsData") || "null");
   const storedSdsData = Array.isArray(storedSdsDataRaw)
@@ -910,6 +927,8 @@
           pdfUrl: item.pdfUrl || seed.pdfUrl, pdfName: item.pdfName || seed.pdfName,
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId || seed.pdfUrl),
           thaiSds: typeof item.thaiSds === "boolean" ? item.thaiSds : seed.thaiSds,
+          flashPoint: item.flashPoint || seed.flashPoint,
+          emergencyResponse: item.emergencyResponse || seed.emergencyResponse,
           hazards: normalizeHazards(item.hazards, seed.hazards) }
       : { ...itemWithoutDates, status: normalizeStatus(item.status), thaiSds: Boolean(item.thaiSds),
           hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId), hazards: normalizeHazards(item.hazards) };

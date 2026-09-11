@@ -10,7 +10,7 @@
 - `docs/index.html` — หน้าเว็บสำหรับ GitHub Pages
 - `docs/config.js` — URL ของ Apps Script API
 
-หน้า GitHub Pages จะเริ่มต้นโดยไม่มีข้อมูล SDS ตัวอย่าง ข้อมูลที่แสดงจะมาจากรายการที่ผู้ดูแลเพิ่มจริงผ่านระบบ หรือข้อมูลที่บันทึกไว้ใน browser local storage
+หน้า GitHub Pages มีรายการ SDS จริงของ Acetochlor ที่แนบไว้ในโฟลเดอร์ `docs/assets/` เพื่อให้ทดลองเปิดดูได้ทันที และรองรับรายการอื่นที่ผู้ดูแลเพิ่มผ่านระบบหรือบันทึกไว้ใน browser local storage
 
 ตารางหลักแสดง Chemical, CAS No., Flash Point, Emergency Response, SDS ภาษาไทย, SDS ภาษาอังกฤษ, Edit และ Delete โดยมีตัวค้นหาและตัวกรอง Hazard ส่วนข้อมูลเดิมที่มีฟิลด์เพิ่มเติมยังรองรับเพื่อความเข้ากันได้กับ Google Sheet เดิม
 

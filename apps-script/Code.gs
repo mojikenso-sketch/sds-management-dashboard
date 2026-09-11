@@ -9,7 +9,7 @@
 var SDS_HEADERS = [
   "id", "chemical", "cas", "supplier", "revision", "revisionDate",
   "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt",
-  "reviewDate", "thaiSds", "language", "flashPoint", "emergencyResponse"
+  "reviewDate", "thaiSds", "language", "flashPoint", "emergencyResponse", "sdsLanguages"
 ];
 
 // New installations start empty. SDS records are added by the administrator.
@@ -171,7 +171,8 @@ function saveSds(record, fileData) {
       normalized.thaiSds,
       normalized.language,
       normalized.flashPoint,
-      normalized.emergencyResponse
+      normalized.emergencyResponse,
+      normalized.sdsLanguages.join("|")
     ];
 
     if (existing) {
@@ -237,6 +238,7 @@ function normalizeRecord_(record) {
   var thaiSds = record.thaiSds === true || String(record.thaiSds || "").toLowerCase() === "true";
   var language = clean_(record.language);
   if (["English", "Thai"].indexOf(language) === -1) language = thaiSds ? "Thai" : "English";
+  var sdsLanguages = normalizeLanguages_(record.sdsLanguages, language, thaiSds);
 
   return {
     // The original UI renders IDs inside inline onclick handlers, so keep
@@ -254,7 +256,8 @@ function normalizeRecord_(record) {
     thaiSds: thaiSds,
     language: language,
     flashPoint: clean_(record.flashPoint),
-    emergencyResponse: clean_(record.emergencyResponse)
+    emergencyResponse: clean_(record.emergencyResponse),
+    sdsLanguages: sdsLanguages
   };
 }
 
@@ -270,8 +273,22 @@ function clean_(value) {
   return String(value === undefined || value === null ? "" : value).trim();
 }
 
+function normalizeLanguages_(value, language, thaiSds) {
+  var values = Array.isArray(value) ? value : String(value || "").split(/[|,]/);
+  var result = values.map(function(item) { return clean_(item); }).filter(function(item) {
+    return item === "Thai" || item === "English";
+  });
+  if (thaiSds && result.indexOf("Thai") === -1) result.push("Thai");
+  if (!result.length && ["Thai", "English"].indexOf(language) !== -1) result.push(language);
+  return result.filter(function(item, index) { return result.indexOf(item) === index; });
+}
+
 function rowToObject_(row) {
   var fileId = String(row[9] || "");
+  var thaiSds = String(row[13] || "").toLowerCase() === "true";
+  var language = ["English", "Thai"].indexOf(String(row[14] || "")) !== -1
+    ? String(row[14])
+    : (thaiSds ? "Thai" : "English");
   return {
     id: String(row[0]),
     chemical: String(row[1] || ""),
@@ -287,12 +304,11 @@ function rowToObject_(row) {
     pdfUrl: fileId ? "https://drive.google.com/file/d/" + encodeURIComponent(fileId) + "/preview" : "",
     updatedAt: String(row[11] || ""),
     reviewDate: formatDateValue_(row[12]),
-    thaiSds: String(row[13] || "").toLowerCase() === "true",
-    language: ["English", "Thai"].indexOf(String(row[14] || "")) !== -1
-      ? String(row[14])
-      : (String(row[13] || "").toLowerCase() === "true" ? "Thai" : "English"),
+    thaiSds: thaiSds,
+    language: language,
     flashPoint: String(row[15] || ""),
-    emergencyResponse: String(row[16] || "")
+    emergencyResponse: String(row[16] || ""),
+    sdsLanguages: normalizeLanguages_(String(row[17] || "").split("|"), language, thaiSds)
   };
 }
 

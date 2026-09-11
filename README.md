@@ -14,7 +14,7 @@
 
 ตารางหลักแสดง Chemical, CAS No., Flash Point, Emergency Response, SDS ภาษาไทย, SDS ภาษาอังกฤษ, Edit และ Delete โดยมีตัวค้นหาและตัวกรอง Hazard ส่วนข้อมูลเดิมที่มีฟิลด์เพิ่มเติมยังรองรับเพื่อความเข้ากันได้กับ Google Sheet เดิม
 
-เมื่อเลือกไฟล์ PDF ในฟอร์ม ระบบจะอ่านข้อความจาก PDF อัตโนมัติด้วย PDF.js และเติมชื่อสาร, CAS No., Hazard, Supplier, Flash Point, Emergency Response และภาษาให้ โดย PDF ที่เป็นภาพสแกนหรือไม่มี text layer อาจต้องกรอกชื่อสารและ CAS เอง
+เมื่อเลือกไฟล์ PDF ในฟอร์ม ระบบจะอ่านข้อความจากทุกหน้าด้วย PDF.js และเติมชื่อสาร, CAS No., Hazard, Supplier, Flash Point, Emergency Response และรายการภาษาที่พบให้ โดยรองรับชื่อหัวข้อหลายรูปแบบ, CAS ที่มี/ไม่มีป้ายกำกับ, GHS/คำอธิบายอันตราย และข้อมูล SDS สองภาษา ส่วน PDF ที่เป็นภาพสแกนหรือไม่มี text layer จะแจ้งให้ตรวจสอบและกรอกชื่อสารหรือ CAS เองได้
 
 ## 1) ตั้งค่า Google Apps Script
 

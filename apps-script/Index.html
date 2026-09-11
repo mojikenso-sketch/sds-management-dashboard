@@ -395,6 +395,10 @@
       border-radius: 10px; color: var(--muted); background: #f8fafc;
     }
     .upload-box input { margin-top: 10px; max-width: 100%; }
+    .pdf-auto-status { margin-top: 10px; font-size: 12px; min-height: 30px; }
+    .pdf-auto-status.loading { color: #1d4ed8; }
+    .pdf-auto-status.success { color: #15803d; }
+    .pdf-auto-status.error { color: #b91c1c; }
     .drawer-footer {
       padding: 16px 24px; border-top: 1px solid var(--border);
       display: flex; justify-content: flex-end; gap: 10px; background: #fff;
@@ -734,6 +738,9 @@
           📄 <span class="bilingual-label">อัปโหลดเอกสารข้อมูลความปลอดภัย<small>Upload Safety Data Sheet</small></span><br>
           <input type="file" id="sdsFile" accept=".pdf">
           <div style="font-size:11px; margin-top:8px;">รองรับไฟล์ PDF / PDF files only</div>
+          <div id="pdfAutoStatus" class="pdf-auto-status" role="status" aria-live="polite">
+            <span class="bilingual-label">เมื่อเลือก PDF ระบบจะอ่านข้อมูลให้อัตโนมัติ<small>PDF data will be detected automatically</small></span>
+          </div>
         </div>
       </div>
     </form>
@@ -770,6 +777,7 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
   const HAZARD_SETTINGS_KEY = "sdsHazardDefinitions";
   const DEFAULT_HAZARD_DEFINITIONS = [
@@ -885,6 +893,7 @@
       pdfName: "SDS - Acetochlor 50 EC.pdf"
     }
   ];
+  let pdfAutoExtractedData = {};
   const demoRecordSignatures = new Set([
     "Acetone|67-64-1",
     "Methanol|67-56-1",
@@ -1082,11 +1091,135 @@
   function openAddDrawer() {
     document.getElementById("sdsForm").reset();
     document.getElementById("editId").value = "";
+    pdfAutoExtractedData = {};
+    setPdfAutoStatus("เมื่อเลือก PDF ระบบจะอ่านข้อมูลให้อัตโนมัติ", "PDF data will be detected automatically", "");
     const hazardSearch = document.getElementById("hazardListSearch");
     if (hazardSearch) hazardSearch.value = "";
     renderHazardFormOptions();
     document.getElementById("drawerTitle").innerHTML = bilingualHTML("เพิ่มข้อมูล SDS", "Add SDS");
     openDrawer();
+  }
+
+  function setPdfAutoStatus(thai, english, state) {
+    const element = document.getElementById("pdfAutoStatus");
+    if (!element) return;
+    element.className = "pdf-auto-status" + (state ? " " + state : "");
+    element.innerHTML = bilingualHTML(thai, english);
+  }
+
+  function pdfFieldValue(text, label, stops) {
+    const stopPattern = (stops || []).join("|");
+    const lookahead = stopPattern ? "(?=\\s+(?:" + stopPattern + ")\\s*:?|$)" : "(?=$)";
+    const match = String(text || "").match(new RegExp(label + "\\s*:?\\s*(.+?)" + lookahead, "i"));
+    return match ? match[1].trim().replace(/[.;]\\s*$/, "") : "";
+  }
+
+  function detectedPdfHazard(text, flashPoint) {
+    const lower = String(text || "").toLowerCase();
+    const flashMatch = String(flashPoint || "").match(/\d+(?:\.\d+)?/);
+    const flashNumber = flashMatch ? Number(flashMatch[0]) : NaN;
+    let preferred = "";
+    if (/\bflammable\b|dangerous goods class\s*:?\s*3\b/.test(lower) || (Number.isFinite(flashNumber) && flashNumber < 60)) {
+      preferred = "Flammable";
+    } else if (/\bcorrosive\b/.test(lower)) {
+      preferred = "Corrosive";
+    } else if (/\bacute toxicity\b|\btoxic\b|harmful if swallowed|harmful by inhalation/.test(lower)) {
+      preferred = "Acute Toxicity";
+    } else if (/\birritat|allergic skin reaction/.test(lower)) {
+      preferred = "Irritant";
+    }
+    const definition = hazardDefinitions.find(item => item.name === preferred || (item.aliases || []).includes(preferred));
+    return definition ? definition.name : "";
+  }
+
+  function emergencyResponseFromPdf(text) {
+    const fire = pdfFieldValue(text, "Recommended", ["Unusual fire", "Environmental precautions"]);
+    const smallSpill = pdfFieldValue(text, "Small quantities", ["Large quantities"]);
+    const largeSpill = pdfFieldValue(text, "Large quantities", ["Wash spill area", "7. HANDLING"]);
+    const lines = [];
+    if (fire) lines.push("เพลิงไหม้ / Fire: " + fire);
+    if (smallSpill || largeSpill) lines.push("หกรั่วไหล / Spill: " + [smallSpill, largeSpill].filter(Boolean).join(" "));
+    if (/keep out of drains, sewers, ditches and water ways/i.test(text)) {
+      lines.push("ป้องกันไม่ให้ลงท่อระบายน้ำ / Keep out of drains, sewers, ditches and waterways");
+    }
+    return lines.join("\n");
+  }
+
+  async function extractPdfRecord(file) {
+    if (!window.pdfjsLib || !window.pdfjsLib.getDocument) {
+      throw new Error("ระบบอ่าน PDF ยังโหลดไม่เสร็จ กรุณาลองเลือกไฟล์อีกครั้ง");
+    }
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const data = new Uint8Array(await file.arrayBuffer());
+    const pdf = await window.pdfjsLib.getDocument({ data }).promise;
+    const pages = [];
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      pages.push(content.items.map(item => item.str || "").join(" "));
+    }
+    const text = pages.join("\n").replace(/\u00a0/g, " ").replace(/[ \t]+/g, " ").trim();
+    const chemical = pdfFieldValue(text, "Product name", ["Product use", "Relevant identified uses", "2. HAZARD"])
+      || pdfFieldValue(text, "Common name", ["Chemical family", "Ingredients"]);
+    const cas = text.match(/\b\d{2,7}-\d{2}-\d\b/)?.[0] || "";
+    const supplier = text.match(/Company Identification\s+(.+?)\s+Address\s*:/i)?.[1]?.trim() || "";
+    const flashPoint = pdfFieldValue(text, "Flash point", ["Partition coefficient", "Vapor pressure", "Stability"]);
+   const thaiCharacterCount = (text.match(/[\u0e00-\u0e7f]/g) || []).length;
+    if (!chemical && !cas && !flashPoint) throw new Error("ไม่พบข้อความข้อมูลมาตรฐานใน PDF อาจเป็นไฟล์ภาพสแกน");
+   return {
+      chemical,
+      cas,
+      supplier,
+      flashPoint,
+      emergencyResponse: emergencyResponseFromPdf(text),
+      language: thaiCharacterCount > 20 ? "Thai" : "English",
+      thaiSds: thaiCharacterCount > 20,
+      hazard: detectedPdfHazard(text, flashPoint)
+    };
+  }
+
+  function applyPdfRecordData(data) {
+    pdfAutoExtractedData = data || {};
+    if (data.chemical) document.getElementById("chemical").value = data.chemical;
+    if (data.cas) document.getElementById("cas").value = data.cas;
+    if (data.hazard) {
+      document.querySelectorAll(".hazardCheck").forEach(check => { check.checked = check.value === data.hazard; });
+      renderHazardFormOptions();
+    }
+    const summary = [data.chemical, data.cas, data.flashPoint ? "Flash point " + data.flashPoint : ""].filter(Boolean).join(" • ");
+    setPdfAutoStatus(
+      "อ่านข้อมูลจาก PDF แล้ว" + (summary ? ": " + summary : ""),
+      "PDF parsed automatically" + (summary ? ": " + summary : ""),
+      "success"
+    );
+  }
+
+  async function handlePdfSelection(event) {
+    const file = event.target.files?.[0];
+    pdfAutoExtractedData = {};
+    if (!file) {
+      setPdfAutoStatus("เมื่อเลือก PDF ระบบจะอ่านข้อมูลให้อัตโนมัติ", "PDF data will be detected automatically", "");
+      return;
+    }
+    if ((file.type && file.type !== "application/pdf") && !/\.pdf$/i.test(file.name || "")) {
+      setPdfAutoStatus("กรุณาเลือกไฟล์ PDF เท่านั้น", "Please choose a PDF file", "error");
+      return;
+    }
+    setPdfAutoStatus("กำลังอ่านข้อมูลจาก PDF...", "Reading PDF data...", "loading");
+    try {
+      const data = await extractPdfRecord(file);
+      applyPdfRecordData(data);
+    } catch (error) {
+      console.error("PDF auto extraction error:", error);
+      setPdfAutoStatus("อ่านข้อมูลอัตโนมัติไม่สำเร็จ แต่ยังบันทึกไฟล์ได้", "Automatic extraction failed, but the file can still be saved", "error");
+    }
+  }
+
+  function setupPdfAutoExtraction() {
+    const input = document.getElementById("sdsFile");
+    if (!input || input.dataset.autoParserBound === "true") return;
+    input.dataset.autoParserBound = "true";
+    input.addEventListener("change", handlePdfSelection);
   }
 
   async function saveSDS() {
@@ -1103,20 +1236,20 @@
     const existing = editId ? sdsData.find(item => String(item.id) === String(editId)) : null;
 
     const record = {
-      ...(existing || {}),
-      id: editId ? (existing ? existing.id : editId) : Date.now(),
+     ...(existing || {}),
+     id: editId ? (existing ? existing.id : editId) : Date.now(),
       chemical,
       cas,
-      supplier: existing ? (existing.supplier || "") : "",
+      supplier: pdfAutoExtractedData.supplier || (existing ? (existing.supplier || "") : ""),
       revision: existing ? (existing.revision || "") : "",
-      status: existing ? normalizeStatus(existing.status) : "Current",
-      signalWord: existing ? (existing.signalWord || "") : "",
-      language: existing ? getLanguageLabel(existing) : "English",
-      hazards,
-      thaiSds: existing ? Boolean(existing.thaiSds) : false,
-      flashPoint: existing ? (existing.flashPoint || "") : "",
-      emergencyResponse: existing ? (existing.emergencyResponse || "") : "",
-      hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
+     status: existing ? normalizeStatus(existing.status) : "Current",
+     signalWord: existing ? (existing.signalWord || "") : "",
+     language: pdfAutoExtractedData.language || (existing ? getLanguageLabel(existing) : "English"),
+     hazards: hazards.length ? hazards : (pdfAutoExtractedData.hazard ? [pdfAutoExtractedData.hazard] : (existing?.hazards || [])),
+     thaiSds: typeof pdfAutoExtractedData.thaiSds === "boolean" ? pdfAutoExtractedData.thaiSds : (existing ? Boolean(existing.thaiSds) : false),
+     flashPoint: pdfAutoExtractedData.flashPoint || (existing ? (existing.flashPoint || "") : ""),
+     emergencyResponse: pdfAutoExtractedData.emergencyResponse || (existing ? (existing.emergencyResponse || "") : ""),
+     hasPdf: Boolean(existing && (existing.hasPdf || existing.pdfUrl || existing.pdfFileId))
     };
     delete record.revisionDate;
     delete record.reviewDate;
@@ -1154,6 +1287,8 @@
     if (!item) return;
 
     document.getElementById("editId").value = item.id;
+    pdfAutoExtractedData = {};
+    setPdfAutoStatus("เลือก PDF ใหม่เพื่ออ่านข้อมูลอัตโนมัติ", "Choose a new PDF to auto-detect data", "");
     document.getElementById("chemical").value = item.chemical;
     document.getElementById("cas").value = item.cas;
     const selectedHazard = (item.hazards || [])[0] || "";
@@ -1665,6 +1800,7 @@
     }
   });
 
+  setupPdfAutoExtraction();
   refreshDashboard();
 </script>
 <script>
@@ -1976,19 +2112,21 @@
     function collectRecord() {
       var editId = document.getElementById("editId").value;
       var existing = editId ? sdsData.find(function (item) { return String(item.id) === String(editId); }) : null;
+      var auto = (typeof pdfAutoExtractedData !== "undefined" && pdfAutoExtractedData) || {};
+      var selectedHazards = Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; });
       return {
         id: editId || "",
         chemical: document.getElementById("chemical").value.trim(),
         cas: document.getElementById("cas").value.trim(),
-        supplier: existing ? (existing.supplier || "") : "",
+        supplier: auto.supplier || (existing ? (existing.supplier || "") : ""),
         revision: existing ? (existing.revision || "") : "",
         status: existing ? normalizeStatus(existing.status) : "Current",
         signalWord: existing ? (existing.signalWord || "") : "",
-        language: existing ? getLanguageLabel(existing) : "English",
-        hazards: Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; }),
-        thaiSds: existing ? Boolean(existing.thaiSds) : false,
-        flashPoint: existing ? (existing.flashPoint || "") : "",
-        emergencyResponse: existing ? (existing.emergencyResponse || "") : ""
+        language: auto.language || (existing ? getLanguageLabel(existing) : "English"),
+        hazards: selectedHazards.length ? selectedHazards : (auto.hazard ? [auto.hazard] : ((existing && existing.hazards) || [])),
+        thaiSds: typeof auto.thaiSds === "boolean" ? auto.thaiSds : (existing ? Boolean(existing.thaiSds) : false),
+        flashPoint: auto.flashPoint || (existing ? (existing.flashPoint || "") : ""),
+        emergencyResponse: auto.emergencyResponse || (existing ? (existing.emergencyResponse || "") : "")
       };
     }
 

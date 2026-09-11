@@ -10,9 +10,9 @@
 - `docs/index.html` — หน้าเว็บสำหรับ GitHub Pages
 - `docs/config.js` — URL ของ Apps Script API
 
-หน้า GitHub Pages ในโหมดตัวอย่างมีข้อมูลสารเคมีจริง 5 รายการ พร้อมลิงก์ SDS ของ Sigma-Aldrich และไฟล์ Acetochlor 50% W/V EC สำหรับทดลองเปิดเอกสาร แต่ต้องตรวจสอบให้ตรงกับผู้ผลิต ความเข้มข้น และผลิตภัณฑ์ที่ใช้งานจริงก่อนนำไปใช้ด้านความปลอดภัย
+หน้า GitHub Pages จะเริ่มต้นโดยไม่มีข้อมูล SDS ตัวอย่าง ข้อมูลที่แสดงจะมาจากรายการที่ผู้ดูแลเพิ่มจริงผ่านระบบ หรือข้อมูลที่บันทึกไว้ใน browser local storage
 
-สถานะเอกสารใช้ `Current`, `Review Due` และ `Update Required` แทนการมองว่า SDS หมดอายุ โดยมี `Review Date`, ตัวกรอง Supplier และรายการติดตาม Missing PDF / Missing Thai SDS เพิ่มเข้ามาในแดชบอร์ด
+ตารางหลักแสดง Chemical, CAS No., SDS, Edit และ Delete โดยมีตัวค้นหาและตัวกรอง Hazard ส่วนข้อมูลเดิมที่มีฟิลด์เพิ่มเติมยังรองรับเพื่อความเข้ากันได้กับ Google Sheet เดิม
 
 ## 1) ตั้งค่า Google Apps Script
 

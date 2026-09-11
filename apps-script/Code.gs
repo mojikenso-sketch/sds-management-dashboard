@@ -12,12 +12,8 @@ var SDS_HEADERS = [
   "reviewDate", "thaiSds", "language"
 ];
 
-var SAMPLE_ROWS = [
-  ["1", "Acetone", "67-64-1", "ABC Chemical", "Rev.06", "", "Current", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
-  ["2", "Methanol", "67-56-1", "XYZ Chemical", "Rev.04", "", "Review Due", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
-  ["3", "Toluene", "108-88-3", "Safety Chem", "Rev.03", "", "Update Required", "Danger", "Flammable", "", "", new Date().toISOString(), "", false, "English"],
-  ["4", "Hydrochloric Acid", "7647-01-0", "Industrial Chemical", "Rev.08", "", "Current", "Danger", "Corrosive", "", "", new Date().toISOString(), "", false, "English"]
-];
+// New installations start empty. SDS records are added by the administrator.
+var SAMPLE_ROWS = [];
 
 function doGet(e) {
   var params = (e && e.parameter) || {};

@@ -701,7 +701,7 @@
         <div class="form-grid">
           <div class="form-group full">
             <label><span class="bilingual-label">ชื่อสารเคมี <span>*</span><small>Product Name</small></span></label>
-            <input class="form-control" id="chemical" required placeholder="เช่น Acetone / ตัวอย่างสารเคมี">
+            <input class="form-control" id="chemical" required placeholder="เช่น ชื่อสารเคมี / Chemical name">
           </div>
           <div class="form-group">
             <label><span class="bilingual-label">เลข CAS <span>*</span><small>CAS Number</small></span></label>
@@ -857,50 +857,21 @@
     return { thai: option, english: option };
   }
 
-  const defaultData = [
-    {
-      id: 1, chemical: "Acetone", cas: "67-64-1",
-      supplier: "Sigma-Aldrich", revision: "Version 6.7", status: "Current",
-      signalWord: "Danger", hazards: ["Flammable"],
-      thaiSds: false,
-      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/534064",
-      pdfName: "Sigma-Aldrich Acetone SDS"
-    },
-    {
-      id: 2, chemical: "Methanol", cas: "67-56-1",
-      supplier: "Sigma-Aldrich", revision: "Version 6.10", status: "Review Due",
-      signalWord: "Danger", hazards: ["Flammable"],
-      thaiSds: false,
-      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sial/33607",
-      pdfName: "Sigma-Aldrich Methanol SDS"
-    },
-    {
-      id: 3, chemical: "Toluene", cas: "108-88-3",
-      supplier: "Sigma-Aldrich", revision: "Version 8.28", status: "Update Required",
-      signalWord: "Danger", hazards: ["Flammable"],
-      thaiSds: false,
-      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/mm/tx0735",
-      pdfName: "Sigma-Aldrich Toluene SDS"
-    },
-    {
-      id: 4, chemical: "Hydrochloric Acid", cas: "7647-01-0",
-      supplier: "Sigma-Aldrich", revision: "Version 6.9", status: "Current",
-      signalWord: "Danger", hazards: ["Corrosive"],
-      thaiSds: false,
-      pdfUrl: "https://www.sigmaaldrich.com/US/en/sds/sigald/30721",
-      pdfName: "Sigma-Aldrich Hydrochloric Acid SDS"
-    },
-    {
-      id: 5, chemical: "Acetochlor 50% W/V EC", cas: "34256-82-1",
-      supplier: "Thep Watana Co., Ltd.", revision: "Full registration", status: "Current",
-      signalWord: "Warning", hazards: ["Flammable"],
-      thaiSds: false,
-      pdfUrl: "https://mojikenso-sketch.github.io/sds-management-dashboard/assets/SDS%20-%20Acetochlor%2050%20EC.pdf",
-      pdfName: "SDS - Acetochlor 50 EC.pdf"
-    }
-  ];
-
-  const storedSdsData = JSON.parse(localStorage.getItem("sdsData") || "null");
+  const defaultData = [];
+  const demoRecordSignatures = new Set([
+    "Acetone|67-64-1",
+    "Methanol|67-56-1",
+    "Toluene|108-88-3",
+    "Hydrochloric Acid|7647-01-0",
+    "Acetochlor 50% W/V EC|34256-82-1"
+  ]);
+  const storedSdsDataRaw = JSON.parse(localStorage.getItem("sdsData") || "null");
+  const storedSdsData = Array.isArray(storedSdsDataRaw)
+    ? storedSdsDataRaw.filter(item => !demoRecordSignatures.has(`${String(item.chemical || "").trim()}|${String(item.cas || "").trim()}`))
+    : storedSdsDataRaw;
+  if (Array.isArray(storedSdsDataRaw) && storedSdsData.length !== storedSdsDataRaw.length) {
+    localStorage.setItem("sdsData", JSON.stringify(storedSdsData));
+  }
   function normalizeStatus(status) {
     if (status === "Active") return "Current";
     if (status === "Expiring") return "Review Due";
@@ -1651,7 +1622,7 @@
      Google Apps Script / GitHub Pages bridge
      - Apps Script page: google.script.run + Google Sheet/Drive
      - GitHub Pages: read-only JSONP from Apps Script when apiUrl is set
-     - No apiUrl: original local demo mode is preserved
+     - No apiUrl: local browser-storage mode is used
   ---------------------------------------------------------------- */
   (function () {
     var config = window.SDS_CONFIG || {};

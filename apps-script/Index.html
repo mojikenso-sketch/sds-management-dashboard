@@ -261,7 +261,7 @@
     .filter-input { width: 155px; }
     .table-wrapper { overflow-x: auto; border-top: 1px solid #cbd5e1; }
     table {
-      width: 100%; min-width: 1120px; table-layout: fixed;
+      width: 100%; min-width: 1180px; table-layout: fixed;
       border-collapse: separate; border-spacing: 0; border: 1px solid #cbd5e1;
     }
     thead { background: #1e3a8a; }
@@ -280,20 +280,27 @@
     thead th:nth-child(4) { background: #d97706; }
     thead th:nth-child(5) { background: #7c3aed; }
     thead th:nth-child(6) { background: #0f766e; }
-    thead th:nth-child(7) { background: #15803d; }
-    thead th:nth-child(8) { background: #dc2626; }
+    thead th:nth-child(7) { background: #059669; }
+    thead th:nth-child(8) { background: #d97706; }
+    thead th:nth-child(9) { background: #dc2626; }
     td { color: #334155; white-space: nowrap; }
-    th:nth-child(1), td:nth-child(1) { width: 22%; }
-    th:nth-child(2), td:nth-child(2) { width: 12%; }
-    th:nth-child(3), td:nth-child(3) { width: 13%; }
-    th:nth-child(4), td:nth-child(4) { width: 20%; }
-    th:nth-child(5), td:nth-child(5) { width: 10%; }
-    th:nth-child(6), td:nth-child(6) { width: 10%; }
-    th:nth-child(7), td:nth-child(7) { width: 6.5%; }
-    th:nth-child(8), td:nth-child(8) { width: 6.5%; }
-    .action-column, .action-cell { text-align: center; }
-    body.public-readonly .action-column,
-    body.public-readonly .action-cell { display: none; }
+    th:nth-child(1), td:nth-child(1) { width: 20%; }
+    th:nth-child(2), td:nth-child(2) { width: 11%; }
+    th:nth-child(3), td:nth-child(3) { width: 11%; }
+    th:nth-child(4), td:nth-child(4) { width: 21%; }
+    th:nth-child(5), td:nth-child(5) { width: 9%; }
+    th:nth-child(6), td:nth-child(6) { width: 9%; }
+    th:nth-child(7), td:nth-child(7) { width: 9%; }
+    th:nth-child(8), td:nth-child(8) { width: 5%; }
+    th:nth-child(9), td:nth-child(9) { width: 5%; }
+   .action-column, .action-cell { text-align: center; }
+    .qr-column, .qr-cell { text-align: center; }
+    .qr-cell { white-space: normal; }
+    .qr-btn { border: 1px solid #a7f3d0; background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #047857; border-radius: 9px; padding: 7px 8px; font-size: 11px; font-weight: 800; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .qr-btn:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 7px 14px rgba(5, 150, 105, .2); background: #bbf7d0; }
+    .qr-btn small { font-size: 9px; font-weight: 600; opacity: .78; }
+   body.public-readonly .action-column,
+   body.public-readonly .action-cell { display: none; }
     .detail-cell { white-space: pre-line; line-height: 1.4; }
     .sds-missing { color: var(--muted); font-size: 12px; }
     .sds-available { display: inline-flex; flex-direction: column; gap: 2px; color: #15803d; font-size: 12px; font-weight: 700; }
@@ -450,10 +457,56 @@
     .pdf-viewer {
       width: 100%; flex: 1; border: 0; background: #e5e7eb;
     }
-    .pdf-empty {
-      flex: 1; display: none; place-items: center; text-align: center;
-      padding: 30px; color: var(--muted); background: #f8fafc;
+   .pdf-empty {
+     flex: 1; display: none; place-items: center; text-align: center;
+     padding: 30px; color: var(--muted); background: #f8fafc;
+   }
+
+    .qr-modal {
+      position: fixed; inset: 0; z-index: 130; display: none; align-items: center; justify-content: center;
+      padding: 20px; background: rgba(15, 23, 42, .72);
     }
+    .qr-modal.show { display: flex; }
+    .qr-dialog {
+      width: min(430px, 96vw); max-height: 92vh; overflow: auto; background: #fff; border-radius: 18px;
+      border: 1px solid #a7f3d0; box-shadow: 0 24px 70px rgba(2, 6, 23, .3);
+    }
+    .qr-dialog-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 16px 18px; border-bottom: 1px solid #d1fae5; background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+    }
+    .qr-dialog-header h3 { color: #065f46; font-size: 16px; }
+    .qr-dialog-body { padding: 20px; text-align: center; }
+    .qr-code-box { display: grid; place-items: center; min-height: 250px; padding: 14px; border: 1px dashed #86efac; border-radius: 14px; background: #f8fffb; }
+    .qr-code-box img, .qr-code-box canvas { width: 220px !important; height: 220px !important; max-width: 100%; image-rendering: pixelated; }
+    .qr-record-name { margin-top: 14px; font-size: 18px; font-weight: 800; color: #1e3a8a; }
+    .qr-record-cas { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .qr-url { margin-top: 12px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 9px; color: #475569; font-size: 10px; line-height: 1.4; word-break: break-all; background: #f8fafc; }
+    .qr-dialog-actions { display: flex; justify-content: center; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
+    .qr-dialog-actions button { min-width: 130px; }
+
+    .sds-quick-modal {
+      position: fixed; inset: 0; z-index: 125; display: none; align-items: center; justify-content: center;
+      padding: 20px; background: rgba(15, 23, 42, .72);
+    }
+    .sds-quick-modal.show { display: flex; }
+    .sds-quick-dialog {
+      width: min(620px, 96vw); max-height: 92vh; overflow: auto; background: #fff; border-radius: 18px;
+      border: 1px solid #bfdbfe; box-shadow: 0 24px 70px rgba(2, 6, 23, .3);
+    }
+    .sds-quick-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 17px 20px; color: #fff; background: linear-gradient(135deg, #1e40af, #2563eb); }
+    .sds-quick-header h3 { font-size: 17px; }
+    .sds-quick-body { padding: 20px; }
+    .sds-quick-hero { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: #eff6ff; }
+    .sds-quick-icon { font-size: 32px; }
+    .sds-quick-hero strong { display: block; color: #1e3a8a; font-size: 19px; }
+    .sds-quick-hero small { display: block; margin-top: 3px; color: var(--muted); }
+    .sds-quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+    .sds-quick-field { padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px; }
+    .sds-quick-field label { display: block; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .sds-quick-field div { margin-top: 4px; white-space: pre-line; line-height: 1.45; color: #1e293b; font-size: 13px; }
+    .sds-quick-actions { display: flex; justify-content: flex-end; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
+    @media (max-width: 600px) { .sds-quick-grid { grid-template-columns: 1fr; } }
 
     @keyframes logoPulse {
       0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); box-shadow: 0 3px 8px rgba(30,64,175,.22); }
@@ -540,7 +593,7 @@
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
       .table-wrapper { overflow-x: auto; }
-      table { width: 1120px; min-width: 1120px; table-layout: fixed; }
+      table { width: 1180px; min-width: 1180px; table-layout: fixed; }
       th, td { padding: 9px 4px; font-size: 11px; }
       th { white-space: normal; }
       td { white-space: normal; }
@@ -550,8 +603,9 @@
       .sds-link .chemical-name { overflow-wrap: anywhere; }
       .chemical-hazard-icon { flex: 0 0 19px; font-size: 18px; text-align: center; }
       .pdf-btn, .sds-language-btn { max-width: 100%; padding: 4px 1px; font-size: 9px; white-space: normal; }
-      .action-btn { padding: 4px 0; font-size: 12px; }
-    }
+     .action-btn { padding: 4px 0; font-size: 12px; }
+      .qr-btn { padding: 4px 2px; font-size: 9px; }
+   }
     .settings-modal {
       position: fixed; inset: 0; z-index: 140; display: grid; place-items: center;
       padding: 22px; background: rgba(15, 23, 42, 0.56);
@@ -686,8 +740,9 @@
             <th><span class="bilingual-label">จุดวาบไฟ<small>Flash Point</small></span></th>
             <th><span class="bilingual-label">การระงับเหตุ<small>Emergency Response</small></span></th>
             <th><span class="bilingual-label">SDS ภาษาไทย<small>Thai SDS</small></span></th>
-            <th><span class="bilingual-label">SDS ภาษาอังกฤษ<small>English SDS</small></span></th>
-            <th class="action-column"><span class="bilingual-label">แก้ไข<small>Edit</small></span></th>
+           <th><span class="bilingual-label">SDS ภาษาอังกฤษ<small>English SDS</small></span></th>
+            <th class="qr-column"><span class="bilingual-label">QR Code<small>พิมพ์ QR</small></span></th>
+           <th class="action-column"><span class="bilingual-label">แก้ไข<small>Edit</small></span></th>
             <th class="action-column"><span class="bilingual-label">ลบ<small>Delete</small></span></th>
           </tr>
         </thead>
@@ -777,7 +832,36 @@
   </div>
 </div>
 
+<div class="qr-modal" id="qrModal" onclick="qrModalBackdrop(event)">
+  <div class="qr-dialog">
+    <div class="qr-dialog-header">
+      <h3><span class="bilingual-label">พิมพ์ QR Code<small>Print QR Code</small></span></h3>
+      <button class="close-btn" type="button" onclick="closeQrModal()">×</button>
+    </div>
+    <div class="qr-dialog-body">
+      <div class="qr-code-box" id="qrCodeBox"><span class="bilingual-label">กำลังสร้าง QR Code<small>Generating QR Code</small></span></div>
+      <div class="qr-record-name" id="qrRecordName">-</div>
+      <div class="qr-record-cas" id="qrRecordCas">-</div>
+      <div class="qr-url" id="qrRecordUrl">-</div>
+      <div class="qr-dialog-actions">
+        <button class="btn-primary" type="button" onclick="printQrCode()"><span class="bilingual-label">🖨 พิมพ์ QR<small>Print QR</small></span></button>
+        <button class="btn-secondary" type="button" onclick="closeQrModal()"><span class="bilingual-label">ปิด<small>Close</small></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sds-quick-modal" id="sdsQuickModal" onclick="sdsQuickModalBackdrop(event)">
+  <div class="sds-quick-dialog">
+    <div class="sds-quick-header">
+      <h3><span class="bilingual-label">ข้อมูล SDS<small>SDS Information</small></span></h3>
+      <button class="close-btn" type="button" onclick="closeSdsQuickView()">×</button>
+    </div>
+    <div class="sds-quick-body" id="sdsQuickBody"></div>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
   const HAZARD_SETTINGS_KEY = "sdsHazardDefinitions";
   const DEFAULT_HAZARD_DEFINITIONS = [
@@ -894,7 +978,8 @@
       pdfName: "SDS - Acetochlor 50 EC.pdf"
     }
   ];
-  let pdfAutoExtractedData = {};
+ let pdfAutoExtractedData = {};
+  let currentQrRecord = null;
   const demoRecordSignatures = new Set([
     "Acetone|67-64-1",
     "Methanol|67-56-1",
@@ -1074,8 +1159,175 @@
     }
   }
 
-  function pdfModalBackdrop(event) {
-    if (event.target.id === "pdfModal") closePdfViewer();
+ function pdfModalBackdrop(event) {
+   if (event.target.id === "pdfModal") closePdfViewer();
+ }
+  function encodeQrPayload(value) {
+    try {
+      const bytes = new TextEncoder().encode(value);
+      let binary = "";
+      bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+      return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    } catch (error) {
+      return btoa(unescape(encodeURIComponent(value))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+    }
+  }
+
+  function decodeQrPayload(value) {
+    try {
+      const normalized = String(value || "").replace(/-/g, "+").replace(/_/g, "/");
+      const padded = normalized + "=".repeat((4 - normalized.length % 4) % 4);
+      const binary = atob(padded);
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      return typeof TextDecoder !== "undefined" ? new TextDecoder().decode(bytes) : decodeURIComponent(escape(binary));
+    } catch (error) {
+      return "";
+    }
+  }
+
+ function qrRecordSnapshot(item) {
+    const compact = (value, max) => {
+      const text = String(value || "");
+      return text.length > max ? text.slice(0, max) + "..." : text;
+    };
+   return {
+     id: String(item.id || ""),
+      chemical: compact(item.chemical, 160),
+     cas: String(item.cas || ""),
+      supplier: compact(item.supplier, 180),
+     hazards: Array.isArray(item.hazards) ? item.hazards.slice(0, 1) : [],
+      flashPoint: compact(item.flashPoint, 80),
+      emergencyResponse: compact(item.emergencyResponse, 520),
+     sdsLanguages: getSdsLanguages(item),
+     thaiSds: Boolean(item.thaiSds)
+   };
+ }
+
+  function publicSdsUrl(item) {
+    const snapshot = qrRecordSnapshot(item);
+    const url = new URL("https://mojikenso-sketch.github.io/sds-management-dashboard/");
+    url.searchParams.set("sds", snapshot.id);
+    url.searchParams.set("data", encodeQrPayload(JSON.stringify(snapshot)));
+    return url.toString();
+  }
+
+  function showQrCode(id) {
+    const item = sdsData.find(row => String(row.id) === String(id));
+    if (!item) return;
+    currentQrRecord = item;
+    const modal = document.getElementById("qrModal");
+    const box = document.getElementById("qrCodeBox");
+    const url = publicSdsUrl(item);
+    document.getElementById("qrRecordName").textContent = item.chemical || "-";
+    document.getElementById("qrRecordCas").textContent = "CAS No. " + (item.cas || "-");
+    document.getElementById("qrRecordUrl").textContent = url;
+    box.innerHTML = "";
+   if (!window.QRCode) {
+     box.innerHTML = bilingualHTML("ไม่สามารถโหลดตัวสร้าง QR Code ได้", "QR Code generator is unavailable");
+   } else {
+     const correction = window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.H : 3;
+      try {
+        new window.QRCode(box, { text: url, width: 220, height: 220, correctLevel: correction });
+      } catch (error) {
+        console.error("QR generation error:", error);
+        box.innerHTML = bilingualHTML("ข้อมูลยาวเกินไป ไม่สามารถสร้าง QR ได้", "The SDS data is too long for a QR Code");
+      }
+   }
+    modal.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function printQrCode() {
+    if (!currentQrRecord) return;
+    const box = document.getElementById("qrCodeBox");
+    const canvas = box.querySelector("canvas");
+    const image = box.querySelector("img");
+    const dataUrl = canvas ? canvas.toDataURL("image/png") : (image ? image.src : "");
+    if (!dataUrl) {
+      alert("ยังสร้าง QR Code ไม่เสร็จ กรุณารอสักครู่แล้วลองใหม่");
+      return;
+    }
+    const popup = window.open("", "_blank", "width=520,height=720");
+    if (!popup) {
+      alert("เบราว์เซอร์บล็อกหน้าพิมพ์ กรุณาอนุญาต Popup แล้วลองใหม่");
+      return;
+    }
+    const item = currentQrRecord;
+    const url = publicSdsUrl(item);
+    popup.document.open();
+    popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>QR Code - ${escapeHTML(item.chemical)}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:28px;color:#1e293b}h1{font-size:22px;color:#1e3a8a;margin:0 0 8px}p{color:#64748b;margin:5px 0 18px}.qr{display:inline-block;padding:14px;border:1px solid #bfdbfe;border-radius:14px;background:#fff}.qr img{width:260px;height:260px;image-rendering:pixelated}.url{margin:18px auto 0;max-width:420px;word-break:break-all;font-size:10px;color:#64748b} @media print{button{display:none}}</style></head><body><h1>${escapeHTML(item.chemical || "SDS")}</h1><p>CAS No. ${escapeHTML(item.cas || "-")} · สแกนเพื่อดูข้อมูล SDS</p><div class="qr"><img src="${dataUrl}" alt="QR Code"></div><div class="url">${escapeHTML(url)}</div><p>ระบบจัดการ SDS / SDS Management</p><button onclick="window.print()">พิมพ์อีกครั้ง / Print again</button></body></html>`);
+    popup.document.close();
+    popup.focus();
+    popup.setTimeout(() => popup.print(), 300);
+  }
+
+  function closeQrModal() {
+    const modal = document.getElementById("qrModal");
+    if (modal) modal.classList.remove("show");
+    currentQrRecord = null;
+    document.body.style.overflow = "";
+  }
+
+  function qrModalBackdrop(event) {
+    if (event.target.id === "qrModal") closeQrModal();
+  }
+
+  function showSdsQuickView(item, fromQr = false) {
+    if (!item) return;
+    const definition = getHazardDefinition((item.hazards || [])[0]);
+    const hazardLabel = definition ? hazardLabels(definition) : { thai: (item.hazards || [])[0] || "-", english: (item.hazards || [])[0] || "-" };
+    const languages = getSdsLanguages(item).map(language => (LANGUAGE_LABELS[language] || { thai: language, english: language }).thai).join(" / ");
+    const liveItem = sdsData.find(row => String(row.id) === String(item.id));
+    const hasPdf = Boolean(liveItem && (liveItem.hasPdf || liveItem.pdfUrl || liveItem.pdfFileId));
+    const body = document.getElementById("sdsQuickBody");
+    body.innerHTML = `
+      <div class="sds-quick-hero">
+        <span class="sds-quick-icon">${definition ? definition.icon : "🧪"}</span>
+        <div><strong>${escapeHTML(item.chemical || "-")}</strong><small>${escapeHTML(hazardLabel.thai)} / ${escapeHTML(hazardLabel.english)}</small></div>
+      </div>
+      <div class="sds-quick-grid">
+        <div class="sds-quick-field"><label>เลข CAS / CAS No.</label><div>${escapeHTML(item.cas || "-")}</div></div>
+        <div class="sds-quick-field"><label>ผู้จัดจำหน่าย / Supplier</label><div>${escapeHTML(item.supplier || "-")}</div></div>
+        <div class="sds-quick-field"><label>จุดวาบไฟ / Flash Point</label><div>${escapeHTML(item.flashPoint || "-")}</div></div>
+        <div class="sds-quick-field"><label>ภาษา SDS / SDS Language</label><div>${escapeHTML(languages || "-")}</div></div>
+        <div class="sds-quick-field" style="grid-column:1/-1;"><label>การระงับเหตุ / Emergency Response</label><div>${escapeHTML(item.emergencyResponse || "-")}</div></div>
+      </div>
+      <div class="sds-quick-actions">
+        <button class="btn-primary" id="quickViewPdfButton" type="button" ${hasPdf ? "" : "hidden"}><span class="bilingual-label">📄 เปิด SDS PDF<small>Open SDS PDF</small></span></button>
+        <button class="btn-secondary" type="button" onclick="closeSdsQuickView()"><span class="bilingual-label">ปิด<small>Close</small></span></button>
+      </div>
+      <div style="margin-top:12px;color:var(--muted);font-size:11px;text-align:center;">${fromQr ? "ข้อมูลสรุปนี้ถูกแนบมากับ QR Code เพื่อให้เปิดดูได้จากมือถือ / This summary is embedded in the QR Code." : "ข้อมูลจากระบบ SDS / Data from SDS system"}</div>`;
+    const pdfButton = document.getElementById("quickViewPdfButton");
+    if (pdfButton && hasPdf) pdfButton.onclick = () => viewSDS(liveItem.id);
+    document.getElementById("sdsQuickModal").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSdsQuickView() {
+    const modal = document.getElementById("sdsQuickModal");
+    if (modal) modal.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+
+  function sdsQuickModalBackdrop(event) {
+    if (event.target.id === "sdsQuickModal") closeSdsQuickView();
+  }
+
+  function openSdsFromQrUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("sds");
+    if (!id) return;
+    const liveItem = sdsData.find(row => String(row.id) === String(id));
+    let snapshot = null;
+    const encoded = params.get("data");
+    if (encoded) {
+      try { snapshot = JSON.parse(decodeQrPayload(encoded)); } catch (error) { snapshot = null; }
+    }
+    if (liveItem) {
+      showSdsQuickView(liveItem);
+    } else if (snapshot && String(snapshot.id || id) === String(id)) {
+      showSdsQuickView(snapshot, true);
+    }
   }
 
   function openDrawer() {
@@ -1683,7 +1935,7 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="8"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
+          <td colspan="9"><div class="empty-state"><span class="bilingual-label">ไม่พบข้อมูล SDS<small>No SDS data found</small></span></div></td>
         </tr>`;
       return;
     }
@@ -1699,9 +1951,12 @@
           <td>${escapeHTML(item.cas)}</td>
           <td class="detail-cell">${escapeHTML(item.flashPoint || "-")}</td>
           <td class="detail-cell">${escapeHTML(item.emergencyResponse || "-")}</td>
-          <td>${languageSdsCell(item, "Thai")}</td>
-          <td>${languageSdsCell(item, "English")}</td>
-          <td class="action-cell">
+         <td>${languageSdsCell(item, "Thai")}</td>
+         <td>${languageSdsCell(item, "English")}</td>
+          <td class="qr-cell">
+            <button class="qr-btn" type="button" title="พิมพ์ QR Code" onclick="showQrCode(decodeURIComponent('${encodeURIComponent(String(item.id))}'))"><span class="bilingual-label">▦ พิมพ์ QR<small>Print QR</small></span></button>
+          </td>
+         <td class="action-cell">
             <button class="action-btn" title="แก้ไข" onclick="editSDS(${item.id})">✏️</button>
           </td>
           <td class="action-cell">
@@ -1732,7 +1987,7 @@
 
   function exportCSV() {
     const rows = [
-      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "จุดวาบไฟ / Flash Point", "การระงับเหตุ / Emergency Response", "SDS ภาษาไทย / Thai SDS", "SDS ภาษาอังกฤษ / English SDS", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status"],
+      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "จุดวาบไฟ / Flash Point", "การระงับเหตุ / Emergency Response", "SDS ภาษาไทย / Thai SDS", "SDS ภาษาอังกฤษ / English SDS", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "ลิงก์ QR / QR URL"],
       ...sdsData.map(item => {
        const language = getLanguageLabel(item);
        const hasPdf = Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId);
@@ -1753,7 +2008,8 @@
           englishAvailable ? "มี / Available" : "ไม่มี / Not available",
           item.supplier, item.revision,
           `${languageLabels.thai} / ${languageLabels.english}`, hazards,
-          `${statusLabels.thai} / ${statusLabels.english}`
+         `${statusLabels.thai} / ${statusLabels.english}`
+          `${statusLabels.thai} / ${statusLabels.english}`, publicSdsUrl(item)
         ];
       })
     ];
@@ -1879,17 +2135,22 @@
   }
 
   document.addEventListener("keydown", event => {
-    if (event.key === "Escape") {
-      if (document.getElementById("pdfModal").classList.contains("show")) {
-        closePdfViewer();
-      } else {
-        closeDrawer();
-      }
+   if (event.key === "Escape") {
+      if (document.getElementById("qrModal").classList.contains("show")) {
+        closeQrModal();
+      } else if (document.getElementById("sdsQuickModal").classList.contains("show")) {
+        closeSdsQuickView();
+      } else if (document.getElementById("pdfModal").classList.contains("show")) {
+       closePdfViewer();
+     } else {
+       closeDrawer();
+     }
     }
   });
 
-  setupPdfAutoExtraction();
-  refreshDashboard();
+ setupPdfAutoExtraction();
+ refreshDashboard();
+  openSdsFromQrUrl();
 </script>
 <script>
   /* ---------------------------------------------------------------
@@ -2127,9 +2388,10 @@
             return { ...itemWithoutDates, hazards: normalizeHazards(item.hazards) };
           })
         : [];
-      refreshDashboard();
-      applyPublicMode();
-    }
+     refreshDashboard();
+     applyPublicMode();
+      openSdsFromQrUrl();
+   }
 
     function loadFromAppsScript() {
       setConnectionStatus("เชื่อมต่อ Google Sheet / Drive", "Connected to Google Sheets / Drive");

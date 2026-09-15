@@ -494,6 +494,9 @@
     .sds-quick-field label { display: block; color: var(--muted); font-size: 11px; font-weight: 700; }
     .sds-quick-field div { margin-top: 4px; white-space: pre-line; line-height: 1.45; color: #1e293b; font-size: 13px; }
     .sds-quick-actions { display: flex; justify-content: flex-end; gap: 9px; flex-wrap: wrap; margin-top: 16px; }
+    .sds-language-actions { justify-content: flex-start; }
+    .sds-language-option { flex: 1 1 190px; min-height: 48px; }
+    .sds-language-empty { width: 100%; padding: 12px; border: 1px dashed var(--border); border-radius: 10px; color: var(--muted); text-align: center; font-size: 12px; }
     @media (max-width: 600px) { .sds-quick-grid { grid-template-columns: 1fr; } }
 
     @keyframes logoPulse {
@@ -1203,7 +1206,13 @@
      t: Boolean(item.thaiSds),
      u: compact(item.pdfUrl, 260),
      n: compact(item.pdfName, 100),
-     p: String(item.pdfFileId || "")
+     p: String(item.pdfFileId || ""),
+     tu: compact(item.thaiPdfUrl || item.thaiSdsUrl, 260),
+     tn: compact(item.thaiPdfName || item.thaiSdsName, 100),
+     tp: String(item.thaiPdfFileId || item.thaiSdsFileId || ""),
+     eu: compact(item.englishPdfUrl || item.englishSdsUrl, 260),
+     en: compact(item.englishPdfName || item.englishSdsName, 100),
+     ep: String(item.englishPdfFileId || item.englishSdsFileId || "")
    };
  }
 
@@ -1221,7 +1230,13 @@
       thaiSds: typeof snapshot.thaiSds === "boolean" ? snapshot.thaiSds : Boolean(snapshot.t),
       pdfUrl: snapshot.pdfUrl || snapshot.u || "",
       pdfName: snapshot.pdfName || snapshot.n || "",
-      pdfFileId: snapshot.pdfFileId || snapshot.p || ""
+      pdfFileId: snapshot.pdfFileId || snapshot.p || "",
+      thaiPdfUrl: snapshot.thaiPdfUrl || snapshot.tu || "",
+      thaiPdfName: snapshot.thaiPdfName || snapshot.tn || "",
+      thaiPdfFileId: snapshot.thaiPdfFileId || snapshot.tp || "",
+      englishPdfUrl: snapshot.englishPdfUrl || snapshot.eu || "",
+      englishPdfName: snapshot.englishPdfName || snapshot.en || "",
+      englishPdfFileId: snapshot.englishPdfFileId || snapshot.ep || ""
     };
   }
 
@@ -1294,6 +1309,33 @@
     if (event.target.id === "qrModal") closeQrModal();
   }
 
+  function getPdfSourceForLanguage(item, language) {
+    const prefix = language === "Thai" ? "thai" : "english";
+    const sourceUrl = item[`${prefix}PdfUrl`] || item[`${prefix}SdsUrl`] || item[`${prefix}Pdf`] || item.pdfUrl || "";
+    const fileId = item[`${prefix}PdfFileId`] || item[`${prefix}SdsFileId`] || item.pdfFileId || "";
+    const name = item[`${prefix}PdfName`] || item[`${prefix}SdsName`] || item.pdfName || `${item.chemical || "SDS"}-${language}.pdf`;
+    return { url: String(sourceUrl || ""), fileId: String(fileId || ""), name: String(name || "") };
+  }
+
+  function openPdfUrlInViewer(item, source) {
+    document.getElementById("pdfTitle").textContent = item.chemical || "SDS";
+    document.getElementById("pdfSubtitle").textContent = `${item.cas || "-"} • ${source.name || "PDF"}`;
+    const viewer = document.getElementById("pdfViewer");
+    const empty = document.getElementById("pdfEmpty");
+    const openNew = document.getElementById("pdfOpenNew");
+    const download = document.getElementById("pdfDownload");
+    viewer.src = source.url;
+    viewer.style.display = "block";
+    empty.style.display = "none";
+    openNew.href = source.url;
+    openNew.style.display = "inline-block";
+    download.href = source.url;
+    download.download = source.name;
+    download.style.display = "inline-block";
+    document.getElementById("pdfModal").classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+
   function showSdsQuickView(item, fromQr = false) {
     if (!item) return;
     currentQuickSdsRecord = item;
@@ -1301,8 +1343,14 @@
     const hazardLabel = definition ? hazardLabels(definition) : { thai: (item.hazards || [])[0] || "-", english: (item.hazards || [])[0] || "-" };
     const languages = getSdsLanguages(item).map(language => (LANGUAGE_LABELS[language] || { thai: language, english: language }).thai).join(" / ");
     const liveItem = sdsData.find(row => String(row.id) === String(item.id));
-    const pdfItem = liveItem || item;
-    const hasPdf = Boolean(pdfItem && (pdfItem.pdfUrl || pdfItem.pdfFileId));
+    const pdfItem = liveItem ? { ...liveItem, ...item } : item;
+    const languageOptions = getSdsLanguages(item)
+      .map(language => ({ language, source: getPdfSourceForLanguage(pdfItem, language) }))
+      .filter(option => option.source.url || option.source.fileId);
+    const languageButtons = languageOptions.map(option => {
+      const labels = LANGUAGE_LABELS[option.language] || { thai: option.language, english: option.language };
+      return `<button class="btn-primary sds-language-option" type="button" onclick="openQuickSdsLanguage('${option.language}')"><span class="bilingual-label">📄 เปิด SDS ${escapeHTML(labels.thai)}<small>Open ${escapeHTML(labels.english)} SDS</small></span></button>`;
+    }).join("");
     const body = document.getElementById("sdsQuickBody");
     body.innerHTML = `
       <div class="sds-quick-hero">
@@ -1316,13 +1364,13 @@
         <div class="sds-quick-field"><label>ภาษา SDS / SDS Language</label><div>${escapeHTML(languages || "-")}</div></div>
         <div class="sds-quick-field" style="grid-column:1/-1;"><label>การระงับเหตุ / Emergency Response</label><div>${escapeHTML(item.emergencyResponse || "-")}</div></div>
       </div>
+      <div class="sds-quick-actions sds-language-actions">
+        ${languageButtons || `<div class="sds-language-empty">ไม่พบไฟล์ SDS สำหรับเปิดจาก QR / No public SDS PDF is available for this QR</div>`}
+      </div>
       <div class="sds-quick-actions">
-        <button class="btn-primary" id="quickViewPdfButton" type="button" ${hasPdf ? "" : "hidden"}><span class="bilingual-label">📄 เปิด SDS PDF<small>Open SDS PDF</small></span></button>
         <button class="btn-secondary" type="button" onclick="closeSdsQuickView()"><span class="bilingual-label">ปิด<small>Close</small></span></button>
       </div>
       <div style="margin-top:12px;color:var(--muted);font-size:11px;text-align:center;">${fromQr ? "ข้อมูลสรุปนี้ถูกแนบมากับ QR Code เพื่อให้เปิดดูได้จากมือถือ / This summary is embedded in the QR Code." : "ข้อมูลจากระบบ SDS / Data from SDS system"}</div>`;
-    const pdfButton = document.getElementById("quickViewPdfButton");
-    if (pdfButton && hasPdf) pdfButton.onclick = openQuickSdsPdf;
     document.getElementById("sdsQuickModal").classList.add("show");
     document.body.style.overflow = "hidden";
   }
@@ -1337,22 +1385,40 @@
   function openQuickSdsPdf() {
     const item = currentQuickSdsRecord;
     if (!item) return;
+    const language = getSdsLanguages(item).find(value => {
+      const source = getPdfSourceForLanguage(item, value);
+      return source.url || source.fileId;
+    });
+    if (!language) return;
+    openQuickSdsLanguage(language);
+  }
+
+  function openQuickSdsLanguage(language) {
+    if (!["Thai", "English"].includes(language)) return;
+    const item = currentQuickSdsRecord;
+    if (!item) return;
     const liveItem = sdsData.find(row => String(row.id) === String(item.id));
-    const pdfItem = liveItem || item;
-    const sourceUrl = String(pdfItem.pdfUrl || "");
+    const pdfItem = liveItem ? { ...liveItem, ...item } : item;
+    const source = getPdfSourceForLanguage(pdfItem, language);
+    if (!source.url && !source.fileId) return;
     closeSdsQuickView();
     closeQrModal();
-    if (liveItem) {
+    const sameLiveFile = liveItem && source.fileId === String(liveItem.pdfFileId || "") && source.url === String(liveItem.pdfUrl || "");
+    if (sameLiveFile) {
       window.viewSDS(liveItem.id);
       return;
     }
-    if (sourceUrl) {
-      const opened = window.open(sourceUrl, "_blank", "noopener");
-      if (!opened) window.location.href = sourceUrl;
+    if (source.url && /\.pdf(?:[?#]|$)/i.test(source.url)) {
+      openPdfUrlInViewer(pdfItem, source);
       return;
     }
-    if (pdfItem.pdfFileId) {
-      const driveUrl = "https://drive.google.com/file/d/" + encodeURIComponent(pdfItem.pdfFileId) + "/view";
+    if (source.url) {
+      const opened = window.open(source.url, "_blank", "noopener");
+      if (!opened) window.location.href = source.url;
+      return;
+    }
+    if (source.fileId) {
+      const driveUrl = "https://drive.google.com/file/d/" + encodeURIComponent(source.fileId) + "/view";
       const opened = window.open(driveUrl, "_blank", "noopener");
       if (!opened) window.location.href = driveUrl;
     }

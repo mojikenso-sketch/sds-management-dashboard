@@ -1337,16 +1337,8 @@
   }
 
   function openPdfInFullTab(source) {
-    const mobile = Boolean(
-      (window.matchMedia && window.matchMedia("(max-width: 700px)").matches) ||
-      /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent || "")
-    );
-    if (mobile) {
-      window.location.assign(source.url);
-      return;
-    }
-    const opened = window.open(source.url, "_blank", "noopener,noreferrer");
-    if (!opened) window.location.assign(source.url);
+    if (!source || !source.url) return;
+    window.location.assign(source.url);
   }
 
   function showSdsQuickView(item, fromQr = false) {
@@ -1416,24 +1408,13 @@
     if (!source.url && !source.fileId) return;
     closeSdsQuickView();
     closeQrModal();
-    if (source.url && /\.pdf(?:[?#]|$)/i.test(source.url)) {
-      openPdfInFullTab(source);
-      return;
-    }
-    const sameLiveFile = liveItem && source.fileId === String(liveItem.pdfFileId || "") && source.url === String(liveItem.pdfUrl || "");
-    if (sameLiveFile) {
-      window.viewSDS(liveItem.id);
-      return;
-    }
     if (source.url) {
-      const opened = window.open(source.url, "_blank", "noopener");
-      if (!opened) window.location.href = source.url;
+      openPdfInFullTab(source);
       return;
     }
     if (source.fileId) {
       const driveUrl = "https://drive.google.com/file/d/" + encodeURIComponent(source.fileId) + "/view";
-      const opened = window.open(driveUrl, "_blank", "noopener");
-      if (!opened) window.location.href = driveUrl;
+      window.location.assign(driveUrl);
     }
   }
 

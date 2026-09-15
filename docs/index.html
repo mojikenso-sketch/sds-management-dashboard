@@ -957,8 +957,9 @@
       pdfName: "SDS - Acetochlor 50 EC.pdf"
     }
   ];
- let pdfAutoExtractedData = {};
+  let pdfAutoExtractedData = {};
   let currentQrRecord = null;
+  let currentQuickSdsRecord = null;
   const demoRecordSignatures = new Set([
     "Acetone|67-64-1",
     "Methanol|67-56-1",
@@ -1084,6 +1085,27 @@
     const item = sdsData.find(row => String(row.id) === String(id));
     if (!item) return;
 
+    const publicPdfUrl = String(item.pdfUrl || "");
+    if (/^https?:\/\/[^\s]+\.pdf(?:[?#]|$)/i.test(publicPdfUrl)) {
+      document.getElementById("pdfTitle").textContent = item.chemical;
+      document.getElementById("pdfSubtitle").textContent = `${item.cas || "-"} • ${item.supplier || "ไม่ระบุ Supplier"}`;
+      const viewer = document.getElementById("pdfViewer");
+      const empty = document.getElementById("pdfEmpty");
+      const openNew = document.getElementById("pdfOpenNew");
+      const download = document.getElementById("pdfDownload");
+      viewer.src = publicPdfUrl;
+      viewer.style.display = "block";
+      empty.style.display = "none";
+      openNew.href = publicPdfUrl;
+      openNew.style.display = "inline-block";
+      download.href = publicPdfUrl;
+      download.download = item.pdfName || `${item.chemical}-SDS.pdf`;
+      download.style.display = "inline-block";
+      document.getElementById("pdfModal").classList.add("show");
+      document.body.style.overflow = "hidden";
+      return;
+    }
+
     document.getElementById("pdfTitle").textContent = item.chemical;
     document.getElementById("pdfSubtitle").textContent =
       `${item.cas || "-"} • ${item.supplier || "ไม่ระบุ Supplier"}`;
@@ -1176,9 +1198,12 @@
       s: compact(item.supplier, 150),
      h: Array.isArray(item.hazards) ? item.hazards.slice(0, 1) : [],
       f: compact(item.flashPoint, 60),
-      e: compact(item.emergencyResponse, 360),
+     e: compact(item.emergencyResponse, 360),
      l: getSdsLanguages(item),
-     t: Boolean(item.thaiSds)
+     t: Boolean(item.thaiSds),
+     u: compact(item.pdfUrl, 260),
+     n: compact(item.pdfName, 100),
+     p: String(item.pdfFileId || "")
    };
  }
 
@@ -1193,7 +1218,10 @@
       flashPoint: snapshot.flashPoint || snapshot.f || "",
       emergencyResponse: snapshot.emergencyResponse || snapshot.e || "",
       sdsLanguages: Array.isArray(snapshot.sdsLanguages) ? snapshot.sdsLanguages : (Array.isArray(snapshot.l) ? snapshot.l : []),
-      thaiSds: typeof snapshot.thaiSds === "boolean" ? snapshot.thaiSds : Boolean(snapshot.t)
+      thaiSds: typeof snapshot.thaiSds === "boolean" ? snapshot.thaiSds : Boolean(snapshot.t),
+      pdfUrl: snapshot.pdfUrl || snapshot.u || "",
+      pdfName: snapshot.pdfName || snapshot.n || "",
+      pdfFileId: snapshot.pdfFileId || snapshot.p || ""
     };
   }
 
@@ -1268,11 +1296,13 @@
 
   function showSdsQuickView(item, fromQr = false) {
     if (!item) return;
+    currentQuickSdsRecord = item;
     const definition = getHazardDefinition((item.hazards || [])[0]);
     const hazardLabel = definition ? hazardLabels(definition) : { thai: (item.hazards || [])[0] || "-", english: (item.hazards || [])[0] || "-" };
     const languages = getSdsLanguages(item).map(language => (LANGUAGE_LABELS[language] || { thai: language, english: language }).thai).join(" / ");
     const liveItem = sdsData.find(row => String(row.id) === String(item.id));
-    const hasPdf = Boolean(liveItem && (liveItem.hasPdf || liveItem.pdfUrl || liveItem.pdfFileId));
+    const pdfItem = liveItem || item;
+    const hasPdf = Boolean(pdfItem && (pdfItem.pdfUrl || pdfItem.pdfFileId));
     const body = document.getElementById("sdsQuickBody");
     body.innerHTML = `
       <div class="sds-quick-hero">
@@ -1292,7 +1322,7 @@
       </div>
       <div style="margin-top:12px;color:var(--muted);font-size:11px;text-align:center;">${fromQr ? "ข้อมูลสรุปนี้ถูกแนบมากับ QR Code เพื่อให้เปิดดูได้จากมือถือ / This summary is embedded in the QR Code." : "ข้อมูลจากระบบ SDS / Data from SDS system"}</div>`;
     const pdfButton = document.getElementById("quickViewPdfButton");
-    if (pdfButton && hasPdf) pdfButton.onclick = () => viewSDS(liveItem.id);
+    if (pdfButton && hasPdf) pdfButton.onclick = openQuickSdsPdf;
     document.getElementById("sdsQuickModal").classList.add("show");
     document.body.style.overflow = "hidden";
   }
@@ -1300,7 +1330,31 @@
   function closeSdsQuickView() {
     const modal = document.getElementById("sdsQuickModal");
     if (modal) modal.classList.remove("show");
+    currentQuickSdsRecord = null;
     document.body.style.overflow = "";
+  }
+
+  function openQuickSdsPdf() {
+    const item = currentQuickSdsRecord;
+    if (!item) return;
+    const liveItem = sdsData.find(row => String(row.id) === String(item.id));
+    const pdfItem = liveItem || item;
+    const sourceUrl = String(pdfItem.pdfUrl || "");
+    closeSdsQuickView();
+    if (liveItem) {
+      window.viewSDS(liveItem.id);
+      return;
+    }
+    if (sourceUrl) {
+      const opened = window.open(sourceUrl, "_blank", "noopener");
+      if (!opened) window.location.href = sourceUrl;
+      return;
+    }
+    if (pdfItem.pdfFileId) {
+      const driveUrl = "https://drive.google.com/file/d/" + encodeURIComponent(pdfItem.pdfFileId) + "/view";
+      const opened = window.open(driveUrl, "_blank", "noopener");
+      if (!opened) window.location.href = driveUrl;
+    }
   }
 
   function sdsQuickModalBackdrop(event) {
@@ -1320,7 +1374,7 @@
     if (!id) return;
     const liveItem = sdsData.find(row => String(row.id) === String(id));
     if (liveItem) {
-      showSdsQuickView(liveItem);
+      showSdsQuickView(snapshot ? { ...liveItem, ...snapshot, pdfUrl: snapshot.pdfUrl || liveItem.pdfUrl, pdfName: snapshot.pdfName || liveItem.pdfName, pdfFileId: snapshot.pdfFileId || liveItem.pdfFileId } : liveItem, Boolean(snapshot));
     } else if (snapshot && String(snapshot.id || id) === String(id)) {
       showSdsQuickView(snapshot, true);
     }

@@ -67,17 +67,12 @@
       color: var(--muted);
     }
     .topbar-search input { width: 100%; border: 0; outline: 0; color: var(--text); background: transparent; }
-    .admin { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; }
     .settings-btn {
       height: 38px; padding: 0 13px; border: 1px solid #bfdbfe; border-radius: 9px;
       background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700;
       transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
     }
     .settings-btn:hover { transform: translateY(-2px); background: #dbeafe; box-shadow: 0 6px 14px rgba(30, 64, 175, 0.14); }
-    .user {
-      width: 38px; height: 38px; border-radius: 50%; background: #e2e8f0;
-      display: grid; place-items: center;
-    }
 
     .container { max-width: 1500px; margin: auto; padding: 30px; }
     .page-header {
@@ -584,7 +579,6 @@
       .container { padding: 18px; }
       .topbar { padding: 0 18px; }
       .topbar-search { width: 150px; }
-      .admin > span:last-child { display: none; }
       .cards { grid-template-columns: 1fr; }
       .page-header { align-items: flex-start; flex-direction: column; }
       .page-header .btn-primary { width: 100%; }
@@ -681,7 +675,6 @@
       <span>🔍</span>
       <input id="globalSearch" type="search" placeholder="ค้นหา / Search" aria-label="ค้นหา / Search" oninput="syncGlobalSearch(this.value)">
     </label>
-    <div class="admin"><span class="user">👤</span><span class="bilingual-label">ผู้ดูแลระบบ<small>Administrator</small></span></div>
   </div>
 </header>
 

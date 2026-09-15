@@ -60,13 +60,6 @@
     }
     .brand h1 { font-size: 18px; }
     .brand p { color: var(--muted); font-size: 12px; margin-top: 2px; }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .topbar-search {
-      display: flex; align-items: center; gap: 8px; width: 220px; height: 38px;
-      padding: 0 12px; border: 1px solid var(--border); border-radius: 9px; background: #fff;
-      color: var(--muted);
-    }
-    .topbar-search input { width: 100%; border: 0; outline: 0; color: var(--text); background: transparent; }
     .settings-btn {
       height: 38px; padding: 0 13px; border: 1px solid #bfdbfe; border-radius: 9px;
       background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700;
@@ -578,7 +571,6 @@
     @media (max-width: 600px) {
       .container { padding: 18px; }
       .topbar { padding: 0 18px; }
-      .topbar-search { width: 150px; }
       .cards { grid-template-columns: 1fr; }
       .page-header { align-items: flex-start; flex-direction: column; }
       .page-header .btn-primary { width: 100%; }
@@ -669,12 +661,6 @@
       <h1><span class="bilingual-label">ระบบจัดการ SDS<small>SDS Management</small></span></h1>
       <p><span class="bilingual-label">ระบบเอกสารข้อมูลความปลอดภัย<small>Safety Data Sheet System</small></span></p>
     </div>
-  </div>
-  <div class="topbar-right">
-    <label class="topbar-search">
-      <span>🔍</span>
-      <input id="globalSearch" type="search" placeholder="ค้นหา / Search" aria-label="ค้นหา / Search" oninput="syncGlobalSearch(this.value)">
-    </label>
   </div>
 </header>
 
@@ -2042,12 +2028,6 @@
     const labels = STATUS_LABELS[normalized] || { thai: normalized, english: normalized };
     const className = normalized === "Current" ? "current" : normalized === "Review Due" ? "review-due" : "update-required";
     return `<span class="badge ${className}">● ${bilingualHTML(labels.thai, labels.english)}</span>`;
-  }
-
-  function syncGlobalSearch(value) {
-    document.getElementById("searchInput").value = value;
-    clearSpecialFilter();
-    renderTable();
   }
 
   function clearSpecialFilter() {

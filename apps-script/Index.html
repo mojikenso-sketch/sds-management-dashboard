@@ -150,7 +150,14 @@
     .hazard-total { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0; }
     .section-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
     .section-title-row .section-title { margin-bottom: 0; }
-    .section-title-row .settings-btn { min-height: 34px; padding: 7px 11px; font-size: 12px; }
+    .section-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+    .section-title-row .settings-btn,
+    .section-title-row .view-all-btn { min-height: 34px; padding: 7px 11px; font-size: 12px; }
+    .view-all-btn {
+      border: 1px solid #bfdbfe; border-radius: 9px; background: #fff; color: #1d4ed8;
+      font-weight: 700; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .view-all-btn:hover { transform: translateY(-2px); background: #eff6ff; box-shadow: 0 6px 14px rgba(30, 64, 175, 0.14); }
     .status-list { display: grid; gap: 13px; }
     .status-row {
       display: grid; grid-template-columns: 100px 1fr 50px;
@@ -304,6 +311,8 @@
     tbody tr:nth-child(4) { animation-delay: 0.12s; }
     tbody tr:nth-child(5) { animation-delay: 0.16s; }
     .chemical-name { font-weight: 600; }
+    .chemical-name-stack { display: inline-flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 2px; }
+    .chemical-name-stack small { color: var(--muted); font-size: 10px; font-weight: 500; line-height: 1.25; text-decoration: none; }
 
     .badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -366,6 +375,7 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .form-group { display: flex; flex-direction: column; gap: 7px; }
     .form-group.full { grid-column: 1 / -1; }
+    .form-note { grid-column: 1 / -1; margin-top: -4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
     label { font-size: 12px; font-weight: 600; color: #475569; }
     label > span:not(.bilingual-label), label .bilingual-label > span { color: var(--danger); }
     .form-control {
@@ -579,6 +589,8 @@
       .page-header .btn-primary { width: 100%; }
       .search, .toolbar-left, .input, .select, .filter-combobox { width: 100%; }
       .hazards { grid-template-columns: 1fr; }
+      .section-title-row { align-items: flex-start; }
+      .section-actions { width: 100%; justify-content: flex-start; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: auto; }
       .table-wrapper { overflow-x: auto; }
@@ -680,7 +692,10 @@
     <div class="card">
       <div class="section-title-row">
         <h3 class="section-title"><span class="bilingual-label">ภาพรวมอันตราย<small>Hazard Overview</small></span> <span class="hazard-total" id="hazardOverviewTotal">(<span class="bilingual-label">รวมทั้งหมด 0 เอกสาร<small>0 documents total</small></span>)</span></h3>
-        <button class="settings-btn" type="button" onclick="openHazardSettings()"><span class="bilingual-label">⚙ ตั้งค่า<small>Settings</small></span></button>
+        <div class="section-actions">
+          <button class="view-all-btn" type="button" onclick="showAllSds()"><span class="bilingual-label">ดูทั้งหมด<small>View all</small></span></button>
+          <button class="settings-btn" type="button" onclick="openHazardSettings()"><span class="bilingual-label">⚙ ตั้งค่า<small>Settings</small></span></button>
+        </div>
       </div>
       <div class="hazards" id="hazardOverview"></div>
     </div>
@@ -749,10 +764,16 @@
       <div class="form-section">
         <div class="form-section-title"><span class="bilingual-label">1. ข้อมูลสารเคมี<small>1. Chemical Information</small></span></div>
         <div class="form-grid">
-          <div class="form-group full">
-            <label><span class="bilingual-label">ชื่อสารเคมี <span>*</span><small>Product Name</small></span></label>
-            <input class="form-control" id="chemical" required placeholder="เช่น ชื่อสารเคมี / Chemical name">
+          <input type="hidden" id="chemical">
+          <div class="form-group">
+            <label><span class="bilingual-label">ชื่อสารเคมี ภาษาไทย<small>Chemical name in Thai</small></span></label>
+            <input class="form-control" id="chemicalThai" placeholder="เช่น อะซีโตน">
           </div>
+          <div class="form-group">
+            <label><span class="bilingual-label">ชื่อสารเคมี ภาษาอังกฤษ<small>Chemical name in English</small></span></label>
+            <input class="form-control" id="chemicalEnglish" placeholder="เช่น Acetone">
+          </div>
+          <div class="form-note">กรอกชื่ออย่างน้อย 1 ภาษา ระบบจะแสดงชื่อภาษาอังกฤษเป็นชื่อหลักเมื่อมีข้อมูล / Enter at least one language; English is shown as the primary name when available.</div>
           <div class="form-group">
             <label><span class="bilingual-label">เลข CAS <span>*</span><small>CAS Number</small></span></label>
             <input class="form-control" id="cas" required placeholder="67-64-1">
@@ -3332,12 +3353,33 @@
     return selected ? [selected] : [];
   }
 
+  function chemicalNameFields(item, fallback) {
+    const source = item || {};
+    const backup = fallback || {};
+    const legacy = String(source.chemical || backup.chemical || "").trim();
+    const hasThaiText = /[\u0E00-\u0E7F]/.test(legacy);
+    const chemicalThai = String(source.chemicalThai || backup.chemicalThai || "").trim() || (hasThaiText ? legacy : "");
+    const chemicalEnglish = String(source.chemicalEnglish || backup.chemicalEnglish || "").trim() || (!hasThaiText ? legacy : "");
+    return { chemical: chemicalEnglish || chemicalThai || legacy, chemicalThai, chemicalEnglish };
+  }
+
+  function withChemicalNames(item, fallback) {
+    return { ...(item || {}), ...chemicalNameFields(item, fallback) };
+  }
+
+  function chemicalNameMarkup(item) {
+    const names = chemicalNameFields(item);
+    const primary = names.chemicalEnglish || names.chemicalThai || names.chemical || "-";
+    const secondary = names.chemicalThai && names.chemicalThai !== primary ? names.chemicalThai : "";
+    return `<span class="chemical-name-stack"><span class="chemical-name">${escapeHTML(primary)}</span>${secondary ? `<small>${escapeHTML(secondary)}</small>` : ""}</span>`;
+  }
+
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
     const librarySeed = Boolean(seed?.pdfUrl && seed.pdfUrl.includes("/assets/sds-library/"));
     const { revisionDate, reviewDate, ...itemWithoutDates } = item;
     return seed
-      ? { ...itemWithoutDates, status: normalizeStatus(item.status),
+      ? withChemicalNames({ ...itemWithoutDates, status: normalizeStatus(item.status),
           supplier: item.supplier || seed.supplier, revision: item.revision || seed.revision,
           pdfUrl: item.pdfUrl || seed.pdfUrl, pdfName: item.pdfName || seed.pdfName,
          hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId || seed.pdfUrl),
@@ -3345,9 +3387,9 @@
           sdsLanguages: Array.isArray(item.sdsLanguages) && item.sdsLanguages.length ? item.sdsLanguages : (seed.sdsLanguages || []),
          flashPoint: librarySeed ? seed.flashPoint : (item.flashPoint || seed.flashPoint),
           emergencyResponse: librarySeed ? seed.emergencyResponse : (item.emergencyResponse || seed.emergencyResponse),
-          hazards: normalizeHazards(item.hazards, seed.hazards) }
-      : { ...itemWithoutDates, status: normalizeStatus(item.status), thaiSds: Boolean(item.thaiSds),
-          hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId), hazards: normalizeHazards(item.hazards) };
+          hazards: normalizeHazards(item.hazards, seed.hazards) }, seed)
+      : withChemicalNames({ ...itemWithoutDates, status: normalizeStatus(item.status), thaiSds: Boolean(item.thaiSds),
+          hasPdf: Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId), hazards: normalizeHazards(item.hazards) });
   }) : defaultData.slice();
   if (storedSdsData) {
     defaultData.forEach(seed => {
@@ -3530,10 +3572,13 @@
     const compact = (value, max) => {
       const text = String(value || "");
       return text.length > max ? text.slice(0, max) + "..." : text;
-      };
+    };
+   const names = chemicalNameFields(item);
    return {
      i: String(item.id || ""),
-      c: compact(item.chemical, 140),
+      c: compact(names.chemical, 140),
+     ct: compact(names.chemicalThai, 120),
+     ce: compact(names.chemicalEnglish, 140),
      ca: String(item.cas || ""),
       s: compact(item.supplier, 150),
      h: Array.isArray(item.hazards) ? item.hazards.slice(0, 1) : [],
@@ -3558,6 +3603,8 @@
     return {
       id: String(snapshot.id || snapshot.i || fallbackId || ""),
       chemical: snapshot.chemical || snapshot.c || "",
+      chemicalThai: snapshot.chemicalThai || snapshot.ct || "",
+      chemicalEnglish: snapshot.chemicalEnglish || snapshot.ce || "",
       cas: snapshot.cas || snapshot.ca || "",
       supplier: snapshot.supplier || snapshot.s || "",
       hazards: Array.isArray(snapshot.hazards) ? snapshot.hazards : (Array.isArray(snapshot.h) ? snapshot.h : []),
@@ -3962,7 +4009,10 @@
 
   function applyPdfRecordData(data) {
     pdfAutoExtractedData = data || {};
-    if (data.chemical) document.getElementById("chemical").value = data.chemical;
+    if (data.chemical) {
+      document.getElementById("chemical").value = data.chemical;
+      document.getElementById("chemicalEnglish").value = data.chemical;
+    }
     if (data.cas) document.getElementById("cas").value = data.cas;
     if (data.hazard) {
       document.querySelectorAll(".hazardCheck").forEach(check => { check.checked = check.value === data.hazard; });
@@ -4010,11 +4060,14 @@
   }
 
   async function saveSDS() {
-    const chemical = document.getElementById("chemical").value.trim();
+    const chemicalThai = document.getElementById("chemicalThai").value.trim();
+    const chemicalEnglish = document.getElementById("chemicalEnglish").value.trim();
+    const chemical = chemicalEnglish || chemicalThai;
+    document.getElementById("chemical").value = chemical;
     const cas = document.getElementById("cas").value.trim();
 
     if (!chemical || !cas) {
-      alert("กรุณากรอกชื่อสารเคมี และ CAS Number");
+      alert("กรุณากรอกชื่อสารเคมีอย่างน้อย 1 ภาษา และ CAS Number");
       return;
     }
 
@@ -4026,6 +4079,8 @@
      ...(existing || {}),
      id: editId ? (existing ? existing.id : editId) : Date.now(),
       chemical,
+      chemicalThai,
+      chemicalEnglish,
       cas,
       supplier: pdfAutoExtractedData.supplier || (existing ? (existing.supplier || "") : ""),
       revision: existing ? (existing.revision || "") : "",
@@ -4079,7 +4134,10 @@
     document.getElementById("editId").value = item.id;
     pdfAutoExtractedData = {};
     setPdfAutoStatus("เลือก PDF ใหม่เพื่ออ่านข้อมูลอัตโนมัติ", "Choose a new PDF to auto-detect data", "");
-    document.getElementById("chemical").value = item.chemical;
+    const names = chemicalNameFields(item);
+    document.getElementById("chemical").value = names.chemical;
+    document.getElementById("chemicalThai").value = names.chemicalThai;
+    document.getElementById("chemicalEnglish").value = names.chemicalEnglish;
     document.getElementById("cas").value = item.cas;
     const selectedHazard = (item.hazards || [])[0] || "";
     document.querySelectorAll(".hazardCheck").forEach(check => {
@@ -4372,9 +4430,10 @@
     const special = window.sdsSpecialFilter || "";
 
     const filtered = sdsData.filter(item => {
+      const names = chemicalNameFields(item);
       const searchMatch =
-        item.chemical.toLowerCase().includes(search) ||
-        item.cas.toLowerCase().includes(search) ||
+        `${names.chemical} ${names.chemicalThai} ${names.chemicalEnglish}`.toLowerCase().includes(search) ||
+        String(item.cas || "").toLowerCase().includes(search) ||
         (item.supplier || "").toLowerCase().includes(search);
 
       const hazardMatch = !hazard || item.hazards.some(name => {
@@ -4405,7 +4464,7 @@
           <td>
             <button class="sds-link" title="เปิด SDS PDF" onclick="viewSDS(${item.id})">
               ${hazardVisual(item)}
-              <span class="chemical-name">${escapeHTML(item.chemical)}</span>
+              ${chemicalNameMarkup(item)}
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>
@@ -4447,7 +4506,7 @@
 
   function exportCSV() {
     const rows = [
-      ["สารเคมี / Chemical", "เลข CAS / CAS Number", "จุดวาบไฟ / Flash Point", "การระงับเหตุ / Emergency Response", "SDS ภาษาไทย / Thai SDS", "SDS ภาษาอังกฤษ / English SDS", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "ลิงก์ QR / QR URL"],
+      ["สารเคมี ภาษาไทย / Chemical (Thai)", "สารเคมี ภาษาอังกฤษ / Chemical (English)", "สารเคมี / Chemical", "เลข CAS / CAS Number", "จุดวาบไฟ / Flash Point", "การระงับเหตุ / Emergency Response", "SDS ภาษาไทย / Thai SDS", "SDS ภาษาอังกฤษ / English SDS", "ผู้จัดจำหน่าย / Supplier", "ฉบับแก้ไข / Revision", "ภาษา / Language", "ประเภทอันตราย / Hazards", "สถานะ / Status", "ลิงก์ QR / QR URL"],
       ...sdsData.map(item => {
        const language = getLanguageLabel(item);
        const hasPdf = Boolean(item.hasPdf || item.pdfUrl || item.pdfFileId);
@@ -4462,8 +4521,9 @@
           const labels = definition ? hazardLabels(definition) : { thai: name, english: name };
           return `${labels.thai} / ${labels.english}`;
         }).join(" | ");
+        const names = chemicalNameFields(item);
         return [
-          item.chemical, item.cas, item.flashPoint || "", item.emergencyResponse || "",
+          names.chemicalThai, names.chemicalEnglish, names.chemical, item.cas, item.flashPoint || "", item.emergencyResponse || "",
           thaiAvailable ? "มี / Available" : "ไม่มี / Not available",
           englishAvailable ? "มี / Available" : "ไม่มี / Not available",
           item.supplier, item.revision,
@@ -4505,6 +4565,16 @@
     });
     closeFilterMenus();
     window.sdsSpecialFilter = "";
+  }
+
+  function showAllSds() {
+    resetAllTableFilters();
+    renderTable();
+    const tableSection = document.getElementById("sdsTableSection");
+    if (tableSection) {
+      tableSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => tableSection.focus({ preventScroll: true }), 350);
+    }
   }
 
   function getFilterOptions(inputId) {
@@ -4839,7 +4909,7 @@
       sdsData = Array.isArray(data)
         ? data.map(item => {
             const { revisionDate, reviewDate, ...itemWithoutDates } = item;
-            return { ...itemWithoutDates, hazards: normalizeHazards(item.hazards) };
+            return withChemicalNames({ ...itemWithoutDates, hazards: normalizeHazards(item.hazards) });
           })
         : [];
      refreshDashboard();
@@ -4918,9 +4988,15 @@
       var existing = editId ? sdsData.find(function (item) { return String(item.id) === String(editId); }) : null;
       var auto = (typeof pdfAutoExtractedData !== "undefined" && pdfAutoExtractedData) || {};
       var selectedHazards = Array.from(document.querySelectorAll(".hazardCheck:checked")).map(function (item) { return item.value; });
+      var chemicalThai = document.getElementById("chemicalThai").value.trim();
+      var chemicalEnglish = document.getElementById("chemicalEnglish").value.trim();
+      var chemical = chemicalEnglish || chemicalThai;
+      document.getElementById("chemical").value = chemical;
       return {
         id: editId || "",
-        chemical: document.getElementById("chemical").value.trim(),
+        chemical: chemical,
+        chemicalThai: chemicalThai,
+        chemicalEnglish: chemicalEnglish,
         cas: document.getElementById("cas").value.trim(),
         supplier: auto.supplier || (existing ? (existing.supplier || "") : ""),
         revision: existing ? (existing.revision || "") : "",
@@ -4952,7 +5028,7 @@
 
       var record = collectRecord();
       if (!record.chemical || !record.cas) {
-        alert("กรุณากรอกชื่อสารเคมี และ CAS Number");
+        alert("กรุณากรอกชื่อสารเคมีอย่างน้อย 1 ภาษา และ CAS Number");
         return;
       }
 

@@ -9,7 +9,8 @@
 var SDS_HEADERS = [
   "id", "chemical", "cas", "supplier", "revision", "revisionDate",
   "status", "signalWord", "hazards", "pdfFileId", "pdfName", "updatedAt",
-  "reviewDate", "thaiSds", "language", "flashPoint", "emergencyResponse", "sdsLanguages"
+  "reviewDate", "thaiSds", "language", "flashPoint", "emergencyResponse", "sdsLanguages",
+  "chemicalThai", "chemicalEnglish"
 ];
 
 // New installations start empty. SDS records are added by the administrator.
@@ -172,7 +173,9 @@ function saveSds(record, fileData) {
       normalized.language,
       normalized.flashPoint,
       normalized.emergencyResponse,
-      normalized.sdsLanguages.join("|")
+      normalized.sdsLanguages.join("|"),
+      normalized.chemicalThai,
+      normalized.chemicalEnglish
     ];
 
     if (existing) {
@@ -244,7 +247,9 @@ function normalizeRecord_(record) {
     // The original UI renders IDs inside inline onclick handlers, so keep
     // generated IDs numeric for compatibility with that view.
     id: String(record.id || Date.now()),
-    chemical: clean_(record.chemical),
+    chemical: clean_(record.chemicalEnglish || record.chemicalThai || record.chemical),
+    chemicalThai: clean_(record.chemicalThai),
+    chemicalEnglish: clean_(record.chemicalEnglish),
     cas: clean_(record.cas),
     supplier: clean_(record.supplier),
     revision: clean_(record.revision),
@@ -285,13 +290,22 @@ function normalizeLanguages_(value, language, thaiSds) {
 
 function rowToObject_(row) {
   var fileId = String(row[9] || "");
+  var legacyChemical = String(row[1] || "");
+  var chemicalThai = String(row[18] || "");
+  var chemicalEnglish = String(row[19] || "");
+  if (!chemicalThai && !chemicalEnglish) {
+    if (/[\u0E00-\u0E7F]/.test(legacyChemical)) chemicalThai = legacyChemical;
+    else chemicalEnglish = legacyChemical;
+  }
   var thaiSds = String(row[13] || "").toLowerCase() === "true";
   var language = ["English", "Thai"].indexOf(String(row[14] || "")) !== -1
     ? String(row[14])
     : (thaiSds ? "Thai" : "English");
   return {
     id: String(row[0]),
-    chemical: String(row[1] || ""),
+    chemical: chemicalEnglish || chemicalThai || legacyChemical,
+    chemicalThai: chemicalThai,
+    chemicalEnglish: chemicalEnglish,
     cas: String(row[2] || ""),
     supplier: String(row[3] || ""),
     revision: String(row[4] || ""),

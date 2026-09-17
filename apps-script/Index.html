@@ -3321,7 +3321,7 @@
 ];
   const thaiChemicalNames = {
     "Acetochlor 50% W/V EC": "อะซีโตคลอร์ 50% W/V EC",
-    "24D 84 SL [LABAN]": "2,4-ดี 84 เอสแอล [LABAN]",
+    "24D 84 SL [LABAN]": "24ดี 84 เอสแอล [LABAN]",
     "Abamectin 1.8 EC_Chimac_Bailing": "อะบาเม็กติน 1.8 EC_Chimac_Bailing",
     "Acetamiprid 20 SL": "อะซีทามิพริด 20 เอสแอล",
     "AGRISOL P-700": "แอ็กริโซล P-700",
@@ -3465,7 +3465,9 @@
     const backup = fallback || {};
     const legacy = String(source.chemical || backup.chemical || "").trim();
     const hasThaiText = /[\u0E00-\u0E7F]/.test(legacy);
-    const chemicalThai = String(source.chemicalThai || backup.chemicalThai || "").trim() || (hasThaiText ? legacy : "");
+    const thaiCandidate = String(source.chemicalThai || backup.chemicalThai || "").trim();
+    const correctedThaiCandidate = thaiCandidate === "2,4-ดี 84 เอสแอล [LABAN]" ? "24ดี 84 เอสแอล [LABAN]" : thaiCandidate;
+    const chemicalThai = correctedThaiCandidate || (hasThaiText ? legacy : "");
     const chemicalEnglish = String(source.chemicalEnglish || backup.chemicalEnglish || "").trim() || (!hasThaiText ? legacy : "");
     return { chemical: chemicalEnglish || chemicalThai || legacy, chemicalThai, chemicalEnglish };
   }

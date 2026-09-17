@@ -297,6 +297,8 @@
    body.public-readonly .action-column,
    body.public-readonly .action-cell { display: none; }
     .detail-cell { white-space: pre-line; line-height: 1.4; }
+    .bilingual-data-line { display: block; white-space: normal; }
+    .bilingual-data-line small { display: block; margin-top: 2px; color: var(--muted); font-size: .9em; font-weight: 500; }
     .sds-missing { color: var(--muted); font-size: 12px; }
     .sds-available { display: inline-flex; flex-direction: column; gap: 2px; color: #15803d; font-size: 12px; font-weight: 700; }
     .sds-available small { font-size: 10px; font-weight: 600; opacity: .78; }
@@ -3498,6 +3500,21 @@
     return `<span class="chemical-name-heading">${hazardVisual(item)}${chemicalNameMarkup(item)}</span>`;
   }
 
+  function bilingualDataMarkup(value) {
+    const text = String(value || "").trim();
+    if (!text) return "-";
+    return text.split(/\r?\n/).map(line => {
+      const cleanLine = String(line || "").trim();
+      const separator = cleanLine.indexOf(" / ");
+      if (separator > 0 && /[\u0E00-\u0E7F]/.test(cleanLine.slice(0, separator))) {
+        const thai = cleanLine.slice(0, separator).trim();
+        const english = cleanLine.slice(separator + 3).trim();
+        return `<span class="bilingual-data-line"><span>${escapeHTML(thai)}</span><small>${escapeHTML(english)}</small></span>`;
+      }
+      return `<span class="bilingual-data-line">${escapeHTML(cleanLine)}</span>`;
+    }).join("");
+  }
+
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
     const librarySeed = Boolean(seed?.pdfUrl && seed.pdfUrl.includes("/assets/sds-library/"));
@@ -3896,9 +3913,9 @@
       <div class="sds-quick-grid">
         <div class="sds-quick-field"><label>เลข CAS / CAS No.</label><div>${escapeHTML(item.cas || "-")}</div></div>
         <div class="sds-quick-field"><label>ผู้จัดจำหน่าย / Supplier</label><div>${escapeHTML(item.supplier || "-")}</div></div>
-        <div class="sds-quick-field"><label>จุดวาบไฟ / Flash Point</label><div>${escapeHTML(item.flashPoint || "-")}</div></div>
+        <div class="sds-quick-field"><label>จุดวาบไฟ / Flash Point</label><div>${bilingualDataMarkup(item.flashPoint)}</div></div>
         <div class="sds-quick-field"><label>ภาษา SDS / SDS Language</label><div>${escapeHTML(languages || "-")}</div></div>
-        <div class="sds-quick-field" style="grid-column:1/-1;"><label>การระงับเหตุ / Emergency Response</label><div>${escapeHTML(item.emergencyResponse || "-")}</div></div>
+        <div class="sds-quick-field" style="grid-column:1/-1;"><label>การระงับเหตุ / Emergency Response</label><div>${bilingualDataMarkup(item.emergencyResponse)}</div></div>
       </div>
       <div class="sds-quick-actions sds-language-actions">
         ${languageButtons || `<div class="sds-language-empty">ไม่พบไฟล์ SDS สำหรับเปิดจาก QR / No public SDS PDF is available for this QR</div>`}
@@ -4615,8 +4632,8 @@
             </button>
           </td>
           <td>${escapeHTML(item.cas)}</td>
-          <td class="detail-cell">${escapeHTML(item.flashPoint || "-")}</td>
-          <td class="detail-cell">${escapeHTML(item.emergencyResponse || "-")}</td>
+          <td class="detail-cell">${bilingualDataMarkup(item.flashPoint)}</td>
+          <td class="detail-cell">${bilingualDataMarkup(item.emergencyResponse)}</td>
          <td>${languageSdsCell(item, "Thai")}</td>
          <td>${languageSdsCell(item, "English")}</td>
           <td class="qr-cell">

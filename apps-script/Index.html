@@ -313,6 +313,17 @@
     .chemical-name { font-weight: 600; }
     .chemical-name-stack { display: inline-flex; min-width: 0; flex-direction: column; align-items: flex-start; gap: 2px; }
     .chemical-name-stack small { color: var(--muted); font-size: 10px; font-weight: 500; line-height: 1.25; text-decoration: none; }
+    .chemical-name-heading { display: inline-flex; align-items: flex-start; gap: 7px; max-width: 100%; text-align: left; }
+    .chemical-name-heading .chemical-hazard-icon { flex: 0 0 auto; margin-top: 2px; }
+    .chemical-name-heading .chemical-name { text-decoration: none; }
+    .chemical-name-heading .chemical-name-stack { min-width: 0; }
+    .pdf-dialog-title .chemical-name-heading { display: inline-flex; vertical-align: top; }
+    .pdf-dialog-title .chemical-name-heading .chemical-name-stack { max-width: 100%; }
+    .pdf-dialog-title .chemical-name-stack small { font-size: 11px; }
+    .qr-record-name .chemical-name-heading { justify-content: center; }
+    .qr-record-name .chemical-name-stack small { font-size: 13px; }
+    .sds-quick-hero .chemical-name-heading .chemical-name { color: #1e3a8a; font-size: 19px; font-weight: 800; }
+    .sds-quick-hero .chemical-name-heading .chemical-name-stack small { font-size: 13px; }
 
     .badge {
       display: inline-flex; align-items: center; gap: 5px;
@@ -3483,6 +3494,10 @@
     return `<span class="chemical-name-stack"><span class="chemical-name">${escapeHTML(primary)}</span>${secondary ? `<small>${escapeHTML(secondary)}</small>` : ""}</span>`;
   }
 
+  function chemicalNameHeadingMarkup(item) {
+    return `<span class="chemical-name-heading">${hazardVisual(item)}${chemicalNameMarkup(item)}</span>`;
+  }
+
   let sdsData = storedSdsData ? storedSdsData.map(item => {
     const seed = defaultData.find(row => String(row.id) === String(item.id));
     const librarySeed = Boolean(seed?.pdfUrl && seed.pdfUrl.includes("/assets/sds-library/"));
@@ -3578,7 +3593,7 @@
 
     const publicPdfUrl = String(item.pdfUrl || "");
     if (/^https?:\/\/[^\s]+\.pdf(?:[?#]|$)/i.test(publicPdfUrl)) {
-      document.getElementById("pdfTitle").textContent = item.chemical;
+      document.getElementById("pdfTitle").innerHTML = chemicalNameHeadingMarkup(item);
       document.getElementById("pdfSubtitle").textContent = `${item.cas || "-"} • ${item.supplier || "ไม่ระบุ Supplier"}`;
       const viewer = document.getElementById("pdfViewer");
       const empty = document.getElementById("pdfEmpty");
@@ -3597,7 +3612,7 @@
       return;
     }
 
-    document.getElementById("pdfTitle").textContent = item.chemical;
+    document.getElementById("pdfTitle").innerHTML = chemicalNameHeadingMarkup(item);
     document.getElementById("pdfSubtitle").textContent =
       `${item.cas || "-"} • ${item.supplier || "ไม่ระบุ Supplier"}`;
 
@@ -3748,7 +3763,7 @@
     const modal = document.getElementById("qrModal");
     const box = document.getElementById("qrCodeBox");
     const url = publicSdsUrl(item);
-    document.getElementById("qrRecordName").textContent = item.chemical || "-";
+    document.getElementById("qrRecordName").innerHTML = chemicalNameHeadingMarkup(item);
     document.getElementById("qrRecordCas").textContent = "CAS No. " + (item.cas || "-");
     document.getElementById("qrRecordUrl").textContent = url;
     box.innerHTML = "";
@@ -3786,6 +3801,30 @@
     const url = publicSdsUrl(item);
     popup.document.open();
     popup.document.write(`<!doctype html><html lang="th"><head><meta charset="utf-8"><title>QR Code - ${escapeHTML(item.chemical)}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:28px;color:#1e293b}h1{font-size:22px;color:#1e3a8a;margin:0 0 8px}p{color:#64748b;margin:5px 0 18px}.qr{display:inline-block;padding:14px;border:1px solid #bfdbfe;border-radius:14px;background:#fff}.qr img{width:320px;height:320px;image-rendering:pixelated}.url{margin:18px auto 0;max-width:420px;word-break:break-all;font-size:10px;color:#64748b} @media print{button{display:none}}</style></head><body><h1>${escapeHTML(item.chemical || "SDS")}</h1><p>CAS No. ${escapeHTML(item.cas || "-")} · สแกนเพื่อดูข้อมูล SDS</p><div class="qr"><img src="${dataUrl}" alt="QR Code"></div><div class="url">${escapeHTML(url)}</div><p>ระบบจัดการ SDS / SDS Management</p><button onclick="window.print()">พิมพ์อีกครั้ง / Print again</button></body></html>`);
+    const popupHeading = popup.document.querySelector("h1");
+    if (popupHeading) {
+      popupHeading.innerHTML = chemicalNameHeadingMarkup(item);
+      popupHeading.style.display = "inline-flex";
+      popupHeading.style.alignItems = "flex-start";
+      popupHeading.style.gap = "7px";
+      popupHeading.style.textAlign = "left";
+      const popupStack = popupHeading.querySelector(".chemical-name-stack");
+      if (popupStack) {
+        popupStack.style.display = "inline-flex";
+        popupStack.style.flexDirection = "column";
+        popupStack.style.alignItems = "flex-start";
+        popupStack.style.gap = "2px";
+      }
+      const popupEnglish = popupHeading.querySelector(".chemical-name-stack small");
+      if (popupEnglish) {
+        popupEnglish.style.display = "block";
+        popupEnglish.style.fontSize = "14px";
+        popupEnglish.style.fontWeight = "500";
+        popupEnglish.style.color = "#64748b";
+      }
+    }
+    const popupNames = chemicalNameFields(item);
+    popup.document.title = "QR Code - " + (popupNames.chemicalThai || popupNames.chemicalEnglish || item.chemical || "SDS");
     popup.document.close();
     popup.focus();
     popup.setTimeout(() => popup.print(), 300);
@@ -3811,7 +3850,7 @@
   }
 
   function openPdfUrlInViewer(item, source) {
-    document.getElementById("pdfTitle").textContent = item.chemical || "SDS";
+    document.getElementById("pdfTitle").innerHTML = chemicalNameHeadingMarkup(item);
     document.getElementById("pdfSubtitle").textContent = `${item.cas || "-"} • ${source.name || "PDF"}`;
     const viewer = document.getElementById("pdfViewer");
     const empty = document.getElementById("pdfEmpty");
@@ -3852,8 +3891,7 @@
     const body = document.getElementById("sdsQuickBody");
     body.innerHTML = `
       <div class="sds-quick-hero">
-        <span class="sds-quick-icon">${definition ? definition.icon : "🧪"}</span>
-        <div><strong>${escapeHTML(item.chemical || "-")}</strong><small>${escapeHTML(hazardLabel.thai)} / ${escapeHTML(hazardLabel.english)}</small></div>
+        <div>${chemicalNameHeadingMarkup(item)}<small>${escapeHTML(hazardLabel.thai)} / ${escapeHTML(hazardLabel.english)}</small></div>
       </div>
       <div class="sds-quick-grid">
         <div class="sds-quick-field"><label>เลข CAS / CAS No.</label><div>${escapeHTML(item.cas || "-")}</div></div>
@@ -4853,7 +4891,7 @@
           <div style="font-size:42px; margin-bottom:10px;">📄</div>
           <strong>${bilingualHTML("ข้อมูล SDS พร้อมให้เปิด", "SDS information is ready")}</strong>
           <div style="margin-top:10px; text-align:left; line-height:1.7;">
-            <div><b>${bilingualHTML("สารเคมี", "Chemical")}:</b> ${escapeHTML(item.chemical)}</div>
+            <div><b>${bilingualHTML("สารเคมี", "Chemical")}:</b> <div class="external-chemical-name">${chemicalNameHeadingMarkup(item)}</div></div>
             <div><b>${bilingualHTML("เลข CAS", "CAS No.")}:</b> ${escapeHTML(item.cas || "-")}</div>
             <div><b>${bilingualHTML("ผู้จัดจำหน่าย", "Supplier")}:</b> ${escapeHTML(item.supplier || "-")}</div>
             <div><b>${bilingualHTML("ฉบับแก้ไข", "Revision")}:</b> ${escapeHTML(item.revision || "-")}</div>
@@ -5191,7 +5229,7 @@
       var item = sdsData.find(function (row) { return String(row.id) === String(id); });
       if (!item || (!item.pdfUrl && !item.pdfFileId)) return baseView(id);
 
-      document.getElementById("pdfTitle").textContent = item.chemical;
+      document.getElementById("pdfTitle").innerHTML = chemicalNameHeadingMarkup(item);
       document.getElementById("pdfSubtitle").textContent = (item.cas || "-") + " • " + (item.supplier || "ไม่ระบุ Supplier");
       document.getElementById("pdfModal").classList.add("show");
       document.body.style.overflow = "hidden";
